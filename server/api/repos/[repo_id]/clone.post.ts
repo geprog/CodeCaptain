@@ -2,6 +2,7 @@ import { Octokit } from "octokit";
 import * as path from "path";
 import { simpleGit } from "simple-git";
 import { promises as fs } from "fs";
+import { exec } from 'shelljs';
 
 async function saveIssues() {
   const token = getCookie(event, 'gh_token');
@@ -15,7 +16,7 @@ async function saveIssues() {
   for await (const response of issuesPaginator) {
     const issues = response.data;
     for (const issue of issues) {
-      const title = issue.;
+      const title = issue.url;
       const body = issue.body;
     }
   }
@@ -60,8 +61,9 @@ export default defineEventHandler(async (event) => {
     path.join(folder, "repo.json"),
     JSON.stringify(repo, null, 2)
   );
-
+   
   // TODO: run indexing
+  exec(`python ./indexer.py ${path.join(user.login, repo.id.toString())}`);
 
   console.log(repoId, folder);
 
