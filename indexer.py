@@ -1,5 +1,6 @@
 import os
 import time
+import sys
 from meta_information import generate_project_structure_description
 from langchain.document_loaders import TextLoader
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -9,6 +10,7 @@ from langchain.text_splitter import CharacterTextSplitter
 
 
 load_dotenv()
+
 
 def generate_index(repo_name):
   repo_path = os.path.join('data', repo_name)
@@ -34,4 +36,4 @@ def generate_index(repo_name):
   print("done")
 
 if __name__ == '__main__':
-    generate_index('kiel-live')
+    generate_index(sys.argv[1])

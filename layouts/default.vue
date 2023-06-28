@@ -23,7 +23,12 @@
     </header>
 
     <main class="flex w-full h-full flex-grow">
-      <slot />
+      <template v-if="user">
+        <slot />
+      </template>
+      <div v-else>
+        <span>Please login ;-)</span>
+      </div>
     </main>
   </div>
 </template>
