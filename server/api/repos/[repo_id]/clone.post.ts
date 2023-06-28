@@ -49,13 +49,13 @@ export default defineEventHandler(async (event) => {
     await fs.mkdir(path.join(folder, "issues"), { recursive: true });
   }
 
-  const issuesPaginator = octokit.paginate.iterator(
-    octokit.rest.issues.listForRepo,
-    {
-      owner: repo.owner.login,
-      repo: repo.name,
-    }
-  );
+const issuesPaginator = octokit.paginate.iterator(
+  'GET /repos/{owner}/{repo}/issues',
+  {
+    owner: repo.owner.login,
+    repo: repo.name,
+  }
+);
 
   for await (const response of issuesPaginator) {
     const issues = response.data;
@@ -66,10 +66,12 @@ export default defineEventHandler(async (event) => {
 
       const title = issue.title;
       const body = issue.body;
+      const labels = issue.labels;
+      const comments = issue.comments_url;
 
       await fs.writeFile(
         path.join(folder, "issues", `${issue.id}.json`),
-        `# ${title}\n\n${body}\n\n## Comments\n\n TODO`
+        `The issue ${title}\n\n with the following description ${body}\n\n and has labels: ${labels} \n\n with comments ${comments }`
       );
     }
   }
@@ -77,7 +79,7 @@ export default defineEventHandler(async (event) => {
   shelljs.exec(
     `python ./indexer.py ${path.join(user.login, repo.id.toString())}`
   );
-
+ 
   console.log(repoId, folder);
 
   return "ok";
