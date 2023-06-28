@@ -2,7 +2,7 @@ import { Octokit } from "octokit";
 import * as path from "path";
 import { simpleGit } from "simple-git";
 import { promises as fs } from "fs";
-import * as shell from "shelljs";
+// import { exec } from 'shelljs';
 
 function dirExists(path: string) {
   return fs
@@ -74,10 +74,8 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  log = shell.exec(
-    `python ./indexer.py ${path.join(user.login, repo.id.toString())}`
-  );
-  console.log("indexed", log);
+  // TODO: run indexing
+  // exec(`python ./indexer.py ${path.join(user.login, repo.id.toString())}`);
 
   console.log(repoId, folder);
 
