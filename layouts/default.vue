@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-screen w-screen bg-gray-900 text-gray-200">
+  <div class="flex flex-col h-screen w-screen text-gray-200" style="background-color: #141627;">
     <header class="flex w-full h-16 border-gray-700 border-b p-4 items-center">
       <a class="text-xl" href="/">🖥️ Dev Addy is cool!</a>
       <div class="ml-auto flex gap-4 items-center">
@@ -7,7 +7,7 @@
           <img
             :src="user.avatar_url"
             alt="User profile icon"
-            class="w-8 h-auto"
+            class="w-8 h-auto rounded-full"
           />
           <button
             class="border rounded px-2 py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white"
