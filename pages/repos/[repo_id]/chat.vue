@@ -9,7 +9,7 @@
         style="background-color: #10101f"
       >
         <div v-if="message.sender === 'user'" class="flex justify-start w-full">
-          <div class="max-w-xs p-2 rounded-lg flex gap-2">
+          <div class="max-w-15 p-2 rounded-lg flex gap-2">
             💁
             <p>{{ message.text }}</p>
           </div>
@@ -19,7 +19,7 @@
           class="flex justify-start w-full"
           style="background-color: #1c1f37"
         >
-          <div class="max-w-xs p-2 text-white rounded-lg flex gap-2">
+          <div class="max-w-15 p-2 text-white rounded-lg flex gap-2">
             👽
             <p>{{ message.text }}</p>
           </div>
