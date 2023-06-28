@@ -53,8 +53,8 @@ def conversation(repo_name, question=demo[0], chat_history=[]):
     result = qa({"question": question, "chat_history": chat_history})
     chat_history.append((question, result["answer"]))
     # print(f"-> **Question**: {question} \n")
-    # print(f"**Answer**: {result['answer']} \n")
-    print(result['answer'])
+    print(f"**Answer**: {result['answer']}\n")
+    # print(result['answer'])
         
     end = time.time()
     
