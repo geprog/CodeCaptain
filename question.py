@@ -11,13 +11,13 @@ from langchain.chat_models import ChatOpenAI
 load_dotenv()
 
 
-def main():
+def conversation(repo_name):
     embeddings = OpenAIEmbeddings(disallowed_special=())
+    repo_path = os.path.join('data', repo_name)
 
-    username = "anbraten"
     start = time.time()
     db = DeepLake(
-        dataset_path=f"./data/my_data",
+        dataset_path= os.path.join(repo_path,'vector_store'),
         read_only=True,
         embedding_function=embeddings,
     )
@@ -53,4 +53,4 @@ def main():
     print('question answer took: ',end-start)
 
 if __name__ == "__main__":
-    main()
+    conversation('kiel-live')
