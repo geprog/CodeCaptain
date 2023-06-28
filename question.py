@@ -11,13 +11,17 @@ from langchain.chat_models import ChatOpenAI
 load_dotenv()
 
 questions = [
-       # "What are collectors?", 
-       # "What are the names of the collectors?"
-       #"What does NewCollector do?",
-       #"Why do we need the collectors?",
-       #"How are the collectors used in the project?",
+       "What are collectors?", 
+       "What are the names of the collectors?",
+       "What does NewCollector do?",
+       "Why do we need the collectors?",
+       "How are the collectors used in the project?",
        "What impact will the code have if I change the function NewCollector?",
-       "What is the installation process for this project?"
+       "What is the installation process for this project?",
+       "How is the app getting the KVG data",
+       "Which code gets the KVG data?",
+       "What is the flow of vehicle data collection?"
+       
     ]
 
 def conversation(repo_name, question, chat_history=[]):
