@@ -3,6 +3,7 @@ import * as path from "path";
 import { simpleGit } from "simple-git";
 import { promises as fs } from "fs";
 import * as shelljs from "shelljs";
+import { execa } from "execa";
 
 function dirExists(path: string) {
   return fs
@@ -74,9 +75,7 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  shelljs.exec(
-    `python ./indexer.py ${path.join(user.login, repo.id.toString())}`
-  );
+  execa(`python ./indexer.py ${path.join(user.login, repo.id.toString())}`);
 
   console.log(repoId, folder);
 

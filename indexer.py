@@ -45,5 +45,6 @@ def generate_index(repo_name):
   
   print("done")
 
-if __name__ == '__main__':
-    generate_index('kiel-live')
+generate_index(sys.argv[1])
+#if __name__ == '__main__':
+    #generate_index('kiel-live')
