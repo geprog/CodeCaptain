@@ -1,6 +1,7 @@
 data/*
 .env
 env/
+data/*
 
 # Nuxt dev/build outputs
 .output
