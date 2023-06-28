@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
 
   const user = (await octokit.request("GET /user")).data;
 
-  const dataFolder = path.join(process.env.DATA_FOLDER || "data", user.login);
+  const dataFolder = path.join("data", user.login);
 
   const activeRepos = (await readdir(dataFolder, { withFileTypes: true }))
     .filter((dirent) => dirent.isDirectory())
