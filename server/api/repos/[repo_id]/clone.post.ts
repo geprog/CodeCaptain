@@ -4,6 +4,13 @@ import { simpleGit } from "simple-git";
 import { promises as fs } from "fs";
 import * as shell from "shelljs";
 
+function dirExists(path: string) {
+  return fs
+    .stat(path)
+    .then((stat) => stat.isDirectory())
+    .catch(() => false);
+}
+
 export default defineEventHandler(async (event) => {
   console.log("clone");
 
@@ -26,8 +33,6 @@ export default defineEventHandler(async (event) => {
     })
   ).data;
 
-  console.log(repo);
-
   const folder = path.join("data", user.login, repo.id.toString());
 
   console.log("clone", repo.clone_url, path.join(folder, "repo"));
@@ -40,11 +45,15 @@ export default defineEventHandler(async (event) => {
     JSON.stringify(repo, null, 2)
   );
 
+  if (!(await dirExists(path.join(folder, "issues")))) {
+    await fs.mkdir(path.join(folder, "issues"), { recursive: true });
+  }
+
   const issuesPaginator = octokit.paginate.iterator(
     octokit.rest.issues.listForRepo,
     {
-      owner: "octokit",
-      repo: "rest.js",
+      owner: repo.owner.login,
+      repo: repo.name,
     }
   );
 
