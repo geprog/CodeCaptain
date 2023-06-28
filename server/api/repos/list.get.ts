@@ -4,12 +4,13 @@ import * as path from "path";
 
 export default defineEventHandler(async (event) => {
   console.log("cookie", event.req.headers);
-  const token = getCookie(event, "gh_token");
+  // const token = getCookie(event, "gh_token");
+  const token = getHeader(event, "gh_token");
   const octokit = new Octokit({ auth: token });
 
   const user = (await octokit.request("GET /user")).data;
 
-  const dataFolder = path.join("data", user.login);
+  const dataFolder = path.join(".", "data", user.login);
 
   const activeRepos = (await readdir(dataFolder, { withFileTypes: true }))
     .filter((dirent) => dirent.isDirectory())

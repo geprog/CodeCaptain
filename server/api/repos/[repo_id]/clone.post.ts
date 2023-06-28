@@ -7,7 +7,8 @@ import { promises as fs } from "fs";
 export default defineEventHandler(async (event) => {
   console.log("clone");
 
-  const token = getCookie(event, "gh_token");
+  // const token = getCookie(event, "gh_token");
+  const token = getHeader(event, "gh_token");
   const octokit = new Octokit({ auth: token });
   const user = (await octokit.request("GET /user")).data;
 
@@ -31,10 +32,7 @@ export default defineEventHandler(async (event) => {
 
   console.log("clone", repo.clone_url, path.join(folder, "repo"));
 
-  const log = await simpleGit().clone(
-    repo.clone_url,
-    path.join(folder, "repo")
-  );
+  let log = await simpleGit().clone(repo.clone_url, path.join(folder, "repo"));
   console.log("cloned", log);
 
   await fs.writeFile(
@@ -62,7 +60,7 @@ export default defineEventHandler(async (event) => {
 
       await fs.writeFile(
         path.join(folder, "issues", `${issue.id}.json`),
-        JSON.stringify(issue, null, 2)
+        `# ${title}\n\n${body}\n\n## Comments\n\n TODO`
       );
     }
   }
