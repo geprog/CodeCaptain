@@ -5,19 +5,21 @@
     >
 
     <div class="flex flex-wrap gap-2 justify-center mt-4">
-      <RepoList
-        v-for="repo in repositories.filter((r) => r.active)"
-        class="w-1/3"
-        :key="repo.id"
-        :repo="repo"
-      />
+      <span v-if="repositories.length === 0">No repositories found!</span>
 
-      <a
-        class="w-1/3 border border-gray-600 rounded p-2 flex items-center justify-center"
-        href="/repos/add"
-      >
-        <Button href="">+</Button>
-      </a>
+      <Card v-for="repo in repositories.filter((r) => r.active)" :key="repo.id">
+        <div class="flex flex-col justify-center items-center">
+          <span class="mb-4">{{ repo.full_name }}</span>
+          <Button :href="`/repos/${repo.id}/chat`">Open</Button>
+        </div>
+      </Card>
+
+      <Card>
+        <div class="flex flex-col justify-center items-center">
+          <span class="mb-4">Add repo</span>
+          <Button href="/repos/add">+</Button>
+        </div>
+      </Card>
     </div>
   </div>
 </template>

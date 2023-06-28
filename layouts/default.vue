@@ -22,7 +22,7 @@
       </div>
     </header>
 
-    <main class="flex w-full h-full flex-grow">
+    <main class="flex w-full h-full flex-grow overflow-auto">
       <template v-if="user">
         <slot />
       </template>

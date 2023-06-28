@@ -10,7 +10,6 @@ function dirExists(path: string) {
 }
 
 export default defineEventHandler(async (event) => {
-  console.log("cookie", event.req.headers);
   // const token = getCookie(event, "gh_token");
   const token = getHeader(event, "gh_token");
   const octokit = new Octokit({ auth: token });
