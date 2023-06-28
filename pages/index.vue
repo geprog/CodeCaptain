@@ -12,15 +12,24 @@
         :repo="repo"
       />
 
-      <div
+      <a
         class="w-1/3 border border-gray-600 rounded p-2 flex items-center justify-center"
+        href="/repos/add"
       >
-        <Button href="/repos">+</Button>
-      </div>
+        <Button href="">+</Button>
+      </a>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const repositories = ref(await $fetch("/api/repos/list"));
+const githubCookie = useGithubCookie();
+
+const repositories = ref(
+  await $fetch("/api/repos/list", {
+    headers: {
+      gh_token: githubCookie.value,
+    },
+  })
+);
 </script>

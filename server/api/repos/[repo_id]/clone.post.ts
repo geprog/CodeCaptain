@@ -2,12 +2,13 @@ import { Octokit } from "octokit";
 import * as path from "path";
 import { simpleGit } from "simple-git";
 import { promises as fs } from "fs";
-import { exec } from 'shelljs';
+// import { exec } from 'shelljs';
 
 export default defineEventHandler(async (event) => {
   console.log("clone");
 
-  const token = getCookie(event, "gh_token");
+  // const token = getCookie(event, "gh_token");
+  const token = getHeader(event, "gh_token");
   const octokit = new Octokit({ auth: token });
   const user = (await octokit.request("GET /user")).data;
 
@@ -62,13 +63,13 @@ export default defineEventHandler(async (event) => {
 
       await fs.writeFile(
         path.join(folder, "issues", `${issue.id}.json`),
-        JSON.stringify(issue, null, 2)
+        `# ${title}\n\n${body}\n\n## Comments\n\n TODO`
       );
     }
   }
 
   // TODO: run indexing
-  exec(`python ./indexer.py ${path.join(user.login, repo.id.toString())}`);
+  // exec(`python ./indexer.py ${path.join(user.login, repo.id.toString())}`);
 
   console.log(repoId, folder);
 
