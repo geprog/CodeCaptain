@@ -2,7 +2,7 @@ import { Octokit } from "octokit";
 import * as path from "path";
 import { simpleGit } from "simple-git";
 import { promises as fs } from "fs";
-import { exec } from 'shelljs';
+// import { exec } from 'shelljs';
 
 export default defineEventHandler(async (event) => {
   console.log("clone");
@@ -68,7 +68,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // TODO: run indexing
-  exec(`python ./indexer.py ${path.join(user.login, repo.id.toString())}`);
+  // exec(`python ./indexer.py ${path.join(user.login, repo.id.toString())}`);
 
   console.log(repoId, folder);
 
