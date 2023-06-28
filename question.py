@@ -25,7 +25,9 @@ questions = [
     ]
 
 def conversation(repo_name, question, chat_history=[]):
+    print("Loading the model...", repo_name , question);
     embeddings = OpenAIEmbeddings(disallowed_special=())
+
     repo_path = os.path.join('data', repo_name)
 
     db = DeepLake(
@@ -50,7 +52,7 @@ def conversation(repo_name, question, chat_history=[]):
     
     
     chat_history = []
-    
+    questions = question
     for question in questions:
         result = qa({"question": question, "chat_history": chat_history})
         chat_history.append((question, result["answer"]))
