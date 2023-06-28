@@ -1,17 +1,28 @@
 import { Octokit } from "octokit";
-import { readdir } from "fs/promises";
+import { promises as fs } from "fs";
 import * as path from "path";
 
+function dirExists(path: string) {
+  return fs
+    .stat(path)
+    .then((stat) => stat.isDirectory())
+    .catch(() => false);
+}
+
 export default defineEventHandler(async (event) => {
-  console.log("cookie", event.req.headers);
-  const token = getCookie(event, "gh_token");
+  // const token = getCookie(event, "gh_token");
+  const token = getHeader(event, "gh_token");
   const octokit = new Octokit({ auth: token });
 
   const user = (await octokit.request("GET /user")).data;
 
   const dataFolder = path.join("data", user.login);
 
-  const activeRepos = (await readdir(dataFolder, { withFileTypes: true }))
+  if (!(await dirExists(dataFolder))) {
+    await fs.mkdir(dataFolder, { recursive: true });
+  }
+
+  const activeRepos = (await fs.readdir(dataFolder, { withFileTypes: true }))
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name);
 

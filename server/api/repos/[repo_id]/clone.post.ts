@@ -2,12 +2,20 @@ import { Octokit } from "octokit";
 import * as path from "path";
 import { simpleGit } from "simple-git";
 import { promises as fs } from "fs";
-import { exec } from 'shelljs';
+// import { exec } from 'shelljs';
+
+function dirExists(path: string) {
+  return fs
+    .stat(path)
+    .then((stat) => stat.isDirectory())
+    .catch(() => false);
+}
 
 export default defineEventHandler(async (event) => {
   console.log("clone");
 
-  const token = getCookie(event, "gh_token");
+  // const token = getCookie(event, "gh_token");
+  const token = getHeader(event, "gh_token");
   const octokit = new Octokit({ auth: token });
   const user = (await octokit.request("GET /user")).data;
 
@@ -25,16 +33,11 @@ export default defineEventHandler(async (event) => {
     })
   ).data;
 
-  console.log(repo);
-
   const folder = path.join("data", user.login, repo.id.toString());
 
   console.log("clone", repo.clone_url, path.join(folder, "repo"));
 
-  const log = await simpleGit().clone(
-    repo.clone_url,
-    path.join(folder, "repo")
-  );
+  let log = await simpleGit().clone(repo.clone_url, path.join(folder, "repo"));
   console.log("cloned", log);
 
   await fs.writeFile(
@@ -42,11 +45,15 @@ export default defineEventHandler(async (event) => {
     JSON.stringify(repo, null, 2)
   );
 
+  if (!(await dirExists(path.join(folder, "issues")))) {
+    await fs.mkdir(path.join(folder, "issues"), { recursive: true });
+  }
+
   const issuesPaginator = octokit.paginate.iterator(
     octokit.rest.issues.listForRepo,
     {
-      owner: "octokit",
-      repo: "rest.js",
+      owner: repo.owner.login,
+      repo: repo.name,
     }
   );
 
@@ -62,13 +69,13 @@ export default defineEventHandler(async (event) => {
 
       await fs.writeFile(
         path.join(folder, "issues", `${issue.id}.json`),
-        JSON.stringify(issue, null, 2)
+        `# ${title}\n\n${body}\n\n## Comments\n\n TODO`
       );
     }
   }
 
   // TODO: run indexing
-  exec(`python ./indexer.py ${path.join(user.login, repo.id.toString())}`);
+  // exec(`python ./indexer.py ${path.join(user.login, repo.id.toString())}`);
 
   console.log(repoId, folder);
 
