@@ -48,11 +48,13 @@ export default defineEventHandler(async (event) => {
 
   console.log("ask", message);
 
-  //   const log = shelljs.exec(`python ./question.py ${message}`);
-  const log = await execa(`python ./question.py 'kiel-live' ${[message]}`);
-  console.log("log", log);
+  const cmd = `python ./question.py "${path.join(
+    user.login,
+    repo.id.toString()
+  )}" "${message}"`;
+  console.log(cmd);
+  const { stdout } = await execa(cmd);
+  console.log("log", stdout);
 
-  console.log(repoId, log);
-
-  return log;
+  return stdout;
 });

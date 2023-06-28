@@ -11,6 +11,16 @@ from langchain.text_splitter import CharacterTextSplitter
 
 load_dotenv()
 
+def update_index_with_issues(repo_path, issueFilename):
+    embeddings = OpenAIEmbeddings(disallowed_special=())
+    db = DeepLake(dataset_path=os.path.join(repo_path, 'vector_store'), embedding_function=embeddings, overwrite=True)  # dataset would be publicly available
+    docs = []
+    docs.extend(TextLoader(os.path.join(repo_path,'issues',issueFilename), encoding='utf-8').load_and_split())
+    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+    texts = text_splitter.split_documents(docs)
+    db.add_documents(texts)
+  
+
 
 def generate_index(repo_name):
   repo_path = os.path.join('data', repo_name)
@@ -36,4 +46,4 @@ def generate_index(repo_name):
   print("done")
 
 if __name__ == '__main__':
-    generate_index(sys.argv[1])
+    generate_index('kiel-live')
