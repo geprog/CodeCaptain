@@ -1,0 +1,26 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "start": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@nuxtjs/axios": "^5.13.6",
+    "@nuxtjs/tailwindcss": "^6.8.0",
+    "@types/node": "^18",
+    "nuxt": "^3.6.1"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.27.0",
+    "nuxt-icon": "^0.4.1",
+    "octokit": "^2.1.0",
+    "shelljs": "^0.8.5",
+    "simple-git": "^3.19.1"
+  }
+}

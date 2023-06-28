@@ -14,3 +14,9 @@ A dev advisor to ask about your code and project
 - [ ] try gpt-4 and system messages
 - [ ] update embeddings on commits
 - [ ] show related code parts in UI
+- [ ] include issues and PRs and their comments into embeddings
+
+
+## Appreciations
+
+- https://hackernoon.com/reverse-engineering-reddits-source-code-with-langchain-and-gpt-4
