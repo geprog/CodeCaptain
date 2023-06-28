@@ -1,16 +1,15 @@
 import os
+import sys
 import time
-from langchain.document_loaders import TextLoader
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import DeepLake
 from dotenv import load_dotenv
-from langchain.text_splitter import CharacterTextSplitter
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 
 load_dotenv()
 
-questions = [
+demo = [
        "What are collectors?", 
        "What are the names of the collectors?",
        "What does NewCollector do?",
@@ -24,8 +23,7 @@ questions = [
        
     ]
 
-def conversation(repo_name, question, chat_history=[]):
-    print("Loading the model...", repo_name , question);
+def conversation(repo_name, question=demo[0], chat_history=[]):
     embeddings = OpenAIEmbeddings(disallowed_special=())
 
     repo_path = os.path.join('data', repo_name)
@@ -52,14 +50,15 @@ def conversation(repo_name, question, chat_history=[]):
     
     
     chat_history = []
-    questions = question
-    for question in questions:
-        result = qa({"question": question, "chat_history": chat_history})
-        chat_history.append((question, result["answer"]))
-        print(f"-> **Question**: {question} \n")
-        print(f"**Answer**: {result['answer']} \n")
+    result = qa({"question": question, "chat_history": chat_history})
+    chat_history.append((question, result["answer"]))
+    # print(f"-> **Question**: {question} \n")
+    # print(f"**Answer**: {result['answer']} \n")
+    print(result['answer'])
+        
     end = time.time()
     
-
-if __name__ == "__main__":
-    conversation('kiel-live',questions)
+#print(sys.argv)
+conversation(sys.argv[1], sys.argv[2])
+#if __name__ == "__main__":
+    #conversation('kiel-live',demo)

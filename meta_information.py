@@ -3,6 +3,8 @@ import os
 def generate_project_structure_description(project_path):
     repo_path = os.path.join(project_path, 'repo')
     
+    print('generate description for project in path', repo_path)
+    
     initial_template = 'The folder structure of the Project is described below.\n'
 
     no_files = 'contains no files'

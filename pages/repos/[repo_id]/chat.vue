@@ -61,19 +61,21 @@ async function sendMessage() {
     return;
   }
 
-  console.log("ask", inputText.value.trim());
+  const message = inputText.value.trim();
+
+  console.log("ask", message);
 
   chatHistory.value.push({
     id: Date.now(),
     sender: "user",
-    text: inputText.value.trim(),
+    text: message,
   });
   inputText.value = "";
 
   const res = await useFetch(`/api/repos/${route.params.repo_id}/chat`, {
     method: "POST",
     body: JSON.stringify({
-      message: inputText.value.trim(),
+      message,
     }),
     headers: {
       gh_token: githubToken.value!,
