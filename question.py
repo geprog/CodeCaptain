@@ -24,7 +24,6 @@ demo = [
     ]
 
 def conversation(repo_name, question=demo[0], chat_history=[]):
-    print("Loading the model...", repo_name , question)
     embeddings = OpenAIEmbeddings(disallowed_special=())
 
     repo_path = os.path.join('data', repo_name)
@@ -53,8 +52,9 @@ def conversation(repo_name, question=demo[0], chat_history=[]):
     chat_history = []
     result = qa({"question": question, "chat_history": chat_history})
     chat_history.append((question, result["answer"]))
-    print(f"-> **Question**: {question} \n")
-    print(f"**Answer**: {result['answer']} \n")
+    # print(f"-> **Question**: {question} \n")
+    # print(f"**Answer**: {result['answer']} \n")
+    print(result['answer'])
         
     end = time.time()
     
