@@ -56,11 +56,9 @@ export default defineEventHandler(async (event) => {
   const { stdout } = await execa(cmd);
   console.log("log", stdout);
 
-  const word = "**Answer**:";
-  const startAnswerPromt = stdout.indexOf(word);
-  if (startAnswerPromt > -1) {
-    return stdout.substring(startAnswerPromt + word.length);
-  }
-
-  return stdout;
+  const answer = stdout.substring(
+    stdout.indexOf("start:") + 6,
+    stdout.indexOf("end") - 1
+  );
+  return answer;
 });
