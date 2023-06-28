@@ -10,7 +10,7 @@
             class="w-8 h-auto rounded-full"
           />
           <button
-            class="border rounded px-2 py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white"
+            class="border rounded px-2 py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white" 
             @click="logout"
           >
             Logout
