@@ -1,7 +1,8 @@
 import { Octokit } from "octokit";
 import * as path from "path";
 import { promises as fs } from "fs";
-import * as shelljs from "shelljs";
+// import * as shelljs from "shelljs";
+import { execa } from "execa";
 
 async function dirExists(path: string) {
   try {
@@ -47,7 +48,9 @@ export default defineEventHandler(async (event) => {
 
   console.log("ask", message);
 
-  const log = shelljs.exec(`python ./question.py ${message}`);
+  //   const log = shelljs.exec(`python ./question.py ${message}`);
+  const log = await execa(`python ./question.py 'kiel-live' ${[message]}`);
+  console.log("log", log);
 
   console.log(repoId, log);
 
