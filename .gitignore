@@ -1,3 +1,4 @@
 repos/*
 .env
 env/
+data/*
