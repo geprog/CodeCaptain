@@ -28,7 +28,7 @@ const githubCookie = useGithubCookie();
 const repositories = ref(
   await $fetch("/api/repos/list", {
     headers: {
-      gh_token: githubCookie.value,
+      gh_token: githubCookie.value!,
     },
   })
 );

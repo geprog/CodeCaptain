@@ -2,7 +2,7 @@ import { Octokit } from "octokit";
 import * as path from "path";
 import { simpleGit } from "simple-git";
 import { promises as fs } from "fs";
-// import { exec } from 'shelljs';
+import * as shell from "shelljs";
 
 export default defineEventHandler(async (event) => {
   console.log("clone");
@@ -32,10 +32,7 @@ export default defineEventHandler(async (event) => {
 
   console.log("clone", repo.clone_url, path.join(folder, "repo"));
 
-  const log = await simpleGit().clone(
-    repo.clone_url,
-    path.join(folder, "repo")
-  );
+  let log = await simpleGit().clone(repo.clone_url, path.join(folder, "repo"));
   console.log("cloned", log);
 
   await fs.writeFile(
@@ -68,8 +65,10 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // TODO: run indexing
-  // exec(`python ./indexer.py ${path.join(user.login, repo.id.toString())}`);
+  log = shell.exec(
+    `python ./indexer.py ${path.join(user.login, repo.id.toString())}`
+  );
+  console.log("indexed", log);
 
   console.log(repoId, folder);
 

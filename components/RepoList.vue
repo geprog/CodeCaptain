@@ -4,7 +4,7 @@
     :href="`/repos/${repo.id}/chat`"
   >
     <span>{{ repo.full_name }}</span>
-    <Button> Open </Button>
+    <Button>Open</Button>
   </a>
 </template>
 

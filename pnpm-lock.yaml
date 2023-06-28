@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@types/shelljs':
-    specifier: ^0.8.12
-    version: 0.8.12
   drizzle-orm:
     specifier: ^0.27.0
     version: 0.27.0
@@ -37,6 +34,9 @@ devDependencies:
   '@types/node':
     specifier: ^18
     version: 18.0.0
+  '@types/shelljs':
+    specifier: ^0.8.12
+    version: 0.8.12
   nuxt:
     specifier: ^3.6.1
     version: 3.6.1(@types/node@18.0.0)
@@ -1796,7 +1796,7 @@ packages:
     dependencies:
       '@types/minimatch': 5.1.2
       '@types/node': 18.0.0
-    dev: false
+    dev: true
 
   /@types/http-proxy@1.17.11:
     resolution: {integrity: sha512-HC8G7c1WmaF2ekqpnFq626xd3Zz0uvaqFmBJNRZCGEZCXkvSdJoNFn/8Ygbd9fKNQj8UzLdCETaI0UWPAjK7IA==}
@@ -1816,7 +1816,7 @@ packages:
 
   /@types/minimatch@5.1.2:
     resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
-    dev: false
+    dev: true
 
   /@types/node@18.0.0:
     resolution: {integrity: sha512-cHlGmko4gWLVI27cGJntjs/Sj8th9aYwplmZFwmmgYQQvL5NUsgVJG7OddLvNfLqYS31KFN0s3qlaD9qCaxACA==}
@@ -1834,7 +1834,7 @@ packages:
     dependencies:
       '@types/glob': 7.2.0
       '@types/node': 18.0.0
-    dev: false
+    dev: true
 
   /@unhead/dom@1.1.28:
     resolution: {integrity: sha512-o5w3GUo1en9OWNHpUkrkZxmlx2Xf7q++VLb5Lm0MtbHYM578lWmB1zLfmJMN13kvaNKN8RUhTYG5WMtKMzDfGw==}
