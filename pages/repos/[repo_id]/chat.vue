@@ -33,7 +33,7 @@
           v-model="inputText"
           @keydown.enter="sendMessage"
           type="text"
-          class="flex-1 px-4 py-2 mr-12 rounded"
+          class="flex-1 px-4 h-12 py-2 mr-12 rounded"
           placeholder="Type a message..."
           style="background-color: #1c1f37"
         />
@@ -49,10 +49,9 @@
 
 <script lang="ts" setup>
 const chatHistory = ref([
-  { id: 1, sender: "user", text: "Hello" },
   { id: 2, sender: "assistant", text: "Hi there! How can I assist you?" },
 ]);
-const inputText = ref("What are collectors?");
+const inputText = ref("");
 const githubToken = useGithubCookie();
 const route = useRoute();
 
@@ -118,7 +117,7 @@ async function sendMessage() {
 
 .fab-btn {
   position: absolute;
-  bottom: 16px;
+  bottom: 20px;
   right: 12px;
   border-radius: 50%;
   width: 40px;

@@ -1,7 +1,6 @@
 import { Octokit } from "octokit";
 import * as path from "path";
 import { promises as fs } from "fs";
-// import * as shelljs from "shelljs";
 import { execa } from "execa";
 
 async function dirExists(path: string) {

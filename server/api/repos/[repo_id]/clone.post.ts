@@ -2,7 +2,6 @@ import { Octokit } from "octokit";
 import * as path from "path";
 import { simpleGit } from "simple-git";
 import { promises as fs } from "fs";
-import * as shelljs from "shelljs";
 import { execa } from "execa";
 
 function dirExists(path: string) {
@@ -15,7 +14,6 @@ function dirExists(path: string) {
 export default defineEventHandler(async (event) => {
   console.log("clone");
 
-  // const token = getCookie(event, "gh_token");
   const token = getHeader(event, "gh_token");
   const octokit = new Octokit({ auth: token });
   const user = (await octokit.request("GET /user")).data;
