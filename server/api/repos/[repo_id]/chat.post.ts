@@ -41,22 +41,18 @@ export default defineEventHandler(async (event) => {
 
   console.log("ask", message);
 
-  const cmd = `. env/bin/activate && python ./question.py "${path.join(
-    user.login,
-    repoId
-  )}" "${message}"`;
-  console.log("cmd", cmd);
-  const { stdout, stderr, exitCode } = await execa(cmd, {
-    shell: true,
+  const repo_path = path.join(user.login, repoId);
+  const chatResponse = await $fetch("http://127.0.0.1:8000/ask", {
+    method: "POST",
+    body: {
+      repo_name: repo_path,
+      question: message,
+    },
   });
-  console.log("log", { stdout, stderr, exitCode });
 
-  if (stdout.includes("<<<")) {
-    return stdout.substring(
-      stdout.indexOf(">>>") + ">>>".length,
-      stdout.indexOf("<<<")
-    );
+  if (chatResponse.error) {
+    console.error(chatResponse.error);
   }
 
-  return stdout;
+  return chatResponse;
 });

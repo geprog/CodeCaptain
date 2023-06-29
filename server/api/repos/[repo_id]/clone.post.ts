@@ -75,15 +75,18 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const cmd = `. env/bin/activate && python ./indexer.py ${path.join(
-    user.login,
-    repo.id.toString()
-  )}`;
-  console.log("cmd", cmd);
-  const { stdout, stderr, exitCode } = await execa(cmd, {
-    shell: true,
+  const repo_name = path.join(user.login, repo.id.toString());
+
+  const indexingResponse = await $fetch("http://127.0.0.1:8000/index", {
+    method: "POST",
+    body: {
+      repo_name: repo_name,
+    },
   });
-  console.log("log", { stdout, stderr, exitCode });
+
+  if (indexingResponse.error) {
+    console.error(indexingResponse.error);
+  }
 
   return "ok";
 });

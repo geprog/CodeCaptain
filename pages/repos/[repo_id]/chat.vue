@@ -103,7 +103,7 @@ async function sendMessage() {
   chatHistory.value.push({
     id: Date.now(),
     sender: "assistant",
-    text: res,
+    text: res.answer,
   });
 }
 </script>
