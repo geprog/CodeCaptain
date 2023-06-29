@@ -116,20 +116,18 @@ const issueFileNames = [];
     console.error(indexingResponse.error);
   }
 
-  for(const file in issueFileNames) {
-    const indexingResponse = await $fetch("http://127.0.0.1:8000/index-issue", {
-      method: "POST",
-      body: {
-        repo_path: repo_name,
-        issue_file_name: file,
-        
-      },
-    });
+    
+  const indexingFilesResponse = await $fetch("http://127.0.0.1:8000/index-issue", {
+    method: "POST",
+    body: {
+      repo_path: `data\\${repo_name}`,
+      issue_file_name: issueFileNames,
+      
+    },
+  });
   
-    if (indexingResponse.error) {
-      console.error(indexingResponse.error);
-    }
+   if (indexingFilesResponse.error) {
+    console.error(indexingFilesResponse.error);
   }
-
-  return "ok";
+   return "ok";
 });
