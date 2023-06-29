@@ -75,12 +75,14 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const cmd = `python ./indexer.py ${path.join(
+  const cmd = `. env/bin/activate && python ./indexer.py ${path.join(
     user.login,
     repo.id.toString()
   )}`;
   console.log("cmd", cmd);
-  const { stdout, stderr, exitCode } = await execa(cmd);
+  const { stdout, stderr, exitCode } = await execa(cmd, {
+    shell: true,
+  });
   console.log("log", { stdout, stderr, exitCode });
 
   return "ok";

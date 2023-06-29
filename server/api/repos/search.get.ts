@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
   // const token = getCookie(event, "gh_token");
   const token = getHeader(event, "gh_token");
   const octokit = new Octokit({ auth: token });
+  const search = ((getQuery(event)?.search as string | undefined) || "").trim();
 
   const user = (await octokit.request("GET /user")).data;
 
@@ -24,24 +25,21 @@ export default defineEventHandler(async (event) => {
     await fs.mkdir(dataFolder, { recursive: true });
   }
 
-  const repos: { id: string; full_name: string; active: boolean }[] = [];
+  const activeRepos = (await fs.readdir(dataFolder, { withFileTypes: true }))
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => dirent.name);
 
-  const repoFolders = await fs.readdir(dataFolder, { withFileTypes: true });
-  for (const dirent of repoFolders) {
-    if (!dirent.isDirectory()) continue;
-    const info = JSON.parse(
-      await fs.readFile(
-        path.join(dataFolder, dirent.name, "repo.json"),
-        "utf-8"
-      )
-    );
+  const q = `is:public fork:false archived:false ${search}`;
 
-    repos.push({
-      id: dirent.name,
-      full_name: info.full_name,
-      active: true,
-    });
-  }
+  const userRepos = await octokit.request("GET /search/repositories", {
+    q,
+    per_page: 10,
+    sort: "updated",
+  });
 
-  return repos;
+  return userRepos.data.items.map((repo) => ({
+    id: repo.id.toString(),
+    full_name: repo.full_name,
+    active: activeRepos.includes(repo.id.toString()),
+  }));
 });

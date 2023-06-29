@@ -47,12 +47,14 @@ export default defineEventHandler(async (event) => {
 
   console.log("ask", message);
 
-  const cmd = `python ./question.py "${path.join(
+  const cmd = `. env/bin/activate && python ./question.py "${path.join(
     user.login,
     repo.id.toString()
   )}" "${message}"`;
   console.log("cmd", cmd);
-  const { stdout, stderr, exitCode } = await execa(cmd);
+  const { stdout, stderr, exitCode } = await execa(cmd, {
+    shell: true,
+  });
   console.log("log", { stdout, stderr, exitCode });
 
   const answer = stdout.substring(

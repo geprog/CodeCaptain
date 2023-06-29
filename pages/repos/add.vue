@@ -39,7 +39,7 @@ const search = ref("");
 const { data: repositories } = await useAsyncData(
   "repositories",
   () =>
-    $fetch("/api/repos/list", {
+    $fetch("/api/repos/search", {
       headers: {
         gh_token: githubCookie.value!,
       },
@@ -56,7 +56,7 @@ const updateSearch = debounce((_search: string) => {
   search.value = _search;
 }, 300);
 
-async function cloneRepo(repoId: number) {
+async function cloneRepo(repoId: string) {
   loading.value = true;
   try {
     await $fetch(`/api/repos/${repoId}/clone`, {
@@ -66,10 +66,10 @@ async function cloneRepo(repoId: number) {
         gh_token: githubCookie.value!,
       },
     });
+    await router.push(`/repos/${repoId}/chat`);
   } catch (error) {
     console.error(error);
   }
   loading.value = false;
-  await router.push(`/repos/${repoId}/chat`);
 }
 </script>

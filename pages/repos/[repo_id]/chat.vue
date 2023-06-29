@@ -71,7 +71,7 @@ async function sendMessage() {
   });
   inputText.value = "";
 
-  const res = await useFetch(`/api/repos/${route.params.repo_id}/chat`, {
+  const res = await $fetch(`/api/repos/${route.params.repo_id}/chat`, {
     method: "POST",
     body: JSON.stringify({
       message,
@@ -86,7 +86,7 @@ async function sendMessage() {
   chatHistory.value.push({
     id: Date.now(),
     sender: "assistant",
-    text: res.data,
+    text: res,
   });
 }
 </script>
