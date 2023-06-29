@@ -1,7 +1,7 @@
 import { Octokit } from "octokit";
 import * as path from "path";
 import { promises as fs } from "fs";
-  
+
 async function dirExists(path: string) {
   try {
     const stat = await fs.stat(path);
@@ -41,7 +41,9 @@ export default defineEventHandler(async (event) => {
   console.log("ask", message);
 
   const repo_path = path.join(user.login, repoId);
-  const chatResponse = await $fetch("http://127.0.0.1:8000/ask", {
+
+  const config = useRuntimeConfig();
+  const chatResponse = await $fetch(`${config.api.url}/ask`, {
     method: "POST",
     body: {
       repo_name: repo_path,

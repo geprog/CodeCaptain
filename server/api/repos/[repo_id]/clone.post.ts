@@ -77,7 +77,8 @@ export default defineEventHandler(async (event) => {
 
   const repo_name = path.join(user.login, repo.id.toString());
 
-  const indexingResponse = await $fetch("http://127.0.0.1:8000/index", {
+  const config = useRuntimeConfig();
+  const indexingResponse = await $fetch(`${config.api.url}/index`, {
     method: "POST",
     body: {
       repo_name: repo_name,
