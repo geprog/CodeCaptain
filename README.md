@@ -23,3 +23,5 @@ A dev advisor to ask about your code and project
 ## How to start the python server
 
 Use the command `uvicorn pyserver:app --reload` to start the python server. It takes default port 8000.
+
+If it doesn't work try `python -m uvicorn main:app --reload` (windows users).
