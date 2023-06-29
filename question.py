@@ -43,8 +43,8 @@ def ask(repo_name, question=demo[0], chat_history=[]):
     retriever.search_kwargs["k"] = 10
 
     model = ChatOpenAI(
-        model_name="gpt-3.5-turbo"
-    )  # switch to gpt-3.5-turbo if you want
+        model_name="gpt-3.5-turbo-16k"
+    ) 
     qa = ConversationalRetrievalChain.from_llm(model, retriever=retriever)
     end = time.time()
 

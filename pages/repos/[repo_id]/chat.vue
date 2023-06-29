@@ -11,7 +11,7 @@
         <div v-if="message.sender === 'user'" class="flex justify-start w-full">
           <div class="max-w-15 p-2 rounded-lg flex gap-2">
             💁
-            <p>{{ message.text }}</p>
+            <vue-markdown :source="message.text"></vue-markdown>
           </div>
         </div>
         <div
@@ -21,7 +21,7 @@
         >
           <div class="max-w-15 p-2 text-white rounded-lg flex gap-2">
             👽
-            <p>{{ message.text }}</p>
+            <vue-markdown :source="message.text"></vue-markdown>
           </div>
         </div>
       </div>
@@ -59,6 +59,8 @@
 </template>
 
 <script lang="ts" setup>
+import VueMarkdown from 'vue-markdown-render'
+
 const chatHistory = ref([
   { id: 2, sender: "assistant", text: "Hi there! How can I assist you?" },
 ]);
@@ -72,7 +74,7 @@ async function sendMessage() {
     return;
   }
 
-  const message = inputText.value.trim();
+  const message = inputText.value;
   if (message === "") {
     return;
   }
@@ -103,8 +105,10 @@ async function sendMessage() {
   chatHistory.value.push({
     id: Date.now(),
     sender: "assistant",
-    text: res.answer,
+    text: ref(res.answer),
   });
+
+  console.log(res.answer);
 }
 </script>
 

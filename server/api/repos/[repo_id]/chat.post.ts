@@ -1,8 +1,7 @@
 import { Octokit } from "octokit";
 import * as path from "path";
 import { promises as fs } from "fs";
-import { execa } from "execa";
-
+  
 async function dirExists(path: string) {
   try {
     const stat = await fs.stat(path);
@@ -49,6 +48,7 @@ export default defineEventHandler(async (event) => {
       question: message,
     },
   });
+  console.log("answer:", chatResponse.answer);
 
   if (chatResponse.error) {
     console.error(chatResponse.error);
