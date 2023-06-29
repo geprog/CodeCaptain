@@ -27,8 +27,10 @@ export default defineEventHandler(async (event) => {
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name);
 
+  const q = `is:public fork:false archived:false user:${user.login} ${search}`;
+
   const userRepos = await octokit.request("GET /search/repositories", {
-    q: `is:public fork:false archived:false "${search}" user:${user.login}`,
+    q,
     per_page: 10,
     sort: "updated",
   });

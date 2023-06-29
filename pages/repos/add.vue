@@ -5,12 +5,13 @@
 
   <div v-else class="mx-auto flex flex-col items-center max-w-2xl">
     <TextInput
-      v-model="search"
+      model-value="search"
       placeholder="Search for a repo ..."
       class="my-4"
+      @update:model-value="updateSearch"
     />
 
-    <div v-if="repositories.length === 0">No repos found</div>
+    <div v-if="!repositories || repositories.length === 0">No repos found</div>
     <div
       class="flex flex-wrap gap-4 m-4 max-w-2xl overflow-y-auto justify-between items-start"
     >
@@ -28,27 +29,32 @@
 </template>
 
 <script setup lang="ts">
+import { debounce } from "lodash";
+
 const router = useRouter();
 const githubCookie = useGithubCookie();
 const loading = ref(false);
 
-async function searchRepo(search: string) {
-  return await $fetch("/api/repos/list", {
-    headers: {
-      gh_token: githubCookie.value!,
-    },
-    query: {
-      search,
-    },
-  });
-}
-
 const search = ref("");
-watch(search, async () => {
-  repositories.value = await searchRepo(search.value);
-});
+const { data: repositories } = await useAsyncData(
+  "repositories",
+  () =>
+    $fetch("/api/repos/list", {
+      headers: {
+        gh_token: githubCookie.value!,
+      },
+      query: {
+        search: search.value,
+      },
+    }),
+  {
+    watch: [search],
+  }
+);
 
-const repositories = ref(await searchRepo(""));
+const updateSearch = debounce((_search: string) => {
+  search.value = _search;
+}, 300);
 
 async function cloneRepo(repoId: number) {
   loading.value = true;
