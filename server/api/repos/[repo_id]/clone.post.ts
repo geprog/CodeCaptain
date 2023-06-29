@@ -58,6 +58,8 @@ const issuesPaginator = octokit.paginate.iterator(
   }
 );
 
+const issueFileNames = [];
+
   for await (const response of issuesPaginator) {
     const issues = response.data;
     for (const issue of issues) {
@@ -68,14 +70,38 @@ const issuesPaginator = octokit.paginate.iterator(
       const title = issue.title;
       const body = issue.body;
       const labels = issue.labels;
-      const comments = issue.comments_url;
 
+      const pull_request = issue.pull_request?.diff_url;
+        
+      const comments = (await octokit.request(`GET ${issue.comments_url}`)).data;
+      
+      const labs = labels.map((label, index) =>  `\n\nlabel ${index+1} named ${label.name} has the description ${label.description}`);
+    
+      const coms = comments.map((comment) => ` \n\nthe user ${ comment.user.login} said: ${comment.body}`);
+    
+      let writeString = `In the github issue "${title}"`;
+
+      if (!!body || body !== '') {
+        writeString = writeString.concat(` the requirement is: ${body}\n\n`);
+      }
+      if (labs.length !== 0) {
+        writeString = writeString.concat(`The issue has the following labels: ${labs} \n\n`);
+      }
+      if (!!coms || coms.length !== 0) {
+        writeString = writeString.concat(`The issue has the following comments: ${coms}`);
+      } 
+
+      issueFileNames.push(`${issue.id}.txt`);
+    
       await fs.writeFile(
-        path.join(folder, "issues", `${issue.id}.json`),
-        `The issue ${title}\n\n with the following description ${body}\n\n and has labels: ${labels} \n\n with comments ${comments }`
+        path.join(folder, "issues", `${issue.id}.txt`),
+        writeString,
       );
     }
   }
+  
+
+
 
   const repo_name = path.join(user.login, repo.id.toString());
 
@@ -88,6 +114,21 @@ const issuesPaginator = octokit.paginate.iterator(
 
   if (indexingResponse.error) {
     console.error(indexingResponse.error);
+  }
+
+  for(const file in issueFileNames) {
+    const indexingResponse = await $fetch("http://127.0.0.1:8000/index-issue", {
+      method: "POST",
+      body: {
+        repo_path: repo_name,
+        issue_file_name: file,
+        
+      },
+    });
+  
+    if (indexingResponse.error) {
+      console.error(indexingResponse.error);
+    }
   }
 
   return "ok";
