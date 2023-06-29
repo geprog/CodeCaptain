@@ -21,6 +21,7 @@
     "lodash": "^4.17.21",
     "nuxt-icon": "^0.4.1",
     "octokit": "^2.1.0",
-    "simple-git": "^3.19.1"
+    "simple-git": "^3.19.1",
+    "vue-markdown-render": "^2.0.1"
   }
 }

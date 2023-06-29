@@ -23,7 +23,7 @@ demo = [
 ]
 
 
-def conversation(repo_name, question=demo[0], chat_history=[]):
+def ask(repo_name, question=demo[0], chat_history=[]):
     embeddings = OpenAIEmbeddings(disallowed_special=())
 
     repo_path = os.path.join("data", repo_name)
@@ -43,21 +43,19 @@ def conversation(repo_name, question=demo[0], chat_history=[]):
     retriever.search_kwargs["k"] = 10
 
     model = ChatOpenAI(
-        model_name="gpt-3.5-turbo"
-    )  # switch to gpt-3.5-turbo if you want
+        model_name="gpt-3.5-turbo-16k"
+    ) 
     qa = ConversationalRetrievalChain.from_llm(model, retriever=retriever)
     end = time.time()
 
     chat_history = []
     result = qa({"question": question, "chat_history": chat_history})
     chat_history.append((question, result["answer"]))
-    # print(f"-> **Question**: {question} \n")
-    print(f">>>{result['answer']}<<<\n")
-    # print(result["answer"])
+    return result['answer'], chat_history
 
     end = time.time()
 
 
 if __name__ == "__main__":
     # print(f">>>{sys.argv}<<<\n")
-    conversation(sys.argv[1], sys.argv[2])
+    ask(sys.argv[1], sys.argv[2])
