@@ -16,8 +16,12 @@
       class="flex flex-wrap gap-4 m-4 max-w-2xl overflow-y-auto justify-between items-start"
     >
       <Card v-for="repo in repositories" :key="repo.id">
-        <div class="flex flex-col justify-center items-center p-2 gap-2 w-64">
-          <span class="mb-4">{{ repo.full_name }}</span>
+        <div
+          class="flex flex-col items-center p-2 gap-2 w-64 h-full justify-between"
+        >
+          <span class="font-bold text-gray-300 flex-wrap">{{
+            repo.full_name
+          }}</span>
           <Button v-if="repo.active" :href="`/repos/${repo.id}/chat`"
             >Open</Button
           >
