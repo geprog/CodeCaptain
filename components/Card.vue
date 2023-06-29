@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="h-40 text-wrap">
     <a
       :href="href"
-      class="block w-150 p-2 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 r"
+      class="flex justify-center w-60 p-2 h-full rounded-lg shadow bg-gray-800 border-gray-700"
       :class="{
         'hover:bg-gray-100 dark:hover:bg-gray-700': href,
       }"

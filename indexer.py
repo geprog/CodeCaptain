@@ -12,7 +12,7 @@ from langchain.text_splitter import CharacterTextSplitter
 load_dotenv()
 
 
-def update_index_with_issues(repo_path, issueFilename):
+def update_index_with_issues(repo_path, issueFilenames):
     embeddings = OpenAIEmbeddings(disallowed_special=())
     db = DeepLake(
         dataset_path=os.path.join(repo_path, "vector_store"),
@@ -20,9 +20,10 @@ def update_index_with_issues(repo_path, issueFilename):
         overwrite=True,
     )  # dataset would be publicly available
     docs = []
-    docs.extend(
+    for name in issueFilenames:
+        docs.extend(
         TextLoader(
-            os.path.join(repo_path, "issues", issueFilename), encoding="utf-8"
+            os.path.join(repo_path, "issues", name), encoding="utf-8"
         ).load_and_split()
     )
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
