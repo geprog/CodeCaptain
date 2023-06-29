@@ -28,13 +28,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const repo = (
-    await octokit.request("GET /repositories/:id", {
-      id: repoId,
-    })
-  ).data;
-
-  const folder = path.join("data", user.login, repo.id.toString());
+  const folder = path.join("data", user.login, repoId);
 
   if (!(await dirExists(path.join(folder)))) {
     throw createError({
@@ -49,7 +43,7 @@ export default defineEventHandler(async (event) => {
 
   const cmd = `. env/bin/activate && python ./question.py "${path.join(
     user.login,
-    repo.id.toString()
+    repoId
   )}" "${message}"`;
   console.log("cmd", cmd);
   const { stdout, stderr, exitCode } = await execa(cmd, {
@@ -57,9 +51,12 @@ export default defineEventHandler(async (event) => {
   });
   console.log("log", { stdout, stderr, exitCode });
 
-  const answer = stdout.substring(
-    stdout.indexOf("start:") + 6,
-    stdout.indexOf("end") - 1
-  );
-  return answer;
+  if (stdout.includes("<<<")) {
+    return stdout.substring(
+      stdout.indexOf(">>>") + ">>>".length,
+      stdout.indexOf("<<<")
+    );
+  }
+
+  return stdout;
 });

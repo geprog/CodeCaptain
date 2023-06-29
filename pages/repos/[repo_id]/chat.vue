@@ -25,6 +25,18 @@
           </div>
         </div>
       </div>
+
+      <div v-if="thinking" class="mb-4" style="background-color: #10101f">
+        <div
+          class="flex justify-start w-full"
+          style="background-color: #1c1f37"
+        >
+          <div class="max-w-15 p-2 text-white rounded-lg flex gap-2">
+            👽
+            <p>Thinking ...</p>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="p-4" style="background-color: #0a0b14">
       <!-- Input field -->
@@ -37,7 +49,6 @@
           placeholder="Type a message..."
           style="background-color: #1c1f37"
         />
-        <!-- <button  class="px-4 py-2 text-white bg-blue-500 rounded-full">Send</button> -->
         <input type="checkbox" id="inputCheck" hidden />
         <label for="inputCheck" class="fab-btn" @click="sendMessage">
           <span>></span>
@@ -54,15 +65,17 @@ const chatHistory = ref([
 const inputText = ref("");
 const githubToken = useGithubCookie();
 const route = useRoute();
+const thinking = ref(false);
 
 async function sendMessage() {
-  if (inputText.value.trim() === "") {
+  if (thinking.value) {
     return;
   }
 
   const message = inputText.value.trim();
-
-  console.log("ask", message);
+  if (message === "") {
+    return;
+  }
 
   chatHistory.value.push({
     id: Date.now(),
@@ -70,6 +83,8 @@ async function sendMessage() {
     text: message,
   });
   inputText.value = "";
+
+  thinking.value = true;
 
   const res = await $fetch(`/api/repos/${route.params.repo_id}/chat`, {
     method: "POST",
@@ -80,6 +95,8 @@ async function sendMessage() {
       gh_token: githubToken.value!,
     },
   });
+
+  thinking.value = false;
 
   console.log(res);
 
