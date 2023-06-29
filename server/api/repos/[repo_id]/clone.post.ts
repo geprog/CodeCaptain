@@ -2,19 +2,20 @@ import { Octokit } from "octokit";
 import * as path from "path";
 import { simpleGit } from "simple-git";
 import { promises as fs } from "fs";
-import * as shelljs from "shelljs";
+import { execa } from "execa";
 
-function dirExists(path: string) {
-  return fs
-    .stat(path)
-    .then((stat) => stat.isDirectory())
-    .catch(() => false);
+async function dirExists(path: string) {
+  try {
+    const stat = await fs.stat(path);
+    return stat.isDirectory();
+  } catch {
+    return false;
+  }
 }
 
 export default defineEventHandler(async (event) => {
   console.log("clone");
 
-  // const token = getCookie(event, "gh_token");
   const token = getHeader(event, "gh_token");
   const octokit = new Octokit({ auth: token });
   const user = (await octokit.request("GET /user")).data;
@@ -76,11 +77,15 @@ const issuesPaginator = octokit.paginate.iterator(
     }
   }
 
-  shelljs.exec(
-    `python ./indexer.py ${path.join(user.login, repo.id.toString())}`
-  );
- 
-  console.log(repoId, folder);
+  const cmd = `. env/bin/activate && python ./indexer.py ${path.join(
+    user.login,
+    repo.id.toString()
+  )}`;
+  console.log("cmd", cmd);
+  const { stdout, stderr, exitCode } = await execa(cmd, {
+    shell: true,
+  });
+  console.log("log", { stdout, stderr, exitCode });
 
   return "ok";
 });

@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "dev-addy",
   "private": true,
   "scripts": {
     "build": "nuxt build",
@@ -11,18 +11,16 @@
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
-    "@nuxtjs/axios": "^5.13.6",
     "@nuxtjs/tailwindcss": "^6.8.0",
+    "@types/lodash": "^4.14.195",
     "@types/node": "^18",
-    "@types/shelljs": "^0.8.12",
     "nuxt": "^3.6.1"
   },
   "dependencies": {
-    "drizzle-orm": "^0.27.0",
     "execa": "^7.1.1",
+    "lodash": "^4.17.21",
     "nuxt-icon": "^0.4.1",
     "octokit": "^2.1.0",
-    "shelljs": "^0.8.5",
     "simple-git": "^3.19.1"
   }
 }

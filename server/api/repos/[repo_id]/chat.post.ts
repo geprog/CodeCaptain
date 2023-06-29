@@ -1,7 +1,6 @@
 import { Octokit } from "octokit";
 import * as path from "path";
 import { promises as fs } from "fs";
-// import * as shelljs from "shelljs";
 import { execa } from "execa";
 
 async function dirExists(path: string) {
@@ -29,13 +28,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const repo = (
-    await octokit.request("GET /repositories/:id", {
-      id: repoId,
-    })
-  ).data;
-
-  const folder = path.join("data", user.login, repo.id.toString());
+  const folder = path.join("data", user.login, repoId);
 
   if (!(await dirExists(path.join(folder)))) {
     throw createError({
@@ -48,11 +41,22 @@ export default defineEventHandler(async (event) => {
 
   console.log("ask", message);
 
-  //   const log = shelljs.exec(`python ./question.py ${message}`);
-  const log = await execa(`python ./question.py 'kiel-live' ${[message]}`);
-  console.log("log", log);
+  const cmd = `. env/bin/activate && python ./question.py "${path.join(
+    user.login,
+    repoId
+  )}" "${message}"`;
+  console.log("cmd", cmd);
+  const { stdout, stderr, exitCode } = await execa(cmd, {
+    shell: true,
+  });
+  console.log("log", { stdout, stderr, exitCode });
 
-  console.log(repoId, log);
+  if (stdout.includes("<<<")) {
+    return stdout.substring(
+      stdout.indexOf(">>>") + ">>>".length,
+      stdout.indexOf("<<<")
+    );
+  }
 
-  return log;
+  return stdout;
 });

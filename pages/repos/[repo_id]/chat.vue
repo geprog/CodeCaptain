@@ -9,7 +9,7 @@
         style="background-color: #10101f"
       >
         <div v-if="message.sender === 'user'" class="flex justify-start w-full">
-          <div class="max-w-xs p-2 rounded-lg flex gap-2">
+          <div class="max-w-15 p-2 rounded-lg flex gap-2">
             💁
             <p>{{ message.text }}</p>
           </div>
@@ -19,9 +19,21 @@
           class="flex justify-start w-full"
           style="background-color: #1c1f37"
         >
-          <div class="max-w-xs p-2 text-white rounded-lg flex gap-2">
+          <div class="max-w-15 p-2 text-white rounded-lg flex gap-2">
             👽
             <p>{{ message.text }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="thinking" class="mb-4" style="background-color: #10101f">
+        <div
+          class="flex justify-start w-full"
+          style="background-color: #1c1f37"
+        >
+          <div class="max-w-15 p-2 text-white rounded-lg flex gap-2">
+            👽
+            <p>Thinking ...</p>
           </div>
         </div>
       </div>
@@ -33,11 +45,10 @@
           v-model="inputText"
           @keydown.enter="sendMessage"
           type="text"
-          class="flex-1 px-4 py-2 mr-12 rounded"
+          class="flex-1 px-4 h-12 py-2 mr-12 rounded"
           placeholder="Type a message..."
           style="background-color: #1c1f37"
         />
-        <!-- <button  class="px-4 py-2 text-white bg-blue-500 rounded-full">Send</button> -->
         <input type="checkbox" id="inputCheck" hidden />
         <label for="inputCheck" class="fab-btn" @click="sendMessage">
           <span>></span>
@@ -49,43 +60,50 @@
 
 <script lang="ts" setup>
 const chatHistory = ref([
-  { id: 1, sender: "user", text: "Hello" },
   { id: 2, sender: "assistant", text: "Hi there! How can I assist you?" },
 ]);
-const inputText = ref("What are collectors?");
+const inputText = ref("");
 const githubToken = useGithubCookie();
 const route = useRoute();
+const thinking = ref(false);
 
 async function sendMessage() {
-  if (inputText.value.trim() === "") {
+  if (thinking.value) {
     return;
   }
 
-  console.log("ask", inputText.value.trim());
+  const message = inputText.value.trim();
+  if (message === "") {
+    return;
+  }
 
   chatHistory.value.push({
     id: Date.now(),
     sender: "user",
-    text: inputText.value.trim(),
+    text: message,
   });
   inputText.value = "";
 
-  const res = await useFetch(`/api/repos/${route.params.repo_id}/chat`, {
+  thinking.value = true;
+
+  const res = await $fetch(`/api/repos/${route.params.repo_id}/chat`, {
     method: "POST",
     body: JSON.stringify({
-      message: inputText.value.trim(),
+      message,
     }),
     headers: {
       gh_token: githubToken.value!,
     },
   });
 
+  thinking.value = false;
+
   console.log(res);
 
   chatHistory.value.push({
     id: Date.now(),
     sender: "assistant",
-    text: res.data,
+    text: res,
   });
 }
 </script>
@@ -116,7 +134,7 @@ async function sendMessage() {
 
 .fab-btn {
   position: absolute;
-  bottom: 16px;
+  bottom: 20px;
   right: 12px;
   border-radius: 50%;
   width: 40px;
