@@ -51,9 +51,9 @@ export default defineEventHandler(async (event) => {
     user.login,
     repo.id.toString()
   )}" "${message}"`;
-  console.log(cmd);
-  const { stdout } = await execa(cmd);
-  console.log("log", stdout);
+  console.log("cmd", cmd);
+  const { stdout, stderr, exitCode } = await execa(cmd);
+  console.log("log", { stdout, stderr, exitCode });
 
   const answer = stdout.substring(
     stdout.indexOf("start:") + 6,

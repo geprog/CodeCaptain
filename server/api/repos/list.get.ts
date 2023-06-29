@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
   // const token = getCookie(event, "gh_token");
   const token = getHeader(event, "gh_token");
   const octokit = new Octokit({ auth: token });
+  const search = ((getQuery(event)?.search as string | undefined) || "").trim();
 
   const user = (await octokit.request("GET /user")).data;
 
@@ -26,7 +27,13 @@ export default defineEventHandler(async (event) => {
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name);
 
-  return (await octokit.request("GET /user/repos")).data.map((repo) => ({
+  const userRepos = await octokit.request("GET /search/repositories", {
+    q: `is:public fork:false archived:false "${search}" user:${user.login}`,
+    per_page: 10,
+    sort: "updated",
+  });
+
+  return userRepos.data.items.map((repo) => ({
     id: repo.id,
     full_name: repo.full_name,
     active: activeRepos.includes(repo.id.toString()),

@@ -4,11 +4,13 @@ import { simpleGit } from "simple-git";
 import { promises as fs } from "fs";
 import { execa } from "execa";
 
-function dirExists(path: string) {
-  return fs
-    .stat(path)
-    .then((stat) => stat.isDirectory())
-    .catch(() => false);
+async function dirExists(path: string) {
+  try {
+    const stat = await fs.stat(path);
+    return stat.isDirectory();
+  } catch {
+    return false;
+  }
 }
 
 export default defineEventHandler(async (event) => {
@@ -73,9 +75,13 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  execa(`python ./indexer.py ${path.join(user.login, repo.id.toString())}`);
-
-  console.log(repoId, folder);
+  const cmd = `python ./indexer.py ${path.join(
+    user.login,
+    repo.id.toString()
+  )}`;
+  console.log("cmd", cmd);
+  const { stdout, stderr, exitCode } = await execa(cmd);
+  console.log("log", { stdout, stderr, exitCode });
 
   return "ok";
 });
