@@ -1,11 +1,11 @@
 <template>
   <div
-    class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 font-semibold"
+    class="flex text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-300 focus:ring-4 focus:ring-gray-200 rounded-lg text-sm mr-2 mb-2 font-semibold"
   >
-    <a v-if="href" :href="href" :target="target">
+    <a v-if="href" :href="href" :target="target" class="px-5 py-2.5">
       <slot />
     </a>
-    <button v-else>
+    <button v-else class="px-5 py-2.5">
       <slot />
     </button>
   </div>

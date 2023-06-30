@@ -1,6 +1,6 @@
 <template>
   <div v-if="loading" class="flex w-full">
-    <span class="m-auto text-lg">Cloning and indexing repo ...</span>
+    <span class="m-auto text-2xl">Cloning and indexing repo ...</span>
   </div>
 
   <div v-else class="mx-auto flex flex-col items-center max-w-2xl">
