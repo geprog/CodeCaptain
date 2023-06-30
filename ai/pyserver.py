@@ -1,7 +1,7 @@
 import os
 from typing import Union
 from fastapi import FastAPI
-from indexer import generate_index, update_index_with_issues
+from indexer import generate_index
 from models import Conversation, IndexInfo, IssueIndexInfo
 from question import ask
 from dotenv import load_dotenv
