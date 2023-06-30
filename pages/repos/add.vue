@@ -79,7 +79,7 @@ async function cloneRepo(repoId: string) {
         gh_token: githubCookie.value!,
       },
     });
-    await router.push(`/repos/${repoId}/chat`);
+    await navigateTo(`/repos/${repoId}/chat`);
   } catch (error) {
     console.error(error);
   }
