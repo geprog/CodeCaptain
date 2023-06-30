@@ -1,7 +1,13 @@
 <template>
-  <div class="flex flex-col h-screen w-screen text-gray-200" style="background-color: #141627;">
+  <div
+    class="flex flex-col h-screen w-screen text-gray-200"
+    style="background-color: #141627"
+  >
     <header class="flex w-full h-16 border-gray-700 border-b p-4 items-center">
-      <a class="text-xl" href="/">🖥️ Dev Addy is cool!</a>
+      <a class="text-xl flex gap-2 items-center" href="/">
+        <img src="/icon.svg" alt="CodeCaptain logo" class="w-10 -rotate-45" />
+        codecaptain.ai</a
+      >
       <div class="ml-auto flex gap-4 items-center">
         <template v-if="user">
           <img
@@ -10,7 +16,7 @@
             class="w-8 h-auto rounded-full"
           />
           <button
-            class="border rounded px-2 py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white" 
+            class="border rounded px-2 py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white"
             @click="logout"
           >
             Logout
