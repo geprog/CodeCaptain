@@ -1,8 +1,9 @@
 <template>
   <span v-if="loading">loading ...</span>
   <div v-else class="flex flex-col w-full">
-    <div class="flex w-full items-end">
-      <Button :href="''">Github</Button>
+    <div class="flex w-full p-2 items-center">
+      <span v-if="repo" class="mr-auto text-2xl">{{ repo.full_name }}</span>
+      <Button v-if="repo" :href="repo.link" target="_blank">Github</Button>
       <Button @click="reIndex">re-index</Button>
     </div>
     <div class="flex-1 p-4">
@@ -82,6 +83,14 @@ const githubCookie = useGithubCookie();
 const thinking = ref(false);
 const route = useRoute();
 const repoId = route.params.repo_id;
+
+const { data: repo } = await useAsyncData("repo", () =>
+  $fetch(`/api/repos/${repoId}`, {
+    headers: {
+      gh_token: githubCookie.value!,
+    },
+  })
+);
 
 async function sendMessage() {
   if (thinking.value) {
