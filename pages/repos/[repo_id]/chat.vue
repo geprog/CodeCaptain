@@ -1,5 +1,10 @@
 <template>
-  <div class="flex flex-col w-full">
+  <span v-if="loading">loading ...</span>
+  <div v-else class="flex flex-col w-full">
+    <div class="flex w-full items-end">
+      <Button :href="''">Github</Button>
+      <Button @click="reIndex">re-index</Button>
+    </div>
     <div class="flex-1 p-4">
       <!-- Chat history section -->
       <div
@@ -73,9 +78,10 @@ const chatHistory = ref([
   { id: 2, sender: "assistant", text: "Hi there! How can I assist you?" },
 ]);
 const inputText = ref("");
-const githubToken = useGithubCookie();
-const route = useRoute();
+const githubCookie = useGithubCookie();
 const thinking = ref(false);
+const route = useRoute();
+const repoId = route.params.repo_id;
 
 async function sendMessage() {
   if (thinking.value) {
@@ -97,18 +103,15 @@ async function sendMessage() {
   thinking.value = true;
 
   try {
-    const res: { answer: string } = await $fetch(
-      `/api/repos/${route.params.repo_id}/chat`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          message,
-        }),
-        headers: {
-          gh_token: githubToken.value!,
-        },
-      }
-    );
+    const res: { answer: string } = await $fetch(`/api/repos/${repoId}/chat`, {
+      method: "POST",
+      body: JSON.stringify({
+        message,
+      }),
+      headers: {
+        gh_token: githubCookie.value!,
+      },
+    });
 
     chatHistory.value.push({
       id: Date.now(),
@@ -128,6 +131,24 @@ async function sendMessage() {
   }
 
   thinking.value = false;
+}
+
+const loading = ref(false);
+async function reIndex() {
+  loading.value = true;
+  try {
+    await $fetch(`/api/repos/${repoId}/clone`, {
+      key: `cloneRepo-${repoId}`,
+      method: "POST",
+      headers: {
+        gh_token: githubCookie.value!,
+      },
+    });
+    await navigateTo(`/repos/${repoId}/chat`);
+  } catch (error) {
+    console.error(error);
+  }
+  loading.value = false;
 }
 </script>
 

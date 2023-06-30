@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     api: {
       url: process.env.NUXT_API_URL || "http://localhost:8000",
     },
+    data_path: process.env.DATA_PATH || "data",
   },
   vite: {
     server: {

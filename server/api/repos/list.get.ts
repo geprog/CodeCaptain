@@ -18,7 +18,8 @@ export default defineEventHandler(async (event) => {
 
   const user = (await octokit.request("GET /user")).data;
 
-  const dataFolder = path.join("data", user.login);
+  const config = useRuntimeConfig();
+  const dataFolder = path.join(config.data_path, user.login);
 
   if (!(await dirExists(dataFolder))) {
     await fs.mkdir(dataFolder, { recursive: true });
