@@ -1,73 +1,59 @@
 <template>
-  <span v-if="loading">loading ...</span>
-  <div v-else class="flex flex-col w-full">
+  <div v-if="loading || !repo" class="flex w-full items-center justify-center">
+    <span class="text-2xl">loading ...</span>
+  </div>
+  <div v-else class="flex items-center flex-col w-full">
     <div class="flex w-full p-2 items-center">
-      <span v-if="repo" class="mr-auto text-2xl">{{ repo.full_name }}</span>
-      <Button v-if="repo" :href="repo.link" target="_blank">Github</Button>
+      <span class="mx-auto text-2xl">{{ repo.full_name }}</span>
+      <Button :href="repo.link" target="_blank">Github</Button>
       <Button @click="reIndex">re-index</Button>
     </div>
-    <div class="flex-1 p-4">
+
+    <div class="flex-1 flex flex-col p-4 gap-4 items-center overflow-y-auto">
       <!-- Chat history section -->
       <div
         v-for="message in chatHistory"
         :key="message.id"
-        class="mb-4 rounded-md"
-        style="background-color: #10101f"
+        class="flex w-full max-w-4xl p-2 gap-2 rounded"
+        :class="{
+          'bg-red-700': message.sender === 'error',
+          'bg-gray-600': message.sender === 'assistant',
+          'bg-gray-800 justify-end': message.sender === 'user',
+        }"
       >
-        <div v-if="message.sender === 'user'" class="flex justify-start w-full">
-          <div class="max-w-15 p-2 rounded-lg flex gap-2">
-            💁
-            <vue-markdown :source="message.text"></vue-markdown>
-          </div>
-        </div>
-        <div
-          v-else-if="message.sender === 'error'"
-          class="flex justify-start w-full bg-red-700 rounded-md"
-        >
-          <div class="max-w-15 p-2 text-white rounded-lg flex gap-2">
-            ❌
-            <vue-markdown :source="message.text"></vue-markdown>
-          </div>
-        </div>
-        <div
-          v-else
-          class="flex justify-start w-full rounded-md"
-          style="background-color: #1c1f37"
-        >
-          <div class="max-w-15 p-2 text-white rounded-lg flex gap-2">
-            🤖
-            <vue-markdown :source="message.text"></vue-markdown>
-          </div>
-        </div>
+        <template v-if="message.sender === 'user'">
+          <span>💁</span>
+          <vue-markdown :source="message.text" />
+        </template>
+        <template v-else-if="message.sender === 'error'">
+          <span>❌</span>
+          <vue-markdown :source="message.text" />
+        </template>
+        <template v-else>
+          <span>🤖</span>
+          <vue-markdown :source="message.text" />
+        </template>
       </div>
 
-      <div v-if="thinking" class="mb-4" style="background-color: #10101f">
-        <div
-          class="flex justify-start w-full rounded-md"
-          style="background-color: #1c1f37"
-        >
-          <div class="max-w-15 p-2 text-white rounded-lg flex gap-2">
-            🤔
-            <p>Thinking ...</p>
-          </div>
-        </div>
+      <div v-if="thinking" class="flex w-full max-w-2xl p-2 gap-2 rounded">
+        <span>🤔</span>
+        <p>Thinking ...</p>
       </div>
     </div>
-    <div class="p-4">
+
+    <div class="flex my-4 w-full max-w-4xl items-center">
       <!-- Input field -->
-      <div class="flex">
-        <TextInput
-          v-model="inputText"
-          @keydown.enter="sendMessage"
-          type="text"
-          class="flex-1 px-4 h-12 py-2 mr-12"
-          placeholder="Type a message..."
-        />
-        <input type="checkbox" id="inputCheck" hidden />
-        <label for="inputCheck" class="fab-btn" @click="sendMessage">
-          <span>></span>
-        </label>
-      </div>
+      <TextInput
+        v-model="inputText"
+        @keydown.enter="sendMessage"
+        type="text"
+        class="flex-1 px-4 h-12 py-2 mr-12"
+        placeholder="Type a message..."
+      />
+      <input type="checkbox" id="inputCheck" hidden />
+      <label for="inputCheck" class="fab-btn" @click="sendMessage">
+        <span>></span>
+      </label>
     </div>
   </div>
 </template>
@@ -186,9 +172,7 @@ async function reIndex() {
 }
 
 .fab-btn {
-  position: absolute;
-  bottom: 20px;
-  right: 12px;
+  position: relative;
   border-radius: 50%;
   width: 40px;
   height: 40px;
