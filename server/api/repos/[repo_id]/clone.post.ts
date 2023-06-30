@@ -114,21 +114,13 @@ export default defineEventHandler(async (event) => {
     });
   
     if (indexingResponse.error) {
-      console.error(indexingResponse.error);
+       console.error(indexingResponse.error);
+       throw createError({
+        statusCode: 500,
+        statusMessage: "cannot index repo",
+      });
     }
   
-      
-    const indexingFilesResponse = await $fetch(`${config.api.url}/index-issue`, {
-      method: "POST",
-      body: {
-        repo_path: `data\\${repo_name}`,
-        issue_file_names: issueFileNames,
-        
-      },
-    });
-    
-     if (indexingFilesResponse.error) {
-      console.error(indexingFilesResponse.error);
-    }
+
      return "ok";
   });
