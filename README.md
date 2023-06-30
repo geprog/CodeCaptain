@@ -25,6 +25,10 @@ Use the command `python uvicorn pyserver:app --reload --app-dir=ai` to start the
 - [ ] show related code parts in UI
 - [ ] add some proper database for user and repos
 - [ ] check __ACCESS__ of user to repo
+- [ ] use message history when asking a question
+- [ ] autocomplete while asking questions
+- [ ] skip gitignored and .git files when indexing
+
 
 ## Appreciations
 
