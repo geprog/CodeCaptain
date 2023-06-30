@@ -2,7 +2,6 @@ import { Octokit } from "octokit";
 import * as path from "path";
 import { simpleGit } from "simple-git";
 import { promises as fs } from "fs";
-import { execa } from "execa";
 
 async function dirExists(path: string) {
   try {
@@ -114,28 +113,24 @@ export default defineEventHandler(async (event) => {
         writeString
       );
     }
+  }
 
+  const repo_name = path.join(user.login, repo.id.toString());
 
-
-
-    const repo_name = path.join(user.login, repo.id.toString());
-
-    const config = useRuntimeConfig();
-    const indexingResponse = await $fetch(`${config.api.url}/index`, {
-      method: "POST",
-      body: {
-        repo_name: repo_name,
-      },
-    });
-
-    if (indexingResponse.error) {
-       console.error(indexingResponse.error);
-       throw createError({
-        statusCode: 500,
-        statusMessage: "cannot index repo",
-      });
-    }
-
-
-     return "ok";
+  const indexingResponse = await $fetch(`${config.api.url}/index`, {
+    method: "POST",
+    body: {
+      repo_name: repo_name,
+    },
   });
+
+  if (indexingResponse.error) {
+    console.error(indexingResponse.error);
+    throw createError({
+      statusCode: 500,
+      statusMessage: "cannot index repo",
+    });
+  }
+
+  return "ok";
+});
