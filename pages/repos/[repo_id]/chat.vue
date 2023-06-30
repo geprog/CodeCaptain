@@ -57,18 +57,22 @@
       </div>
     </div>
 
-    <div class="flex my-4 w-full max-w-4xl items-center">
-      <!-- Input field -->
+    <div class="flex my-4 mx-12 w-full max-w-4xl justify-center gap-2">
+      <div class="w-14" />
       <TextInput
         v-model="inputText"
         @keydown.enter="sendMessage"
         type="text"
-        class="flex-1 px-4 h-12 py-2 mr-12"
+        class="flex-1 px-4 h-12 mr-6"
         placeholder="Type a message..."
       />
       <input type="checkbox" id="inputCheck" hidden />
-      <label for="inputCheck" class="fab-btn" @click="sendMessage">
-        <span>></span>
+      <label
+        for="inputCheck"
+        class="fab-btn flex items-center justify-center w-12 h-12 cursor-pointer bg-blue-500 rounded-full"
+        @click="sendMessage"
+      >
+        <span class="text-2xl font-bold text-white">&gt;</span>
       </label>
     </div>
   </div>
@@ -164,50 +168,8 @@ async function reIndex() {
 </script>
 
 <style scoped>
-.overflow-y-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e0 #e5e7eb;
-}
-
-.overflow-y-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.overflow-y-scroll::-webkit-scrollbar-track {
-  background-color: #e5e7eb;
-}
-
-.overflow-y-scroll::-webkit-scrollbar-thumb {
-  background-color: #cbd5e0;
-  border-radius: 3px;
-}
-
-.input-field:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
-}
-
 .fab-btn {
-  position: relative;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
   transition: box-shadow 0.4s ease;
-  background: #4610f5;
-  color: #fff;
-  font-size: 1.7rem;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.fab-btn span {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
-  transition: transform 0.5s ease;
-  font-size: 1.5rem;
 }
 
 input:checked + .fab-btn span {
