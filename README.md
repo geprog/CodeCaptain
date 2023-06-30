@@ -6,7 +6,7 @@ A dev advisor to ask about your code and project
 
 Use the command `uvicorn pyserver:app --reload` to start the python server. It takes default port 8000.
 
-If it doesn't work try `python -m uvicorn main:app --reload` (windows users).
+If it doesn't work try `python -m uvicorn pyserver:app --reload` (windows users).
 
 ## ToDo
 
@@ -28,4 +28,3 @@ If it doesn't work try `python -m uvicorn main:app --reload` (windows users).
 ## Appreciations
 
 - https://hackernoon.com/reverse-engineering-reddits-source-code-with-langchain-and-gpt-4
-
