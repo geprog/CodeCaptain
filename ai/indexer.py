@@ -5,10 +5,11 @@ from meta_information import generate_project_structure_description
 from langchain.document_loaders import TextLoader
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import DeepLake
-from dotenv import load_dotenv
 from langchain.text_splitter import CharacterTextSplitter
+from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+
 
 data_path = os.getenv("DATA_PATH")
 
