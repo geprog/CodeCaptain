@@ -3,32 +3,21 @@ import sys
 import time
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import DeepLake
-from dotenv import load_dotenv
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
+from dotenv import load_dotenv
 
-load_dotenv()
-
-demo = [
-    "What are collectors?",
-    "What are the names of the collectors?",
-    "What does NewCollector do?",
-    "Why do we need the collectors?",
-    "How are the collectors used in the project?",
-    "What impact will the code have if I change the function NewCollector?",
-    "What is the installation process for this project?",
-    "How is the app getting the KVG data",
-    "Which code gets the KVG data?",
-    "What is the flow of vehicle data collection?",
-]
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 data_path = os.getenv("DATA_PATH")
 
 
-def ask(repo_name, question=demo[0], chat_history=[]):
+def ask(repo_name, question, chat_history=[]):
+    print(data_path)
+
     embeddings = OpenAIEmbeddings(disallowed_special=())
 
-    repo_path = os.path.join(data_path, "data", repo_name)
+    repo_path = os.path.join(data_path, repo_name)
 
     db = DeepLake(
         dataset_path=os.path.join(repo_path, "vector_store"),

@@ -14,4 +14,11 @@ export default defineNuxtConfig({
       url: process.env.NUXT_API_URL || "http://localhost:8000",
     },
   },
+  vite: {
+    server: {
+      watch: {
+        ignored: ["data/**"],
+      },
+    },
+  },
 });
