@@ -13,11 +13,11 @@ async function dirExists(path: string) {
 }
 
 export default defineEventHandler(async (event) => {
-  console.log("clone");
   const config = useRuntimeConfig();
   const token = getHeader(event, "gh_token");
   const octokit = new Octokit({ auth: token });
-  const user = (await octokit.request("GET /user")).data;
+
+  // TODO: check user access to repo
 
   const repoId = event.context.params?.repo_id;
   if (!repoId) {
@@ -33,8 +33,9 @@ export default defineEventHandler(async (event) => {
     })
   ).data;
 
-  const folder = path.join(config.data_path, user.login, repo.id.toString());
+  const folder = path.join(config.data_path, repo.id.toString());
 
+  // clone repo
   console.log("clone", repo.clone_url, path.join(folder, "repo"));
 
   if (!(await dirExists(path.join(folder, "repo")))) {
@@ -48,11 +49,13 @@ export default defineEventHandler(async (event) => {
     console.log("pulled", log);
   }
 
+  // write repo.json
   await fs.writeFile(
     path.join(folder, "repo.json"),
     JSON.stringify(repo, null, 2)
   );
 
+  // write issues
   if (!(await dirExists(path.join(folder, "issues")))) {
     await fs.mkdir(path.join(folder, "issues"), { recursive: true });
   }
@@ -115,12 +118,10 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const repo_name = path.join(user.login, repo.id.toString());
-
   const indexingResponse = await $fetch(`${config.api.url}/index`, {
     method: "POST",
     body: {
-      repo_name: repo_name,
+      repo_name: repoId,
     },
   });
 

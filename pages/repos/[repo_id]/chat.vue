@@ -16,29 +16,43 @@
       <div
         v-for="message in chatHistory"
         :key="message.id"
-        class="flex w-full p-2 gap-2 rounded"
+        class="flex w-full gap-2"
         :class="{
-          'bg-red-700': message.sender === 'error',
-          'bg-gray-600': message.sender === 'assistant',
-          'bg-gray-800 justify-end': message.sender === 'user',
+          'justify-end': message.sender === 'user',
         }"
       >
         <template v-if="message.sender === 'user'">
-          <span>💁</span>
-          <vue-markdown :source="message.text" />
+          <div class="w-10" />
+          <div class="rounded bg-gray-600 flex-1 p-2">
+            <vue-markdown :source="message.text" />
+          </div>
+          <div class="flex items-center justify-center rounded w-10 h-10 p-2">
+            <span class="text-2xl">💁</span>
+          </div>
         </template>
         <template v-else-if="message.sender === 'error'">
-          <span>❌</span>
-          <vue-markdown :source="message.text" />
+          <div class="flex items-center justify-center w-10 h-10 p-2">
+            <span class="text-2xl">❌</span>
+          </div>
+          <div class="rounded bg-red-600 flex-1 p-2">
+            <vue-markdown :source="message.text" />
+          </div>
+          <div class="w-10" />
         </template>
         <template v-else>
-          <span>🤖</span>
-          <vue-markdown :source="message.text" />
+          <div class="flex items-center justify-center rounded w-10 h-10 p-2">
+            <span class="text-2xl">🤖</span>
+          </div>
+          <div class="rounded bg-gray-500 flex-1 p-2">
+            <vue-markdown :source="message.text" />
+          </div>
+          <div class="w-10" />
         </template>
       </div>
 
-      <div v-if="thinking" class="flex w-full max-w-2xl p-2 gap-2 rounded">
-        <span>🤔</span>
+      <div v-if="thinking" class="flex w-full p-2 gap-2">
+        <div class="w-10" />
+        <span class="text-2xl">🤔</span>
         <p>Thinking ...</p>
       </div>
     </div>

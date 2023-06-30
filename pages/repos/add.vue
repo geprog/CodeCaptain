@@ -67,7 +67,7 @@ function debounce<T extends Function>(cb: T, wait = 20) {
 
 const updateSearch = debounce((_search: string) => {
   search.value = _search;
-}, 300);
+}, 500);
 
 async function cloneRepo(repoId: string) {
   loading.value = true;

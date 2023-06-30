@@ -30,9 +30,3 @@ def conversation(conversationInput: Conversation):
         conversationInput.chat_history,
     )
     return conversationInput
-
-
-@app.post("/index-issue")
-def perform_issue_index(indexInfo: IssueIndexInfo):
-    update_index_with_issues(indexInfo.repo_path, indexInfo.issue_file_names)
-    return "success"

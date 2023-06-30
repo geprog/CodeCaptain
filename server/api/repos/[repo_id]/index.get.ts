@@ -12,14 +12,13 @@ async function dirExists(path: string) {
 }
 
 export default defineEventHandler(async (event) => {
-  // const token = getCookie(event, "gh_token");
+  const config = useRuntimeConfig();
   const token = getHeader(event, "gh_token");
   const octokit = new Octokit({ auth: token });
 
-  const user = (await octokit.request("GET /user")).data;
+  // TODO: check user access to repo
 
-  const config = useRuntimeConfig();
-  const dataFolder = path.join(config.data_path, user.login);
+  const dataFolder = path.join(config.data_path);
 
   if (!(await dirExists(dataFolder))) {
     await fs.mkdir(dataFolder, { recursive: true });

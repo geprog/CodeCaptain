@@ -13,8 +13,6 @@ data_path = os.getenv("DATA_PATH")
 
 
 def ask(repo_name, question, chat_history=[]):
-    print(data_path)
-
     embeddings = OpenAIEmbeddings(disallowed_special=())
 
     repo_path = os.path.join(data_path, repo_name)

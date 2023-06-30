@@ -15,11 +15,10 @@ export default defineEventHandler(async (event) => {
   // const token = getCookie(event, "gh_token");
   const token = getHeader(event, "gh_token");
   const octokit = new Octokit({ auth: token });
-
-  const user = (await octokit.request("GET /user")).data;
-
   const config = useRuntimeConfig();
-  const dataFolder = path.join(config.data_path, user.login);
+  const dataFolder = config.data_path;
+
+  // TODO: check user access to repo
 
   if (!(await dirExists(dataFolder))) {
     await fs.mkdir(dataFolder, { recursive: true });

@@ -1,12 +1,12 @@
 import os
 
 
-def generate_project_structure_description(project_path):
+def generate_file_structure_description(project_path):
     repo_path = os.path.join(project_path, "repo")
 
     print("generate description for project in path", repo_path)
 
-    initial_template = "The folder structure of the Project is described below.\n"
+    initial_template = "The folder structure of the Project is described below:\n"
 
     no_files = "contains no files"
     no_folders = "contains no folders"
@@ -32,5 +32,5 @@ def generate_project_structure_description(project_path):
 
         body_desc = "{}\n {} {}".format(body_desc, folders_desc, files_desc)
 
-    with open(os.path.join(project_path, "project-structure.txt"), "w+") as desc:
+    with open(os.path.join(project_path, "file-structure.txt"), "w+") as desc:
         desc.write("{} \n {}".format(initial_template, body_desc))

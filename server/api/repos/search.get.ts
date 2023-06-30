@@ -1,6 +1,5 @@
 import { Octokit } from "octokit";
 import { promises as fs } from "fs";
-import * as path from "path";
 
 async function dirExists(path: string) {
   try {
@@ -13,13 +12,15 @@ async function dirExists(path: string) {
 
 export default defineEventHandler(async (event) => {
   // const token = getCookie(event, "gh_token");
+  const config = useRuntimeConfig();
   const token = getHeader(event, "gh_token");
   const octokit = new Octokit({ auth: token });
+
+  // TODO: check user access to repo
+
   const search = ((getQuery(event)?.search as string | undefined) || "").trim();
 
-  const user = (await octokit.request("GET /user")).data;
-
-  const dataFolder = path.join("data", user.login);
+  const dataFolder = config.data_path;
 
   if (!(await dirExists(dataFolder))) {
     await fs.mkdir(dataFolder, { recursive: true });

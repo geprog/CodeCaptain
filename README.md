@@ -23,6 +23,8 @@ Use the command `python uvicorn pyserver:app --reload --app-dir=ai` to start the
 - [ ] try gpt-4 and system messages
 - [ ] update embeddings on commits
 - [ ] show related code parts in UI
+- [ ] add some proper database for user and repos
+- [ ] check __ACCESS__ of user to repo
 
 ## Appreciations
 
