@@ -10,5 +10,8 @@ export default defineNuxtConfig({
     github: {
       clientSecret: process.env.NUXT_GITHUB_CLIENT_SECRET,
     },
+    api: {
+      url: process.env.NUXT_API_URL || "http://localhost:8000",
+    },
   },
 });

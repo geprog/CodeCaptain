@@ -5,7 +5,7 @@
       <div
         v-for="message in chatHistory"
         :key="message.id"
-        class="mb-4"
+        class="mb-4 rounded-md"
         style="background-color: #10101f"
       >
         <div v-if="message.sender === 'user'" class="flex justify-start w-full">
@@ -15,12 +15,21 @@
           </div>
         </div>
         <div
+          v-else-if="message.sender === 'error'"
+          class="flex justify-start w-full bg-red-700 rounded-md"
+        >
+          <div class="max-w-15 p-2 text-white rounded-lg flex gap-2">
+            ❌
+            <vue-markdown :source="message.text"></vue-markdown>
+          </div>
+        </div>
+        <div
           v-else
-          class="flex justify-start w-full"
+          class="flex justify-start w-full rounded-md"
           style="background-color: #1c1f37"
         >
           <div class="max-w-15 p-2 text-white rounded-lg flex gap-2">
-            👽
+            🤖
             <vue-markdown :source="message.text"></vue-markdown>
           </div>
         </div>
@@ -28,11 +37,11 @@
 
       <div v-if="thinking" class="mb-4" style="background-color: #10101f">
         <div
-          class="flex justify-start w-full"
+          class="flex justify-start w-full rounded-md"
           style="background-color: #1c1f37"
         >
           <div class="max-w-15 p-2 text-white rounded-lg flex gap-2">
-            👽
+            🤔
             <p>Thinking ...</p>
           </div>
         </div>
@@ -59,7 +68,7 @@
 </template>
 
 <script lang="ts" setup>
-import VueMarkdown from 'vue-markdown-render'
+import VueMarkdown from "vue-markdown-render";
 
 const chatHistory = ref([
   { id: 2, sender: "assistant", text: "Hi there! How can I assist you?" },
@@ -88,27 +97,38 @@ async function sendMessage() {
 
   thinking.value = true;
 
-  const res = await $fetch(`/api/repos/${route.params.repo_id}/chat`, {
-    method: "POST",
-    body: JSON.stringify({
-      message,
-    }),
-    headers: {
-      gh_token: githubToken.value!,
-    },
-  });
+  try {
+    const res: { answer: string } = await $fetch(
+      `/api/repos/${route.params.repo_id}/chat`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          message,
+        }),
+        headers: {
+          gh_token: githubToken.value!,
+        },
+      }
+    );
+
+    chatHistory.value.push({
+      id: Date.now(),
+      sender: "assistant",
+      text: res.answer,
+    });
+
+    console.log(res.answer);
+  } catch (error) {
+    console.error(error);
+
+    chatHistory.value.push({
+      id: Date.now(),
+      sender: "error",
+      text: (error as Error).message,
+    });
+  }
 
   thinking.value = false;
-
-  console.log(res);
-
-  chatHistory.value.push({
-    id: Date.now(),
-    sender: "assistant",
-    text: ref(res.answer),
-  });
-
-  console.log(res.answer);
 }
 </script>
 
