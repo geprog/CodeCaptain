@@ -32,5 +32,5 @@ def generate_project_structure_description(project_path):
 
         body_desc = "{}\n {} {}".format(body_desc, folders_desc, files_desc)
 
-    with open(f"{project_path}/project-structure.txt", "w+") as desc:
+    with open(os.path.join(project_path, "project-structure.txt"), "w+") as desc:
         desc.write("{} \n {}".format(initial_template, body_desc))

@@ -14,7 +14,8 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 data_path = os.getenv("DATA_PATH")
 
 
-def update_index_with_issues(repo_path, issueFilenames):
+def update_index_with_issues(repo_name):
+    repo_path = os.path.join(data_path, repo_name)
     embeddings = OpenAIEmbeddings(disallowed_special=())
     db = DeepLake(
         dataset_path=os.path.join(repo_path, "vector_store"),
@@ -22,12 +23,15 @@ def update_index_with_issues(repo_path, issueFilenames):
         overwrite=True,
     )  # dataset would be publicly available
     docs = []
-    for name in issueFilenames:
-        docs.extend(
-            TextLoader(
-                os.path.join(repo_path, "issues", name), encoding="utf-8"
-            ).load_and_split()
-        )
+
+    for dirpath, _, filenames in os.walk(os.path.join(repo_path, "issues")):
+        for file in filenames:
+            try:
+                loader = TextLoader(os.path.join(
+                    dirpath, file), encoding="utf-8")
+                docs.extend(loader.load_and_split())
+            except Exception as e:
+                pass
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     texts = text_splitter.split_documents(docs)
     db.add_documents(texts)
@@ -49,11 +53,19 @@ def generate_index(repo_name):
     for dirpath, _, filenames in os.walk(os.path.join(repo_path, "repo")):
         for file in filenames:
             try:
-                loader = TextLoader(os.path.join(dirpath, file), encoding="utf-8")
+                loader = TextLoader(os.path.join(
+                    dirpath, file), encoding="utf-8")
                 docs.extend(loader.load_and_split())
             except Exception as e:
                 pass
-
+    for dirpath, _, filenames in os.walk(os.path.join(repo_path, "issues")):
+        for file in filenames:
+            try:
+                loader = TextLoader(os.path.join(
+                    dirpath, file), encoding="utf-8")
+                docs.extend(loader.load_and_split())
+            except Exception as e:
+                pass
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     texts = text_splitter.split_documents(docs)
 
