@@ -1,9 +1,8 @@
 <template>
-  <div
-    class="flex flex-col h-screen w-screen text-gray-200"
-    style="background-color: #141627"
-  >
-    <header class="flex w-full h-16 border-gray-700 border-b p-4 items-center">
+  <div class="flex flex-col h-screen w-screen text-gray-200 bg-gray-700">
+    <header
+      class="flex w-full h-16 border-gray-700 bg-gray-900 border-b p-4 items-center"
+    >
       <a class="text-xl flex gap-2 items-center" href="/">
         <img src="/icon.svg" alt="CodeCaptain logo" class="w-10 -rotate-45" />
         codecaptain.ai</a

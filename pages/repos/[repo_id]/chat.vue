@@ -47,16 +47,15 @@
         </div>
       </div>
     </div>
-    <div class="p-4" style="background-color: #0a0b14">
+    <div class="p-4">
       <!-- Input field -->
       <div class="flex">
-        <input
+        <TextInput
           v-model="inputText"
           @keydown.enter="sendMessage"
           type="text"
-          class="flex-1 px-4 h-12 py-2 mr-12 rounded"
+          class="flex-1 px-4 h-12 py-2 mr-12"
           placeholder="Type a message..."
-          style="background-color: #1c1f37"
         />
         <input type="checkbox" id="inputCheck" hidden />
         <label for="inputCheck" class="fab-btn" @click="sendMessage">
