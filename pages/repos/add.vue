@@ -33,8 +33,6 @@
 </template>
 
 <script setup lang="ts">
-import { debounce } from "lodash";
-
 const router = useRouter();
 const githubCookie = useGithubCookie();
 const loading = ref(false);
@@ -56,8 +54,17 @@ const { data: repositories } = await useAsyncData(
   }
 );
 
+function debounce<T extends (...args: any) => any>(func: T, timeout = 300) {
+  let timer: number;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timer);
+    timer = setTimeout(func(args), timeout) as unknown as number;
+  };
+}
+
 const updateSearch = debounce((_search: string) => {
   search.value = _search;
+  return _search;
 }, 300);
 
 async function cloneRepo(repoId: string) {
