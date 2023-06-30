@@ -5,7 +5,7 @@
 
   <div v-else class="mx-auto flex flex-col items-center max-w-2xl">
     <TextInput
-      model-value="search"
+      :model-value="search"
       placeholder="Search for a repo ..."
       class="my-4"
       @update:model-value="updateSearch"
@@ -36,9 +36,10 @@
 <script setup lang="ts">
 const router = useRouter();
 const githubCookie = useGithubCookie();
+const user = await fetchGithubUser();
 const loading = ref(false);
 
-const search = ref("");
+const search = ref(`user:${user.value?.login}`);
 const { data: repositories } = await useAsyncData(
   "repositories",
   () =>

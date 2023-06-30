@@ -34,7 +34,9 @@ def update_index_with_issues(repo_path, issueFilenames):
 
 
 def generate_index(repo_name):
-    repo_path = os.path.join(data_path, "data", repo_name)
+    repo_path = os.path.join(data_path, repo_name)
+    repo_path = os.path.abspath(repo_path)
+    print(repo_path)
 
     generate_project_structure_description(repo_path)
     embeddings = OpenAIEmbeddings(disallowed_special=())

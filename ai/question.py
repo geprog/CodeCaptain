@@ -17,7 +17,7 @@ def ask(repo_name, question, chat_history=[]):
 
     embeddings = OpenAIEmbeddings(disallowed_special=())
 
-    repo_path = os.path.join(data_path, "data", repo_name)
+    repo_path = os.path.join(data_path, repo_name)
 
     db = DeepLake(
         dataset_path=os.path.join(repo_path, "vector_store"),
