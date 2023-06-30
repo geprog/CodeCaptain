@@ -9,12 +9,14 @@
       <Button @click="reIndex">re-index</Button>
     </div>
 
-    <div class="flex-1 flex flex-col p-4 gap-4 items-center overflow-y-auto">
+    <div
+      class="flex-1 flex w-full max-w-4xl flex-col p-4 gap-4 items-center overflow-y-auto"
+    >
       <!-- Chat history section -->
       <div
         v-for="message in chatHistory"
         :key="message.id"
-        class="flex w-full max-w-4xl p-2 gap-2 rounded"
+        class="flex w-full p-2 gap-2 rounded"
         :class="{
           'bg-red-700': message.sender === 'error',
           'bg-gray-600': message.sender === 'assistant',
