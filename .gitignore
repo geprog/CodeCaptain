@@ -1,7 +1,7 @@
 data/*
 .env
 env/
-data/*
+__pycache__
 
 # Nuxt dev/build outputs
 .output

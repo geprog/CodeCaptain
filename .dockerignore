@@ -1,0 +1,25 @@
+# Ignore everything
+*
+
+# Allow files and directories
+!/ai
+!/components
+!/composables
+!/layouts
+!/pages
+!/public
+!/server
+!/nuxt.config.ts
+!/package.json
+!/pnpm-lock.yaml
+!/.npmrc
+!/tsconfig.json
+!/requirements.txt
+!/Procfile
+
+# Ignore unnecessary files inside allowed directories
+# This should go after the allowed directories
+**/*~
+**/*.log
+**/.DS_Store
+**/Thumbs.db
