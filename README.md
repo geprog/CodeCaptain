@@ -1,4 +1,4 @@
-# Dev Addy
+# codecaptain.ai
 
 A dev advisor to ask about your code and project
 

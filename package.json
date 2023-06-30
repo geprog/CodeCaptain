@@ -1,5 +1,5 @@
 {
-  "name": "dev-addy",
+  "name": "codecaptain",
   "private": true,
   "scripts": {
     "build": "nuxt build",
