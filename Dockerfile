@@ -20,7 +20,7 @@ EXPOSE 3000
 WORKDIR /app
 COPY --from=builder /app/.output .output
 COPY --from=overmind /app/overmind /bin/overmind
-RUN apt update -y && apt install tmux nodejs -y
+RUN apt update -y && apt install tmux nodejs git -y
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY Procfile .
