@@ -2,10 +2,14 @@ import { Octokit } from "octokit";
 import { promises as fs } from "fs";
 import * as path from "path";
 
-async function dirExists(path: string) {
+async function exists(path: string, type: "file" | "dir" = "dir") {
   try {
     const stat = await fs.stat(path);
-    return stat.isDirectory();
+    if (type === "file") {
+      return stat.isFile();
+    } else {
+      return stat.isDirectory();
+    }
   } catch {
     return false;
   }
@@ -20,7 +24,7 @@ export default defineEventHandler(async (event) => {
 
   // TODO: check user access to repo
 
-  if (!(await dirExists(dataFolder))) {
+  if (!(await exists(dataFolder))) {
     await fs.mkdir(dataFolder, { recursive: true });
   }
 
@@ -29,6 +33,13 @@ export default defineEventHandler(async (event) => {
   const repoFolders = await fs.readdir(dataFolder, { withFileTypes: true });
   for (const dirent of repoFolders) {
     if (!dirent.isDirectory()) continue;
+
+    if (
+      !(await exists(path.join(dataFolder, dirent.name, "repo.json"), "file"))
+    ) {
+      continue;
+    }
+
     const info = JSON.parse(
       await fs.readFile(
         path.join(dataFolder, dirent.name, "repo.json"),
