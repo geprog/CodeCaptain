@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for codecaptain on 2023-06-30T07:59:33+02:00
+# fly.toml app configuration file generated for codecaptain on 2023-06-30T10:17:53+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -11,6 +11,10 @@ kill_timeout = "5s"
 [processes]
   app = "overmind start"
 
+[[mounts]]
+  source = "codecaptain_data"
+  destination = "/app/data"
+
 [http_service]
   internal_port = 3000
   force_https = true
@@ -18,7 +22,3 @@ kill_timeout = "5s"
   auto_start_machines = true
   min_machines_running = 0
   processes = ["app"]
-
-[mounts]
-  source = "codecaptain_data"
-  destination = "/app/data"

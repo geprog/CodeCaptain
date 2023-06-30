@@ -22,7 +22,6 @@ COPY --from=builder /app/.output .output
 COPY --from=overmind /app/overmind /bin/overmind
 RUN apt update -y && apt install tmux nodejs -y
 COPY requirements.txt .
-# RUN apk add --update tmux python3 python3-dev gfortran py3-pip build-base py3-numpy
 RUN pip install -r requirements.txt
 COPY Procfile .
 COPY ai ai
