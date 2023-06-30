@@ -8,8 +8,9 @@ from langchain.vectorstores import DeepLake
 from dotenv import load_dotenv
 from langchain.text_splitter import CharacterTextSplitter
 
-
 load_dotenv()
+
+data_path = os.getenv("DATA_PATH")
 
 
 def update_index_with_issues(repo_path, issueFilenames):
@@ -22,17 +23,17 @@ def update_index_with_issues(repo_path, issueFilenames):
     docs = []
     for name in issueFilenames:
         docs.extend(
-        TextLoader(
-            os.path.join(repo_path, "issues", name), encoding="utf-8"
-        ).load_and_split()
-    )
+            TextLoader(
+                os.path.join(repo_path, "issues", name), encoding="utf-8"
+            ).load_and_split()
+        )
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     texts = text_splitter.split_documents(docs)
     db.add_documents(texts)
 
 
 def generate_index(repo_name):
-    repo_path = os.path.join("data", repo_name)
+    repo_path = os.path.join(data_path, "data", repo_name)
 
     generate_project_structure_description(repo_path)
     embeddings = OpenAIEmbeddings(disallowed_special=())

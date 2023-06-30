@@ -22,11 +22,13 @@ demo = [
     "What is the flow of vehicle data collection?",
 ]
 
+data_path = os.getenv("DATA_PATH")
+
 
 def ask(repo_name, question=demo[0], chat_history=[]):
     embeddings = OpenAIEmbeddings(disallowed_special=())
 
-    repo_path = os.path.join("data", repo_name)
+    repo_path = os.path.join(data_path, "data", repo_name)
 
     db = DeepLake(
         dataset_path=os.path.join(repo_path, "vector_store"),
@@ -42,16 +44,14 @@ def ask(repo_name, question=demo[0], chat_history=[]):
     retriever.search_kwargs["maximal_marginal_relevance"] = True
     retriever.search_kwargs["k"] = 10
 
-    model = ChatOpenAI(
-        model_name="gpt-3.5-turbo-16k"
-    ) 
+    model = ChatOpenAI(model_name="gpt-3.5-turbo-16k")
     qa = ConversationalRetrievalChain.from_llm(model, retriever=retriever)
     end = time.time()
 
     chat_history = []
     result = qa({"question": question, "chat_history": chat_history})
     chat_history.append((question, result["answer"]))
-    return result['answer'], chat_history
+    return result["answer"], chat_history
 
     end = time.time()
 
