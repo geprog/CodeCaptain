@@ -32,5 +32,5 @@ def conversation(conversationInput: Conversation):
 
 @app.post("/index-issue")
 def perform_issue_index(indexInfo: IssueIndexInfo):
-    update_index_with_issues(indexInfo.repo_path, indexInfo.issue_file_name)
+    update_index_with_issues(indexInfo.repo_path, indexInfo.issue_file_names)
     return "success"
