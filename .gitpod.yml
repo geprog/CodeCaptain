@@ -2,6 +2,8 @@ image: gitpod/workspace-full-vnc:latest
 
 tasks:
   - name: Setup
+    env:
+          NUXT_TELEMETRY_DISABLED: '0'
     before: |
       nvm install 20
       nvm use 20
@@ -21,8 +23,7 @@ tasks:
       nvm use default
     command: |
       pnpm start
-      env:
-          NUXT_TELEMETRY_DISABLED: '0'
+      
   - name: Run API
     before: |
       gp sync-await setup
