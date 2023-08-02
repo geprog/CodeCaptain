@@ -21,6 +21,8 @@ tasks:
       nvm use default
     command: |
       pnpm start
+      env:
+          NUXT_TELEMETRY_DISABLED: '0'
   - name: Run API
     before: |
       gp sync-await setup
@@ -37,7 +39,7 @@ vscode:
 
 ports:
   - name: App
-    port: 5137
+    port: 3000
   - name: API
     port: 8000
     onOpen: ignore
