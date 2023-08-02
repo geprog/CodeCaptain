@@ -8,6 +8,10 @@ Use the command `python uvicorn pyserver:app --reload --app-dir=ai` to start the
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/geprog/codecaptain)
 
+## Database
+
+We are using Drizzle ORM and sqlite as of now. The schemas need to be inside a folder called schemas and the migrations will be inside the folder of the same name. checkout `drizzle.config.ts` for the settings.
+
 ## ToDo
 
 - [ ] use CodeSplitter and code-detector to get code parts
