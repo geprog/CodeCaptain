@@ -13,9 +13,12 @@
     "@nuxt/devtools": "latest",
     "@nuxtjs/tailwindcss": "^6.8.0",
     "@types/node": "^18",
+    "drizzle-kit": "^0.19.12",
     "nuxt": "^3.6.1"
   },
   "dependencies": {
+    "better-sqlite3": "^8.5.0",
+    "drizzle-orm": "^0.27.2",
     "nuxt-icon": "^0.4.1",
     "octokit": "^2.1.0",
     "simple-git": "^3.19.1",
