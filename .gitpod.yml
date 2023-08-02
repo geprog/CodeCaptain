@@ -3,7 +3,7 @@ image: gitpod/workspace-full-vnc:latest
 tasks:
   - name: Setup
     env:
-          NUXT_TELEMETRY_DISABLED: '0'
+      NUXT_TELEMETRY_DISABLED: '0'
     before: |
       nvm install 20
       nvm use 20
