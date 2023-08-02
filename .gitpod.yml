@@ -21,9 +21,10 @@ tasks:
       nvm use default
     command: |
       pnpm start
-  - name: Run backend
+  - name: Run API
     before: |
       gp sync-await setup
+      pip install -r requirements.txt
     command: |
       uvicorn pyserver:app --reload --app-dir=ai
 
@@ -38,5 +39,5 @@ ports:
   - name: App
     port: 5137
   - name: API
-    port: 8080
+    port: 8000
     onOpen: ignore
