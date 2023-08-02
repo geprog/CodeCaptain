@@ -2,6 +2,8 @@ image: gitpod/workspace-full-vnc:latest
 
 tasks:
   - name: Setup
+    env:
+      NUXT_TELEMETRY_DISABLED: '0'
     before: |
       nvm install 20
       nvm use 20
@@ -21,9 +23,11 @@ tasks:
       nvm use default
     command: |
       pnpm start
-  - name: Run backend
+      
+  - name: Run API
     before: |
       gp sync-await setup
+      pip install -r requirements.txt
     command: |
       uvicorn pyserver:app --reload --app-dir=ai
 
@@ -36,7 +40,7 @@ vscode:
 
 ports:
   - name: App
-    port: 5137
+    port: 3000
   - name: API
-    port: 8080
+    port: 8000
     onOpen: ignore
