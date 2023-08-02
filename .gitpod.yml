@@ -1,0 +1,42 @@
+image: gitpod/workspace-full-vnc:latest
+
+tasks:
+  - name: Setup
+    before: |
+      nvm install 20
+      nvm use 20
+      npm install -g pnpm@8
+      nvm alias default 20
+      echo "nvm use default &>/dev/null" >> ~/.bashrc.d/51-nvm-fix
+    init: |
+      pnpm install
+      cp .env.sample .env
+    command: |
+      git config pull.rebase false
+      gp sync-done setup
+      exit 0
+  - name: Run app
+    before: |
+      gp sync-await setup
+      nvm use default
+    command: |
+      pnpm start
+  - name: Run backend
+    before: |
+      gp sync-await setup
+    command: |
+      uvicorn pyserver:app --reload --app-dir=ai
+
+vscode:
+  extensions:
+    - editorconfig.editorconfig
+    - dbaeumer.vscode-eslint
+    - esbenp.prettier-vscode
+    - Vue.volar
+
+ports:
+  - name: App
+    port: 5137
+  - name: API
+    port: 8080
+    onOpen: ignore
