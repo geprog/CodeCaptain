@@ -42,6 +42,7 @@
 const login = githubLogin;
 const logout = githubLogout;
 const user = await fetchGithubUser();
+// await saveUser(user.value);
 </script>
 
 <style>
