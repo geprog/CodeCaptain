@@ -9,6 +9,6 @@ export default {
   out: "./db/migrations",
   driver: 'better-sqlite' satisfies Drivers,
   dbCredentials: {
-    url: '',
+    url: './codeCaptain.db',
   }
 } satisfies Config;
