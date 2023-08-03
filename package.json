@@ -7,22 +7,26 @@
     "start": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "migrate": "drizzle-kit generate:sqlite",
+    "drop":"drizzle-kit drop",
+    "push-schema":"drizzle-kit push:sqlite"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
-    "@nuxtjs/tailwindcss": "^6.8.0",
-    "@types/node": "^18",
-    "better-sqlite3": "^8.5.0",
+    "@nuxtjs/tailwindcss": "6.8.0",
+    "@types/node": "18",
+    "@types/better-sqlite3": "7.6.4",
+    "better-sqlite3": "8.5.0",
     "drizzle-kit": "^0.19.12",
-    "nuxt": "^3.6.1"
+    "nuxt": "3.6.1"
   },
   "dependencies": {
-    "drizzle-orm": "^0.27.2",
-    "nuxt-icon": "^0.4.1",
-    "octokit": "^2.1.0",
-    "simple-git": "^3.19.1",
-    "vue-markdown-render": "^2.0.1",
-    "better-sqlite3": "^8.5.0"
+    "better-sqlite3": "8.5.0",
+    "drizzle-orm": "0.27.2",
+    "nuxt-icon": "0.4.1",
+    "octokit": "2.1.0",
+    "simple-git": "3.19.1",
+    "vue-markdown-render": "2.0.1"
   }
 }
