@@ -1,6 +1,12 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
-
+export type User = {
+    id: number,
+    loginName: string,
+    name: string,
+    avatarUrl: string,
+    email: string,
+};
 export const userSchema = sqliteTable('users',{
     id: integer('id').primaryKey(),
     loginName: text('login'),
