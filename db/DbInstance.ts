@@ -8,7 +8,7 @@ export default class DatabaseInstance {
 
     public static getDBInstance(): BetterSQLite3Database{
        if(!this.db){
-        const sqlite = new Database(process.env.DATABASE_NAME);
+        const sqlite = new Database(`${process.env.DATABASE_NAME}.db`);
         this.db = drizzle(sqlite);
        }
 
