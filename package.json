@@ -10,7 +10,8 @@
     "postinstall": "nuxt prepare",
     "migrate": "drizzle-kit generate:sqlite",
     "drop":"drizzle-kit drop",
-    "push-schema":"drizzle-kit push:sqlite"
+    "push-schema":"drizzle-kit push:sqlite",
+    "db-explorer": "drizzle-kit studio"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",

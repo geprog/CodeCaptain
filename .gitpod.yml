@@ -23,6 +23,10 @@ tasks:
       nvm use default
     command: |
       pnpm start
+
+  - name: Run dbExplorer
+    command: |
+      pnpm drizzle-kit studio
       
   - name: Run API
     before: |
@@ -43,4 +47,6 @@ ports:
     port: 3000
   - name: API
     port: 8000
+  - name: dbExplorer
+    port: 4983
     onOpen: ignore
