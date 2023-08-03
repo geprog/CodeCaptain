@@ -1,9 +1,14 @@
 import type { Config } from "drizzle-kit";
 
-type Drivers = 'pg' | 'mysql2' | 'better-sqlite' | 'libsql' | 'turso'; // https://orm.drizzle.team/kit-docs/config-reference
- 
+/**For config references visit  https://orm.drizzle.team/kit-docs/config-reference
+ */
+
+type Drivers = 'pg' | 'mysql2' | 'better-sqlite' | 'libsql' | 'turso'; 
 export default {
-  schema: ["./schemas","./schemas/*"],
-  out: "./migrations",
+  schema: ["./db/schemas","./db/schemas/*"],
+  out: "./db/migrations",
   driver: 'better-sqlite' satisfies Drivers,
+  dbCredentials: {
+    url: '',
+  }
 } satisfies Config;

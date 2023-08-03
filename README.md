@@ -10,7 +10,7 @@ Use the command `python uvicorn pyserver:app --reload --app-dir=ai` to start the
 
 ## Database
 
-We are using Drizzle ORM and sqlite as of now. The schemas need to be inside a folder called schemas and the migrations will be inside the folder of the same name. checkout `drizzle.config.ts` for the settings.
+We are using Drizzle ORM and sqlite as of now. The schemas need to be inside db/schemas and the migrations will be inside db/migrations. checkout `drizzle.config.ts` for the settings.
 
 ## ToDo
 
