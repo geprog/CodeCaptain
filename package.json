@@ -11,7 +11,8 @@
     "migrate": "drizzle-kit generate:sqlite",
     "drop":"drizzle-kit drop",
     "push-schema":"drizzle-kit push:sqlite",
-    "db-explorer": "drizzle-kit studio"
+    "db-explorer": "drizzle-kit studio",
+    "clean": "rm -rf dist/ node_modules/ .eslintcache"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
