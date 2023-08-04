@@ -8,7 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "check-format": "prettier --check --ignore-path .gitignore .",
+    "check-format": "prettier --check .",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
