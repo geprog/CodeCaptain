@@ -28,7 +28,10 @@ Use the command `python uvicorn pyserver:app --reload --app-dir=ai` to start the
 - [ ] use message history when asking a question
 - [ ] autocomplete while asking questions
 - [ ] skip gitignored and .git files when indexing
-
+- [ ] add limits
+  - [ ] max number of questions per day
+  - [ ] max number of repos per user
+  - [ ] max number of repo updates per month
 
 ## Appreciations
 
