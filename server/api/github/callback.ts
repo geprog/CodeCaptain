@@ -30,8 +30,7 @@ export default defineEventHandler(async (event) => {
     name: user.data.name,
     avatarUrl: user.data.avatar_url,
     email: user.data.email,
-  });
-  console.log(createdUser);
+  }).run();
 
   // TODO: set cookie using jwt-token etc instead of plain token
   setCookie(event, 'gh_token', token, { path: '/' });
