@@ -53,7 +53,7 @@ def generate_index(repo_name):
         dataset_path=os.path.join(repo_path, "vector_store"),
         embedding_function=embeddings,
         overwrite=True,
-    )  # dataset would be publicly available
+    )
     db.add_documents(texts)
 
     print("done")

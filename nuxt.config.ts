@@ -15,11 +15,16 @@ export default defineNuxtConfig({
     },
     data_path: process.env.DATA_PATH || "data",
   },
-  vite: {
-    server: {
-      watch: {
-        ignored: ["data/**"],
-      },
-    },
-  },
+  ignore: [
+    "**/*.stories.{js,ts,jsx,tsx}",
+    "**/*.{spec,test}.{js,ts,jsx,tsx}",
+    "**/*.d.ts",
+    ".output",
+    ".git",
+    ".cache",
+    "/<rootDir>/.nuxt/analyze",
+    "/<rootDir>/.nuxt",
+    "**/-*.*",
+    "/<rootDir>/data",
+  ],
 });

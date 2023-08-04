@@ -54,9 +54,13 @@ export default defineEventHandler(async (event) => {
     path.join(folder, "repo.json"),
     JSON.stringify(repo, null, 2)
   );
+  console.log("wrote repo.json");
 
   // write issues
   if (!(await dirExists(path.join(folder, "issues")))) {
+    await fs.mkdir(path.join(folder, "issues"), { recursive: true });
+  } else {
+    await fs.rm(path.join(folder, "issues"), { recursive: true });
     await fs.mkdir(path.join(folder, "issues"), { recursive: true });
   }
 
@@ -75,49 +79,48 @@ export default defineEventHandler(async (event) => {
         continue;
       }
 
-      const title = issue.title;
-      const body = issue.body;
-      const labels = issue.labels;
+      // const pull_request = issue.pull_request?.diff_url;
 
-      const pull_request = issue.pull_request?.diff_url;
+      let issueString = `# issue "${issue.title}" (${issue.number})`;
 
-      const comments = (await octokit.request(`GET ${issue.comments_url}`))
-        .data;
-
-      const labs = labels.map(
-        (label, index) =>
-          `\n\nlabel ${index + 1} named ${label.name} has the description ${
-            label.description
-          }`
-      );
-
-      const coms = comments.map(
-        (comment) => ` \n\nthe user ${comment.user.login} said: ${comment.body}`
-      );
-
-      let writeString = `In the github issue "${title}"`;
-
-      if (!!body || body !== "") {
-        writeString = writeString.concat(` the requirement is: ${body}\n\n`);
+      if (issue.labels.length !== 0) {
+        issueString +=
+          `\n\nLabels: ` +
+          issue.labels
+            .map((label, index) =>
+              typeof label === "string"
+                ? label
+                : `${label.name} (${label.description})`
+            )
+            .join(", ");
       }
-      if (labs.length !== 0) {
-        writeString = writeString.concat(
-          `The issue has the following labels: ${labs} \n\n`
-        );
+
+      if (issue.body !== "") {
+        issueString += `\n\n${issue.body}`;
       }
-      if (!!coms || coms.length !== 0) {
-        writeString = writeString.concat(
-          `The issue has the following comments: ${coms}`
-        );
+
+      if (issue.comments !== 0) {
+        const comments = (await octokit.request(`GET ${issue.comments_url}`))
+          .data;
+
+        issueString +=
+          `\n\n## Comments:\n` +
+          comments
+            .map((comment) => `- ${comment.user.login}: ${comment.body}`)
+            .join("\n");
       }
 
       await fs.writeFile(
-        path.join(folder, "issues", `${issue.id}.txt`),
-        writeString
+        path.join(folder, "issues", `${issue.number}.md`),
+        issueString
       );
     }
+    console.log("wrote ", response.data.length, " issues");
+    break;
   }
 
+  // start indexing
+  console.log("start indexing ...");
   const indexingResponse = await $fetch(`${config.api.url}/index`, {
     method: "POST",
     body: {
