@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1691137678474,
+      "tag": "0000_moaning_wendell_vaughn",
+      "breakpoints": true
+    }
+  ]
+}
