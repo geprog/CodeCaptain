@@ -1,0 +1,46 @@
+image: gitpod/workspace-full-vnc:latest
+
+tasks:
+  - name: Setup
+    env:
+      NUXT_TELEMETRY_DISABLED: '0'
+    before: |
+      nvm install 20
+      nvm use 20
+      npm install -g pnpm@8
+      nvm alias default 20
+      echo "nvm use default &>/dev/null" >> ~/.bashrc.d/51-nvm-fix
+    init: |
+      pnpm install
+      cp .env.sample .env
+    command: |
+      git config pull.rebase false
+      gp sync-done setup
+      exit 0
+  - name: Run app
+    before: |
+      gp sync-await setup
+      nvm use default
+    command: |
+      pnpm start
+      
+  - name: Run API
+    before: |
+      gp sync-await setup
+      pip install -r requirements.txt
+    command: |
+      uvicorn pyserver:app --reload --app-dir=ai
+
+vscode:
+  extensions:
+    - editorconfig.editorconfig
+    - dbaeumer.vscode-eslint
+    - esbenp.prettier-vscode
+    - Vue.volar
+
+ports:
+  - name: App
+    port: 3000
+  - name: API
+    port: 8000
+    onOpen: ignore
