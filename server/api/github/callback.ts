@@ -1,5 +1,5 @@
-import { userSchema } from '~/db';
 import { Octokit } from 'octokit';
+import { userSchema } from '../../schemas';
 
 const config = useRuntimeConfig();
 
@@ -25,13 +25,12 @@ export default defineEventHandler(async (event) => {
   const octokit = new Octokit({ auth: token });
 
   const user = await octokit.request('GET /user');
-  const createdUser = db
-    .insert(userSchema)
-    .values({
-      loginName: user.data.login,
-      name: user.data.name,
-    })
-    .returning();
+  const createdUser = await db.insert(userSchema).values({
+    loginName: user.data.login,
+    name: user.data.name,
+    avatarUrl: user.data.avatar_url,
+    email: user.data.email,
+  });
   console.log(createdUser);
 
   // TODO: set cookie using jwt-token etc instead of plain token
