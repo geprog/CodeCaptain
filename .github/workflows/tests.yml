@@ -66,4 +66,4 @@ jobs:
           run_install: true
 
       - name: Check format
-        run: pnpm run lint:format
+        run: pnpm check-format
