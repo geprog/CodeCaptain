@@ -23,7 +23,9 @@
     "@types/better-sqlite3": "7.6.4",
     "better-sqlite3": "8.5.0",
     "drizzle-kit": "^0.19.12",
-    "nuxt": "3.6.1"
+    "nuxt": "3.6.1",
+    "prettier": "^3.0.1",
+    "typescript": "^5.1.6"
   },
   "dependencies": {
     "better-sqlite3": "8.5.0",
