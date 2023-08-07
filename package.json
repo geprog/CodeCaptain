@@ -14,7 +14,8 @@
     "db-explorer": "drizzle-kit studio",
     "clean": "rm -rf dist/ node_modules/ .eslintcache",
     "check-format": "prettier --check .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "fix-format": "prettier -w ."
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
