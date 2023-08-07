@@ -8,7 +8,6 @@ export default defineEventHandler(async (event) => {
 
   if (!code) {
     return sendRedirect(event, '/');
-    return sendRedirect(event, '/');
   }
   const response: any = await $fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
@@ -18,16 +17,8 @@ export default defineEventHandler(async (event) => {
       code,
     },
   });
-  const response: any = await $fetch('https://github.com/login/oauth/access_token', {
-    method: 'POST',
-    body: {
-      client_id: config.public.github.clientId,
-      client_secret: config.github.clientSecret,
-      code,
-    },
-  });
+  
   if (response.error) {
-    return sendRedirect(event, '/');
     return sendRedirect(event, '/');
   }
 
@@ -45,6 +36,5 @@ export default defineEventHandler(async (event) => {
   // TODO: set cookie using jwt-token etc instead of plain token
   setCookie(event, 'gh_token', token, { path: '/' });
 
-  return sendRedirect(event, '/');
   return sendRedirect(event, '/');
 });
