@@ -12,7 +12,9 @@
     "drop":"drizzle-kit drop",
     "push-schema":"drizzle-kit push:sqlite",
     "db-explorer": "drizzle-kit studio",
-    "clean": "rm -rf dist/ node_modules/ .eslintcache"
+    "clean": "rm -rf dist/ node_modules/ .eslintcache",
+    "check-format": "prettier --check .",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
