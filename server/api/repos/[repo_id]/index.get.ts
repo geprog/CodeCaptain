@@ -1,6 +1,6 @@
-import { Octokit } from "octokit";
-import { promises as fs } from "fs";
-import * as path from "path";
+import { Octokit } from 'octokit';
+import { promises as fs } from 'fs';
+import * as path from 'path';
 
 async function dirExists(path: string) {
   try {
@@ -13,7 +13,7 @@ async function dirExists(path: string) {
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
-  const token = getHeader(event, "gh_token");
+  const token = getHeader(event, 'gh_token');
   const octokit = new Octokit({ auth: token });
 
   // TODO: check user access to repo
@@ -28,14 +28,11 @@ export default defineEventHandler(async (event) => {
   if (!repoId) {
     throw createError({
       statusCode: 400,
-      statusMessage: "repo_id is required",
+      statusMessage: 'repo_id is required',
     });
   }
 
-  const body = await fs.readFile(
-    path.join(dataFolder, repoId, "repo.json"),
-    "utf-8"
-  );
+  const body = await fs.readFile(path.join(dataFolder, repoId, 'repo.json'), 'utf-8');
 
   const repo = JSON.parse(body);
 

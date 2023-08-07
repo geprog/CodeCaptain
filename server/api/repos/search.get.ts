@@ -1,5 +1,5 @@
-import { Octokit } from "octokit";
-import { promises as fs } from "fs";
+import { Octokit } from 'octokit';
+import { promises as fs } from 'fs';
 
 async function dirExists(path: string) {
   try {
@@ -13,12 +13,12 @@ async function dirExists(path: string) {
 export default defineEventHandler(async (event) => {
   // const token = getCookie(event, "gh_token");
   const config = useRuntimeConfig();
-  const token = getHeader(event, "gh_token");
+  const token = getHeader(event, 'gh_token');
   const octokit = new Octokit({ auth: token });
 
   // TODO: check user access to repo
 
-  const search = ((getQuery(event)?.search as string | undefined) || "").trim();
+  const search = ((getQuery(event)?.search as string | undefined) || '').trim();
 
   const dataFolder = config.data_path;
 
@@ -32,10 +32,10 @@ export default defineEventHandler(async (event) => {
 
   const q = `is:public fork:false archived:false ${search}`;
 
-  const userRepos = await octokit.request("GET /search/repositories", {
+  const userRepos = await octokit.request('GET /search/repositories', {
     q,
     per_page: 10,
-    sort: "updated",
+    sort: 'updated',
   });
 
   return userRepos.data.items.map((repo) => ({

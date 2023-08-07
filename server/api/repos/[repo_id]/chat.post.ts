@@ -1,8 +1,8 @@
-import { Octokit } from "octokit";
+import { Octokit } from 'octokit';
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
-  const token = getHeader(event, "gh_token");
+  const token = getHeader(event, 'gh_token');
   const octokit = new Octokit({ auth: token });
 
   // TODO: check user access to repo
@@ -11,14 +11,14 @@ export default defineEventHandler(async (event) => {
   if (!repoId) {
     throw createError({
       statusCode: 400,
-      statusMessage: "repo_id is required",
+      statusMessage: 'repo_id is required',
     });
   }
 
   const message = (await readBody(event))?.message;
 
   const chatResponse = await $fetch(`${config.api.url}/ask`, {
-    method: "POST",
+    method: 'POST',
     body: {
       repo_name: repoId,
       question: message,
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     console.error(chatResponse.error);
     throw createError({
       statusCode: 500,
-      statusMessage: "chatbot error",
+      statusMessage: 'chatbot error',
     });
   }
 
