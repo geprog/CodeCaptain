@@ -3,19 +3,18 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
     "start": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "migrate": "drizzle-kit generate:sqlite",
-    "drop": "drizzle-kit drop",
-    "push-schema": "drizzle-kit push:sqlite",
-    "db-explorer": "drizzle-kit studio",
+    "db:generate-migration": "drizzle-kit generate:sqlite",
+    "db:drop": "drizzle-kit drop",
+    "db:push": "drizzle-kit push:sqlite",
+    "db:explorer": "drizzle-kit studio",
     "clean": "rm -rf dist/ node_modules/ .eslintcache",
-    "check-format": "prettier --check .",
-    "typecheck": "tsc --noEmit",
-    "fix-format": "prettier -w ."
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",

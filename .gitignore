@@ -27,6 +27,5 @@ logs
 .env.*
 !.env.example
 
-# File database
-
+# Sqlite database
 *.db
