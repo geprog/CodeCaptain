@@ -1,11 +1,11 @@
-import { Octokit } from "octokit";
-import { promises as fs } from "fs";
-import * as path from "path";
+import { Octokit } from 'octokit';
+import { promises as fs } from 'fs';
+import * as path from 'path';
 
-async function exists(path: string, type: "file" | "dir" = "dir") {
+async function exists(path: string, type: 'file' | 'dir' = 'dir') {
   try {
     const stat = await fs.stat(path);
-    if (type === "file") {
+    if (type === 'file') {
       return stat.isFile();
     } else {
       return stat.isDirectory();
@@ -17,7 +17,7 @@ async function exists(path: string, type: "file" | "dir" = "dir") {
 
 export default defineEventHandler(async (event) => {
   // const token = getCookie(event, "gh_token");
-  const token = getHeader(event, "gh_token");
+  const token = getHeader(event, 'gh_token');
   const octokit = new Octokit({ auth: token });
   const config = useRuntimeConfig();
   const dataFolder = config.data_path;
@@ -34,18 +34,11 @@ export default defineEventHandler(async (event) => {
   for (const dirent of repoFolders) {
     if (!dirent.isDirectory()) continue;
 
-    if (
-      !(await exists(path.join(dataFolder, dirent.name, "repo.json"), "file"))
-    ) {
+    if (!(await exists(path.join(dataFolder, dirent.name, 'repo.json'), 'file'))) {
       continue;
     }
 
-    const info = JSON.parse(
-      await fs.readFile(
-        path.join(dataFolder, dirent.name, "repo.json"),
-        "utf-8"
-      )
-    );
+    const info = JSON.parse(await fs.readFile(path.join(dataFolder, dirent.name, 'repo.json'), 'utf-8'));
 
     repos.push({
       id: dirent.name,

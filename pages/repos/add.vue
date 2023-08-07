@@ -12,21 +12,14 @@
     />
 
     <div v-if="!repositories || repositories.length === 0">No repos found</div>
-    <div
-      class="flex flex-col border border-gray-200 rounded-md gap-4 overflow-y-auto"
-    >
+    <div class="flex flex-col border border-gray-200 rounded-md gap-4 overflow-y-auto">
       <div
         v-for="repo in repositories"
         :key="repo.id"
         class="flex border-b border-gray-200 items-center p-2 gap-2 w-full justify-between min-w-0"
       >
-        <span
-          class="font-bold text-gray-300 flex-wrap truncate overflow-ellipsis"
-          >{{ repo.full_name }}</span
-        >
-        <Button v-if="repo.active" :href="`/repos/${repo.id}/chat`"
-          >Open</Button
-        >
+        <span class="font-bold text-gray-300 flex-wrap truncate overflow-ellipsis">{{ repo.full_name }}</span>
+        <Button v-if="repo.active" :href="`/repos/${repo.id}/chat`">Open</Button>
         <Button v-else @click="cloneRepo(repo.id)">Activate</Button>
       </div>
     </div>
@@ -41,9 +34,9 @@ const loading = ref(false);
 
 const search = ref(`user:${user.value?.login}`);
 const { data: repositories } = await useAsyncData(
-  "repositories",
+  'repositories',
   () =>
-    $fetch("/api/repos/search", {
+    $fetch('/api/repos/search', {
       headers: {
         gh_token: githubCookie.value!,
       },
@@ -53,7 +46,7 @@ const { data: repositories } = await useAsyncData(
     }),
   {
     watch: [search],
-  }
+  },
 );
 
 function debounce<T extends Function>(cb: T, wait = 20) {
@@ -74,7 +67,7 @@ async function cloneRepo(repoId: string) {
   try {
     await $fetch(`/api/repos/${repoId}/clone`, {
       key: `cloneRepo-${repoId}`,
-      method: "POST",
+      method: 'POST',
       headers: {
         gh_token: githubCookie.value!,
       },

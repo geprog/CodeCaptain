@@ -23,7 +23,7 @@ tasks:
       nvm use default
     command: |
       pnpm start
-      
+
   - name: Run API
     before: |
       gp sync-await setup
