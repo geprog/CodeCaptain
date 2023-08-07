@@ -3,26 +3,36 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
     "start": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "check-format": "prettier --check .",
+    "db:generate-migration": "drizzle-kit generate:sqlite",
+    "db:drop": "drizzle-kit drop",
+    "db:push": "drizzle-kit push:sqlite",
+    "db:explorer": "drizzle-kit studio",
+    "clean": "rm -rf dist/ node_modules/ .eslintcache",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@nuxt/devtools": "^0.7.4",
-    "@nuxtjs/tailwindcss": "^6.8.0",
-    "@types/node": "^18",
-    "nuxt": "^3.6.5",
+    "@nuxt/devtools": "latest",
+    "@nuxtjs/tailwindcss": "6.8.0",
+    "@types/node": "18",
+    "@types/better-sqlite3": "7.6.4",
+    "better-sqlite3": "8.5.0",
+    "drizzle-kit": "^0.19.12",
+    "nuxt": "3.6.1",
     "prettier": "^3.0.1",
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "nuxt-icon": "^0.4.1",
-    "octokit": "^2.1.0",
-    "simple-git": "^3.19.1",
-    "vue-markdown-render": "^2.0.1"
+    "better-sqlite3": "8.5.0",
+    "drizzle-orm": "0.27.2",
+    "nuxt-icon": "0.4.1",
+    "octokit": "2.1.0",
+    "simple-git": "3.19.1",
+    "vue-markdown-render": "2.0.1"
   }
 }

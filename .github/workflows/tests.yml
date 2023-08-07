@@ -67,4 +67,4 @@ jobs:
           run_install: true
 
       - name: Check format
-        run: pnpm check-format
+        run: pnpm format:check
