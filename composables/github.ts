@@ -23,10 +23,7 @@ export const fetchGithubUser = async () => {
 export const githubLogin = () => {
   if (process.client) {
     const { github } = useRuntimeConfig().public;
-    window.location.replace(
-      `https://github.com/login/oauth/authorize?client_id=${github.clientId}&scope=public_repo`
-    );
-
+    window.location.replace(`https://github.com/login/oauth/authorize?client_id=${github.clientId}&scope=public_repo`);
   }
 };
 
@@ -34,5 +31,3 @@ export const githubLogout = async () => {
   useGithubCookie().value = null;
   useState('gh_user').value = null;
 };
-
-
