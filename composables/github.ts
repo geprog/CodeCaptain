@@ -35,15 +35,4 @@ export const githubLogout = async () => {
   useState('gh_user').value = null;
 };
 
-export const saveUser = async (user: any) => {
-  await $fetch('/api/users/save', {
-    method: 'POST',
-    body:{
-      id:user.id,
-      name: user.name,
-      loginName: user.login,
-      avatarUrl : user.avatar_url,
-      email: user.email
-    }
-  })
-}
+
