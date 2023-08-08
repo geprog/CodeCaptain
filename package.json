@@ -19,8 +19,8 @@
   "devDependencies": {
     "@nuxt/devtools": "latest",
     "@nuxtjs/tailwindcss": "6.8.0",
-    "@types/node": "18",
     "@types/better-sqlite3": "7.6.4",
+    "@types/node": "18",
     "better-sqlite3": "8.5.0",
     "drizzle-kit": "^0.19.12",
     "nuxt": "3.6.1",
@@ -28,6 +28,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "@gitbeaker/core": "^39.10.3",
     "better-sqlite3": "8.5.0",
     "drizzle-orm": "0.27.2",
     "nuxt-icon": "0.4.1",
