@@ -1,10 +1,12 @@
 import { Octokit } from 'octokit';
 import { userSchema } from '../../schemas';
+import {eq, InferModel} from 'drizzle-orm';
 
 const config = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
   const { code } = getQuery(event);
+  type User = InferModel<typeof userSchema>;
 
   if (!code) {
     return sendRedirect(event, '/');
@@ -26,6 +28,13 @@ export default defineEventHandler(async (event) => {
   const octokit = new Octokit({ auth: token });
 
   const user = await octokit.request('GET /user');
+
+  const userExisting: User[] = await db.select().from(userSchema).where(eq(userSchema.forgeRemoteId, user.data.id))
+
+  if (userExisting.length > 0){
+    return sendRedirect(event, '/');
+  }
+  
   const createdUser = await db
     .insert(userSchema)
     .values({
@@ -35,9 +44,9 @@ export default defineEventHandler(async (event) => {
       avatarUrl: user.data.avatar_url,
       email: user.data.email,
     })
-    .onConflictDoNothing({ target: userSchema.id })
+    .onConflictDoNothing({ target: userSchema.forgeRemoteId })
     .run();
-
+    console.log(createdUser)
   // TODO: set cookie using jwt-token etc instead of plain token
   setCookie(event, 'gh_token', token, { path: '/' });
 
