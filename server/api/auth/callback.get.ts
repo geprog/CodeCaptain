@@ -1,35 +1,23 @@
-import type { H3Event } from 'h3';
-import { User, forgeSchema, userForgesSchema, userSchema } from '../../schemas';
+import { forgeSchema, userForgesSchema, userSchema } from '../../schemas';
 import { and, eq } from 'drizzle-orm';
 import { getForgeFromDB } from '../../forges';
 
-function setUserCookie(event: H3Event, user: User) {
-  // TODO: set cookie using jwt-token etc instead of plain token
-  setCookie(
-    event,
-    'token',
-    JSON.stringify({
-      userId: user.id,
-    }),
-    { path: '/' },
-  );
-
-  return sendRedirect(event, '/');
-}
-
 export default defineEventHandler(async (event) => {
-  const userToken = getCookie(event, 'token');
-  const authenticatedUser = userToken ? (JSON.parse(userToken) as { userId: number }) : undefined; // TODO: use jwt token instead of plain token
+  const authenticatedUser = await getUserFromCookie(event);
 
-  // TODO: get correct forge
-  const forgeId = 1;
+  const { state } = getQuery(event);
+  if (!state) {
+    throw new Error('State is undefined');
+  }
+  // TODO: use better way instead of forge-id as state
+
+  const forgeId = parseInt(state as string);
   const forgeModel = await db.select().from(forgeSchema).where(eq(forgeSchema.id, forgeId)).get();
   if (!forgeModel) {
     throw new Error(`Forge with id ${forgeId} not found`);
   }
 
-  const forge = await getForgeFromDB(forgeModel);
-
+  const forge = getForgeFromDB(forgeModel);
   const oauthUser = await forge.oauthCallback(event);
 
   // authenticated user => update user & login
@@ -41,7 +29,7 @@ export default defineEventHandler(async (event) => {
         name: oauthUser.name,
         email: oauthUser.email,
       })
-      .where(eq(userSchema.id, authenticatedUser.userId))
+      .where(eq(userSchema.id, authenticatedUser.id))
       .returning()
       .get();
 
@@ -49,7 +37,7 @@ export default defineEventHandler(async (event) => {
     await db
       .insert(userForgesSchema)
       .values({
-        userId: authenticatedUser.userId,
+        userId: authenticatedUser.id,
         forgeId: forgeModel.id,
         remoteUserId: oauthUser.remoteUserId,
       })
@@ -57,6 +45,10 @@ export default defineEventHandler(async (event) => {
       .run();
 
     return setUserCookie(event, user);
+  }
+
+  if (!forgeModel.allowLogin) {
+    throw new Error('Login not allowed for this forge');
   }
 
   // try to find user by its remoteUserId

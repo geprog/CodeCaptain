@@ -19,12 +19,24 @@
         </Card>
       </template>
     </div>
+
+    <div v-if="unconnectedForges && unconnectedForges.length > 0">
+      <span>Connect to</span>
+      <Button
+        v-for="forge in unconnectedForges"
+        :key="forge.id"
+        class="flex justify-center items-center"
+        @click="connectForge(forge.oauthRedirectUrl)"
+        >Connect to {{ forge.name }}</Button
+      >
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 const githubCookie = useGithubCookie();
 
+// TODO: get repos via api
 const repositories = ref(
   await $fetch('/api/repos/list', {
     headers: {
@@ -32,4 +44,13 @@ const repositories = ref(
     },
   }),
 );
+
+const forges = await useFetch('/api/user/forges', {
+  server: false,
+});
+const unconnectedForges = computed(() => forges.data.value?.filter((f) => !f.isConnected));
+
+function connectForge(oauthRedirectUrl: string) {
+  window.location.href = oauthRedirectUrl;
+}
 </script>

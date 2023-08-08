@@ -15,7 +15,11 @@
             Logout
           </button>
         </template>
-        <Button v-else @click="login"> <Icon name="fa-brands:github" /> Login with GitHub </Button>
+        <template v-else>
+          <Button v-for="forge in forges" :key="forge.id" @click="login(forge.oauthRedirectUrl)">
+            <Icon name="fa-brands:github" /> Login with {{ forge.name }}
+          </Button>
+        </template>
       </div>
     </header>
 
@@ -31,9 +35,8 @@
 </template>
 
 <script setup lang="ts">
-const login = githubLogin;
-const logout = githubLogout;
-const user = await fetchGithubUser();
+const { user, login, logout } = useAuth();
+const forges = await $fetch('/api/forges');
 </script>
 
 <style>

@@ -10,8 +10,13 @@ Use the command `python uvicorn pyserver:app --reload --app-dir=ai` to start the
 
 ## Database
 
-We are using Drizzle ORM and sqlite as of now. The schemas need to be inside db/schemas and the migrations will be inside db/migrations. checkout `drizzle.config.ts` for the settings.
-use `pnpm push-schema` to directly update the database with new table schemas. This is only intended for development only. Use other commands along with `await migrate(db, { migrationsFolder: "" });` function call in a production environment. More information [https://orm.drizzle.team/kit-docs/quick](here). User `pnpm db-exporer` to open drizzle studio which is in beta state right now.
+Codecaptain is using [Drizzle ORM](https://orm.drizzle.team) and sqlite.
+
+### Migrations
+
+- To generate new migrations run: `pnpm db:generate-migration`
+- To migrate the database and seed it run: `pnpm db:up`
+- To open the database explorer run: `pnpm db:explorer`
 
 ## Appreciations
 

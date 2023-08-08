@@ -19,22 +19,6 @@ export class Github extends Forge {
     });
   }
 
-  public async getUser(forgeRemoteId: string): Promise<User> {
-    const token = '123';
-
-    const octokit = this.getClient(token);
-
-    const githubUser = await octokit.request('GET /user');
-
-    return {
-      id: 0,
-      name: githubUser.data.name,
-      avatarUrl: githubUser.data.avatar_url,
-      email: githubUser.data.email,
-      // forgeRemoteId: githubUser.data.id.toString(),
-    };
-  }
-
   public async getCloneCredentials(todo: unknown): Promise<{
     username: string;
     password: string;
@@ -72,9 +56,9 @@ export class Github extends Forge {
     }
 
     const token = response.access_token;
-    const octokit = new Octokit({ auth: token });
+    const client = this.getClient(token);
 
-    const githubUser = await octokit.request('GET /user');
+    const githubUser = await client.request('GET /user');
 
     return {
       name: githubUser.data.name || undefined,
