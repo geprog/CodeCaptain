@@ -29,11 +29,13 @@ export default defineEventHandler(async (event) => {
   const createdUser = await db
     .insert(userSchema)
     .values({
+      id: user.data.id,
       loginName: user.data.login,
       name: user.data.name,
       avatarUrl: user.data.avatar_url,
       email: user.data.email,
     })
+    .onConflictDoNothing({ target: userSchema.id })
     .run();
 
   // TODO: set cookie using jwt-token etc instead of plain token
