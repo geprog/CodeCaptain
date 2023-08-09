@@ -9,9 +9,14 @@ export default defineEventHandler(async (event) => {
   if (!state) {
     throw new Error('State is undefined');
   }
-  // TODO: use better way instead of forge-id as state
 
-  const forgeId = parseInt(state as string);
+  const session = await useStorage().getItem<{ loginToForgeId: number }>(`oauth:${state}`);
+  if (!session) {
+    throw new Error('Session not found');
+  }
+
+  const forgeId = session.loginToForgeId;
+
   const forgeModel = await db.select().from(forgeSchema).where(eq(forgeSchema.id, forgeId)).get();
   if (!forgeModel) {
     throw new Error(`Forge with id ${forgeId} not found`);

@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm';
 import { forgeSchema, userForgesSchema } from '../../schemas';
-import { getForgeFromDB } from '../../forges';
 import { getUserFromCookie } from '../../utils/auth';
 
 export default defineEventHandler(async (event) => {
@@ -15,8 +14,7 @@ export default defineEventHandler(async (event) => {
   const forges = await db.select().from(forgeSchema).all();
 
   return forges.map((forge) => {
-    const oauthRedirectUrl = getForgeFromDB(forge).getOauthRedirectUrl();
     const isConnected = userForges.some((userForge) => userForge.forgeId === forge.id);
-    return { ...forge, oauthRedirectUrl, isConnected };
+    return { ...forge, isConnected };
   });
 });

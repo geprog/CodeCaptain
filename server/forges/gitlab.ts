@@ -4,19 +4,16 @@ import { Forge as DBForge } from '../schemas';
 import { Gitlab as GitlabApi } from '@gitbeaker/rest';
 
 export class Gitlab extends Forge {
-  private id: number;
   private host: string;
   private clientId: string;
   private clientSecret: string;
-  private redirectUrl: string;
+  private redirectUrl = 'http://localhost:3000/api/auth/callback'; // TODO: allow to configure this redirect url
 
   constructor(forge: DBForge) {
     super();
-    this.id = forge.id;
     this.host = forge.host || 'gitlab.com';
     this.clientId = forge.clientId;
     this.clientSecret = forge.clientSecret;
-    this.redirectUrl = `http://localhost:3000/api/auth/callback`; // TODO: allow to configure this redirect url
   }
 
   public async getCloneCredentials(todo: unknown): Promise<{
@@ -36,8 +33,8 @@ export class Gitlab extends Forge {
     });
   }
 
-  public getOauthRedirectUrl(): string {
-    return `https://${this.host}/oauth/authorize?client_id=${this.clientId}&response_type=code&redirect_uri=${this.redirectUrl}&state=${this.id}`;
+  public getOauthRedirectUrl({ state }: { state: string }): string {
+    return `https://${this.host}/oauth/authorize?client_id=${this.clientId}&response_type=code&redirect_uri=${this.redirectUrl}&state=${state}`;
   }
 
   public async oauthCallback(

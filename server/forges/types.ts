@@ -1,5 +1,4 @@
 import { H3Event } from 'h3';
-import { User } from '../schemas';
 
 export abstract class Forge {
   public abstract getCloneCredentials(todo: unknown): Promise<{
@@ -12,5 +11,5 @@ export abstract class Forge {
     email?: string;
     remoteUserId: string;
   }>;
-  public abstract getOauthRedirectUrl(): string;
+  public abstract getOauthRedirectUrl(o: { state: string }): string;
 }

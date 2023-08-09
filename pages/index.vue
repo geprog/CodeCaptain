@@ -26,7 +26,7 @@
         v-for="forge in unconnectedForges"
         :key="forge.id"
         class="flex justify-center items-center"
-        @click="connectForge(forge.oauthRedirectUrl)"
+        @click="connectForge(forge.id)"
         >Connect to {{ forge.name }}</Button
       >
     </div>
@@ -50,7 +50,7 @@ const forges = await useFetch('/api/user/forges', {
 });
 const unconnectedForges = computed(() => forges.data.value?.filter((f) => !f.isConnected));
 
-function connectForge(oauthRedirectUrl: string) {
-  window.location.href = oauthRedirectUrl;
+function connectForge(forgeId: number) {
+  window.location.href = `/api/auth/login/forgeId=${forgeId}`;
 }
 </script>
