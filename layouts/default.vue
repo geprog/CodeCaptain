@@ -16,7 +16,7 @@
           </button>
         </template>
         <template v-else>
-          <Button v-for="forge in forges" :key="forge.id" @click="login(forge.oauthRedirectUrl)">
+          <Button v-for="forge in forges" :key="forge.id" @click="login(forge.id)">
             <Icon name="fa-brands:github" /> Login with {{ forge.name }}
           </Button>
         </template>

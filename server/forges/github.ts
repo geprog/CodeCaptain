@@ -30,7 +30,7 @@ export class Github extends Forge {
   }
 
   public getOauthRedirectUrl({ state }: { state: string }): string {
-    return `https://github.com/login/oauth/authorize?client_id=${this.clientId}&scope=public_repo&sate=${state}`;
+    return `https://github.com/login/oauth/authorize?client_id=${this.clientId}&scope=public_repo&state=${state}`;
   }
 
   public async oauthCallback(

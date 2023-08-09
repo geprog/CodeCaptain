@@ -5,8 +5,7 @@ import { getUserFromCookie } from '../../utils/auth';
 export default defineEventHandler(async (event) => {
   const user = await getUserFromCookie(event);
   if (!user) {
-    return [];
-    // return sendError(event, createError({ statusCode: 401, cause: 'Unauthorized' }));
+    return sendError(event, createError({ statusCode: 401, cause: 'Unauthorized' }));
   }
 
   // TODO: filter by forges the user has access to?

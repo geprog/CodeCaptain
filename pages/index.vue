@@ -20,37 +20,33 @@
       </template>
     </div>
 
-    <div v-if="unconnectedForges && unconnectedForges.length > 0">
-      <span>Connect to</span>
-      <Button
-        v-for="forge in unconnectedForges"
-        :key="forge.id"
-        class="flex justify-center items-center"
-        @click="connectForge(forge.id)"
-        >Connect to {{ forge.name }}</Button
-      >
+    <div v-if="forges && forges.length > 0" class="flex flex-col mt-8">
+      <span class="text-xl font-bold">Forges</span>
+      <div v-for="forge in forges" :key="forge.id">
+        <Button v-if="!forge.isConnected" class="flex justify-center items-center" @click="login(forge.id)"
+          >Connect to {{ forge.name }}</Button
+        >
+        <p v-else>{{ forge.name }} {{ forge.host }} (connected)</p>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const githubCookie = useGithubCookie();
+const { login } = useAuth();
 
 // TODO: get repos via api
+const githubCookie = useGithubCookie();
 const repositories = ref(
   await $fetch('/api/repos/list', {
     headers: {
       gh_token: githubCookie.value!,
     },
+    server: false,
   }),
 );
 
-const forges = await useFetch('/api/user/forges', {
+const { data: forges } = await useFetch('/api/user/forges', {
   server: false,
 });
-const unconnectedForges = computed(() => forges.data.value?.filter((f) => !f.isConnected));
-
-function connectForge(forgeId: number) {
-  window.location.href = `/api/auth/login/forgeId=${forgeId}`;
-}
 </script>

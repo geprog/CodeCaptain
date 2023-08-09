@@ -12,8 +12,8 @@ export const useAuth = () => {
     // })();
   }
 
-  function login(oauthRedirectUrl: string) {
-    window.location.href = oauthRedirectUrl;
+  function login(forgeId: number) {
+    window.location.href = `/api/auth/login?forgeId=${forgeId}`;
   }
 
   function logout() {
