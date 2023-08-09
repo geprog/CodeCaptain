@@ -35,8 +35,11 @@
 </template>
 
 <script setup lang="ts">
+import { Forge } from 'server/schemas';
+
 const { user, login, logout } = useAuth();
-const forges = await useFetch('/api/forges');
+const {data:forges} = await useFetch('/api/forges');
+
 </script>
 
 <style>
