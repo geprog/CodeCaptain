@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3';
-import { Forge, UserInfo, Credentials } from './types';
+import { Forge, UserInfo, Credentials, Tokens } from './types';
 import { User, Forge as DBForge } from '../schemas';
 import { Octokit } from 'octokit';
 
@@ -30,9 +30,25 @@ export class Github extends Forge {
     return `https://github.com/login/oauth/authorize?client_id=${this.clientId}&scope=public_repo&state=${state}`;
   }
 
-  public async oauthCallback(
-    event: H3Event,
-  ): Promise<UserInfo> {
+  public async oauthCallback(event: H3Event): Promise<UserInfo> {
+    const tokens = await this.getTokens(event);
+
+    const token = tokens.accessToken;
+
+    const client = this.getClient(token);
+
+    const githubUser = await client.request('GET /user');
+
+    return {
+      name: githubUser.data.name || undefined,
+      avatarUrl: githubUser.data.avatar_url || undefined,
+      email: githubUser.data.email || undefined,
+      remoteUserId: githubUser.data.id.toString(),
+      tokens 
+    };
+  }
+
+  public async getTokens(event: H3Event): Promise<Tokens> {
     const { code } = getQuery(event);
 
     if (!code) {
@@ -51,23 +67,10 @@ export class Github extends Forge {
       console.error(response.error);
       throw new Error('Error getting access token');
     }
-
-    const token = response.access_token;
-
-    const client = this.getClient(token);
-
-    const githubUser = await client.request('GET /user');
-
     return {
-      name: githubUser.data.name || undefined,
-      avatarUrl: githubUser.data.avatar_url || undefined,
-      email: githubUser.data.email || undefined,
-      remoteUserId: githubUser.data.id.toString(),
-      tokens:{
-        accessToken: response.access_token,
-        refreshToken: response.refresh_token,
-        rtExpires: response.refresh_token_expires_in
-      }
+      accessToken: response.access_token,
+      refreshToken: response.refresh_token,
+      rtExpires: response.refresh_token_expires_in,
     };
   }
 }

@@ -17,4 +17,5 @@ export abstract class Forge {
   public abstract getCloneCredentials(todo: unknown): Promise<Credentials>;
   public abstract oauthCallback(event: H3Event): Promise<UserInfo>;
   public abstract getOauthRedirectUrl(o: { state: string }): string;
+  public abstract getTokens(event: H3Event): Promise<Tokens>;
 }

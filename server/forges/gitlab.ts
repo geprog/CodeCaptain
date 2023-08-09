@@ -5,6 +5,7 @@ import { Gitlab as GitlabApi } from '@gitbeaker/rest';
 
 export class Gitlab extends Forge {
 
+
   private host: string;
   private clientId: string;
   private clientSecret: string;
@@ -38,28 +39,9 @@ export class Gitlab extends Forge {
   public async oauthCallback(
     event: H3Event,
   ): Promise<UserInfo> {
-    const { code } = getQuery(event);
-    if (!code) {
-      throw new Error('No code provided');
-    }
-
-    const response: any = await $fetch(`https://${this.host}/oauth/token`, {
-      method: 'POST',
-      body: {
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        code,
-        grant_type: 'authorization_code',
-        redirect_uri: this.redirectUrl,
-      },
-      ignoreResponseError: true,
-    });
-    if (response.error) {
-      console.error(response);
-      throw new Error('Error getting access token');
-    }
-
-    const token = response.access_token;
+    
+    const tokens = await this.getTokens(event);
+    const token = (await tokens).accessToken;
     
     const client = this.getClient(token);
 
@@ -70,12 +52,37 @@ export class Gitlab extends Forge {
       avatarUrl: gitlabUser.avatar_url || undefined,
       email: gitlabUser.email || undefined,
       remoteUserId: gitlabUser.id.toString(),
-      tokens:{
+      tokens
+    };
+  }
+
+  public async getTokens(event: H3Event): Promise<Tokens> {
+    const { code } = getQuery(event);
+      if (!code) {
+        throw new Error('No code provided');
+      }
+  
+      const response: any = await $fetch(`https://${this.host}/oauth/token`, {
+        method: 'POST',
+        body: {
+          client_id: this.clientId,
+          client_secret: this.clientSecret,
+          code,
+          grant_type: 'authorization_code',
+          redirect_uri: this.redirectUrl,
+        },
+        ignoreResponseError: true,
+      });
+      if (response.error) {
+        console.error(response);
+        throw new Error('Error getting access token');
+      }
+
+      return {
         accessToken: response.access_token,
         refreshToken:response.refresh_token,
         rtExpires: response.expires_in
-      }
-    };
+      };
   }
 
 }
