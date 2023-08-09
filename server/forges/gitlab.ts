@@ -1,9 +1,10 @@
 import type { H3Event } from 'h3';
-import { Forge } from './types';
+import { Forge, Tokens, UserInfo, Credentials } from './types';
 import { Forge as DBForge } from '../schemas';
 import { Gitlab as GitlabApi } from '@gitbeaker/rest';
 
 export class Gitlab extends Forge {
+
   private host: string;
   private clientId: string;
   private clientSecret: string;
@@ -16,10 +17,7 @@ export class Gitlab extends Forge {
     this.clientSecret = forge.clientSecret;
   }
 
-  public async getCloneCredentials(todo: unknown): Promise<{
-    username: string;
-    password: string;
-  }> {
+  public async getCloneCredentials(todo: unknown): Promise<Credentials> {
     return {
       username: 'oauth',
       password: 'todo-token',
@@ -39,7 +37,7 @@ export class Gitlab extends Forge {
 
   public async oauthCallback(
     event: H3Event,
-  ): Promise<{ name?: string; avatarUrl?: string; email?: string; remoteUserId: string }> {
+  ): Promise<UserInfo> {
     const { code } = getQuery(event);
     if (!code) {
       throw new Error('No code provided');
@@ -62,6 +60,7 @@ export class Gitlab extends Forge {
     }
 
     const token = response.access_token;
+    
     const client = this.getClient(token);
 
     const gitlabUser = await client.Users.showCurrentUser();
@@ -71,6 +70,12 @@ export class Gitlab extends Forge {
       avatarUrl: gitlabUser.avatar_url || undefined,
       email: gitlabUser.email || undefined,
       remoteUserId: gitlabUser.id.toString(),
+      tokens:{
+        accessToken: response.access_token,
+        refreshToken:response.refresh_token,
+        rtExpires: response.expires_in
+      }
     };
   }
+
 }
