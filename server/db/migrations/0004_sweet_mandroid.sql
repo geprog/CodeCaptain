@@ -1,0 +1,1 @@
+ALTER TABLE userForges ADD `tokenExpires` integer;

@@ -67,9 +67,10 @@ export class Github extends Forge {
       console.error(response.error);
       throw new Error('Error getting access token');
     }
+    //TODO: set expiration for accessTokens from github. Otherwise it won't provide refresh tokens
     return {
       accessToken: response.access_token,
-      refreshToken: response.refresh_token,
+      refreshToken: response.refresh_token, 
       rtExpires: response.refresh_token_expires_in,
     };
   }

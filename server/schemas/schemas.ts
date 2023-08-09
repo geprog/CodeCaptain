@@ -28,4 +28,5 @@ export const userForgesSchema = sqliteTable('userForges', {
   accessToken: text('accessToken'),
   refreshToken: text('refreshToken'),
   refreshTokenExpires: integer('refreshTokenExpires'),
+  tokenExpires: integer('tokenExpires')
 });

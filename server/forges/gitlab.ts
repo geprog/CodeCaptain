@@ -77,11 +77,11 @@ export class Gitlab extends Forge {
         console.error(response);
         throw new Error('Error getting access token');
       }
-
+      // to get token infomation  GET https://gitlab.example.com/oauth/token/info?access_token=<OAUTH-TOKEN>
+      //TODO: set the expiration of tokens
       return {
         accessToken: response.access_token,
         refreshToken:response.refresh_token,
-        rtExpires: response.expires_in
       };
   }
 
