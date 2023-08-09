@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
 const { user, login, logout } = useAuth();
-const forges = await $fetch('/api/forges');
+const forges = await useFetch('/api/forges');
 </script>
 
 <style>
