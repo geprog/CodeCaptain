@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3';
-import { Forge } from './types';
+import { Forge, UserInfo, Credentials } from './types';
 import { User, Forge as DBForge } from '../schemas';
 import { Octokit } from 'octokit';
 
@@ -19,10 +19,7 @@ export class Github extends Forge {
     });
   }
 
-  public async getCloneCredentials(todo: unknown): Promise<{
-    username: string;
-    password: string;
-  }> {
+  public async getCloneCredentials(todo: unknown): Promise<Credentials> {
     return {
       username: 'oauth',
       password: 'todo-token',
@@ -35,7 +32,7 @@ export class Github extends Forge {
 
   public async oauthCallback(
     event: H3Event,
-  ): Promise<{ name?: string; avatarUrl?: string; email?: string; remoteUserId: string }> {
+  ): Promise<UserInfo> {
     const { code } = getQuery(event);
 
     if (!code) {
@@ -56,6 +53,7 @@ export class Github extends Forge {
     }
 
     const token = response.access_token;
+
     const client = this.getClient(token);
 
     const githubUser = await client.request('GET /user');
@@ -65,6 +63,11 @@ export class Github extends Forge {
       avatarUrl: githubUser.data.avatar_url || undefined,
       email: githubUser.data.email || undefined,
       remoteUserId: githubUser.data.id.toString(),
+      tokens:{
+        accessToken: response.access_token,
+        refreshToken: response.refresh_token,
+        rtExpires: response.refresh_token_expires_in
+      }
     };
   }
 }
