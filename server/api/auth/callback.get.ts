@@ -45,9 +45,6 @@ export default defineEventHandler(async (event) => {
         userId: authenticatedUser.id,
         forgeId: forgeModel.id,
         remoteUserId: oauthUser.remoteUserId,
-        accessToken: oauthUser.tokens.accessToken,
-        refreshToken: oauthUser.tokens.refreshToken,
-        refreshTokenExpires: oauthUser.tokens.rtExpires
       })
       .onConflictDoNothing()
       .run();
@@ -99,6 +96,9 @@ export default defineEventHandler(async (event) => {
       userId: user.id,
       forgeId: forgeModel.id,
       remoteUserId: oauthUser.remoteUserId,
+      accessToken: oauthUser.tokens.accessToken,
+      refreshToken: oauthUser.tokens.refreshToken,
+      refreshTokenExpires: oauthUser.tokens.rtExpires,
     })
     .run();
 
