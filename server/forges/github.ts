@@ -13,6 +13,10 @@ export class Github extends Forge {
     this.clientSecret = forge.clientSecret;
   }
 
+  public getClientSecrect(): string {
+    return this.clientSecret;
+  }
+
   private getClient(token: string) {
     return new Octokit({
       auth: token,
@@ -38,11 +42,10 @@ export class Github extends Forge {
       avatarUrl: githubUser.data.avatar_url || undefined,
       email: githubUser.data.email || undefined,
       remoteUserId: githubUser.data.id.toString(),
-     
     };
   }
 
-  public async getTokens(event: H3Event): Promise<Tokens> {
+  public async getTokens(event: H3Event, refreshToken?: string): Promise<Tokens> {
     const { code } = getQuery(event);
 
     if (!code) {
@@ -54,6 +57,7 @@ export class Github extends Forge {
         client_id: this.clientId,
         client_secret: this.clientSecret,
         code,
+        ...(refreshToken && { refresh_token: refreshToken }),
       },
     });
 

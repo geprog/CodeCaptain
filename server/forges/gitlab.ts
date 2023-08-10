@@ -23,6 +23,10 @@ export class Gitlab extends Forge {
     };
   }
 
+  public getClientSecrect(): string {
+    return this.clientSecret;
+  }
+
   private getClient(token: string) {
     return new GitlabApi({
       host: `https://${this.host}`,
@@ -59,6 +63,7 @@ export class Gitlab extends Forge {
         code,
         grant_type: 'authorization_code',
         redirect_uri: this.redirectUrl,
+        ...(refreshToken && { refresh_token: refreshToken }),
       },
       ignoreResponseError: true,
     });
