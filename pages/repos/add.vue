@@ -15,6 +15,11 @@
   </div>
 
   <div v-else class="mx-auto flex flex-col items-center max-w-2xl">
+    <div v-if="selectedForge">
+      <span class="text-xl font-bold">{{ selectedForge?.name }} - {{ selectedForge.host }}</span>
+      <div @click="selectedForgeId = undefined">x</div>
+    </div>
+
     <TextInput
       :model-value="search"
       placeholder="Search for a repo ..."
@@ -40,7 +45,11 @@
 <script setup lang="ts">
 const loading = ref(false);
 const { user } = useAuth();
+const { data: forges } = await useFetch('/api/user/forges', {
+  server: false,
+});
 const selectedForgeId = ref<number>();
+const selectedForge = computed(() => forges.value?.find((f) => f.id === selectedForgeId.value));
 
 const search = ref(`user:${user.value?.login}`);
 const { data: repositories } = await useAsyncData(
@@ -56,10 +65,6 @@ const { data: repositories } = await useAsyncData(
     watch: [search, selectedForgeId],
   },
 );
-
-const { data: forges } = await useFetch('/api/user/forges', {
-  server: false,
-});
 
 function debounce<T extends Function>(cb: T, wait = 20) {
   let h = 0;

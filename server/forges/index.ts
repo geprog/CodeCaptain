@@ -1,11 +1,10 @@
-import { H3Event } from 'h3';
 import { Gitlab } from './gitlab';
 import { Forge as ForgeModel } from '../schemas';
 import { Github } from './github';
 import { Credentials, Forge, ForgeUser, Repo, Tokens, UserWithTokens } from './types';
-import jwt from 'jsonwebtoken'; // TODO: fix type
+import jwtDecode from 'jwt-decode';
 
-const jwtSecret = '123'; // TODO: load from nuxt settings
+const jwtSecret = '123456789'; // TODO: move to nuxt settings
 
 class ForgeApi {
   private user: UserWithTokens;
@@ -16,23 +15,13 @@ class ForgeApi {
     this.forge = forge;
   }
 
-  private async verifyJWT<T>(token: string, secret: string): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
-      jwt.verify(token, secret, (err, decoded) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(decoded);
-        }
-      });
-    });
-  }
-
   private async refreshTokenIfNeeded(user: UserWithTokens): Promise<Tokens> {
-    const decoded = await this.verifyJWT<{ exp: number }>(user.tokens.accessToken, jwtSecret);
+    const decoded = await jwtDecode<{ exp: number }>(user.tokens.accessToken);
     if (decoded.exp * 1000 > Date.now()) {
       return user.tokens;
     }
+
+    // refresh token
     const newTokens = await this.forge.refreshToken(user.tokens.refreshToken);
     user.tokens = newTokens;
 

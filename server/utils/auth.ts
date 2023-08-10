@@ -51,5 +51,7 @@ export async function getUserForgeAPI(user: User, forgeId: number) {
     refreshToken: userForge.refreshToken,
   };
 
+  console.log('tokens', tokens); // TODO: check tokens
+
   return getForgeApiFromDB({ ...user, tokens }, forgeModel);
 }

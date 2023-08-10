@@ -19,6 +19,11 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const user = await getUserFromCookie(event);
+  if (!user) {
+    throw new Error('User not found');
+  }
+
   const search = ((getQuery(event)?.search as string | undefined) || '').trim();
 
   const config = useRuntimeConfig();
@@ -30,11 +35,6 @@ export default defineEventHandler(async (event) => {
   const activeRepos = (await fs.readdir(dataFolder, { withFileTypes: true }))
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name);
-
-  const user = await getUserFromCookie(event);
-  if (!user) {
-    throw new Error('User not found');
-  }
 
   const forge = await getUserForgeAPI(user, parseInt(forgeId, 10));
 
