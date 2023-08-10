@@ -35,15 +35,12 @@
 <script setup lang="ts">
 const { login } = useAuth();
 
-// TODO: get repos via api
-const githubCookie = useGithubCookie();
 const repositories = ref(
-  await $fetch('/api/repos/list', {
-    headers: {
-      gh_token: githubCookie.value!,
-    },
-    server: false,
-  }),
+  (
+    await useFetch('/api/repos/list', {
+      server: false,
+    })
+  ).data,
 );
 
 const { data: forges } = await useFetch('/api/user/forges', {

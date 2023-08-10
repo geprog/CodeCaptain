@@ -3,6 +3,17 @@
     <span class="m-auto text-2xl">Cloning and indexing repo ...</span>
   </div>
 
+  <div v-else-if="!selectedForgeId">
+    <li
+      v-for="forge in forges?.filter((f) => f.isConnected)"
+      :key="forge.id"
+      class="cursor-pointer hover:underline"
+      @click="selectedForgeId = forge.id"
+    >
+      {{ forge.name }} - {{ forge.host }}
+    </li>
+  </div>
+
   <div v-else class="mx-auto flex flex-col items-center max-w-2xl">
     <TextInput
       :model-value="search"
@@ -29,21 +40,26 @@
 <script setup lang="ts">
 const loading = ref(false);
 const { user } = useAuth();
+const selectedForgeId = ref<number>();
 
 const search = ref(`user:${user.value?.login}`);
 const { data: repositories } = await useAsyncData(
   'repositories',
   () =>
-    $fetch('/api/repos/search', {
+    $fetch(`/api/forges/${selectedForgeId.value}/search`, {
       query: {
         search: search.value,
       },
     }),
   {
     server: false,
-    watch: [search],
+    watch: [search, selectedForgeId],
   },
 );
+
+const { data: forges } = await useFetch('/api/user/forges', {
+  server: false,
+});
 
 function debounce<T extends Function>(cb: T, wait = 20) {
   let h = 0;
