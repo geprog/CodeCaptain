@@ -27,6 +27,4 @@ export const userForgesSchema = sqliteTable('userForges', {
   remoteUserId: text('remoteUserId').notNull(),
   accessToken: text('accessToken'),
   refreshToken: text('refreshToken'),
-  refreshTokenExpires: integer('refreshTokenExpires'),
-  tokenExpires: integer('tokenExpires')
 });
