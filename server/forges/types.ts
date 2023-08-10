@@ -54,7 +54,7 @@ export abstract class Forge {
         break;
     }
 
-    const userInfo = await this.getUserInfo(tokens);
+    const userInfo = await this.getUserInfo(validTokens);
 
     return userInfo;
   }
