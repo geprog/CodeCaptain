@@ -6,8 +6,8 @@
         codecaptain.ai</a
       >
       <div class="ml-auto flex gap-4 items-center">
-        <template v-if="userInfo">
-          <img :src="userInfo.avatarUrl" alt="User profile icon" class="w-8 h-auto rounded-full" />
+        <template v-if="user">
+          <img :src="user.avatarUrl" alt="User profile icon" class="w-8 h-auto rounded-full" />
           <button
             class="border rounded px-2 py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white"
             @click="logout"
@@ -24,7 +24,7 @@
     </header>
 
     <main class="flex w-full h-full flex-grow overflow-auto">
-      <template v-if="userIdFromToken">
+      <template v-if="user">
         <slot />
       </template>
       <div v-else>
@@ -35,9 +35,7 @@
 </template>
 
 <script setup lang="ts">
-
-const { userIdFromToken, login, logout } = useAuth();
-const  userInfo = await $fetch(`/api/user/userInfo/${userIdFromToken.value?.userId}`)
+const { user, login, logout } = useAuth();
 const forges = await $fetch('/api/forges');
 </script>
 

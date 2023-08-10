@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3';
-import { Forge, Tokens, UserInfo, Credentials } from './types';
+import { Forge, Tokens, Credentials, ForgeUser } from './types';
 import { Forge as DBForge } from '../schemas';
 import { Gitlab as GitlabApi } from '@gitbeaker/rest';
 
@@ -38,19 +38,18 @@ export class Gitlab extends Forge {
     return `https://${this.host}/oauth/authorize?client_id=${this.clientId}&response_type=code&redirect_uri=${this.redirectUrl}&state=${state}`;
   }
 
-  public async getUserInfo(tokens: Tokens): Promise<UserInfo> {
-    const client = this.getClient(tokens.accessToken);
+  public async getUserInfo(token: string): Promise<ForgeUser> {
+    const client = this.getClient(token);
     const gitlabUser = await client.Users.showCurrentUser();
     return {
-      name: gitlabUser.name || undefined,
-      avatarUrl: gitlabUser.avatar_url || undefined,
-      email: gitlabUser.email || undefined,
+      name: gitlabUser.name,
+      avatarUrl: gitlabUser.avatar_url,
+      email: gitlabUser.email,
       remoteUserId: gitlabUser.id.toString(),
-      tokens
     };
   }
 
-  public async requestOauthTokens(event: H3Event, refreshToken?: string): Promise<Tokens> {
+  public async oauthCallback(event: H3Event): Promise<Tokens> {
     const { code } = getQuery(event);
     if (!code) {
       throw new Error('No code provided');
@@ -64,7 +63,6 @@ export class Gitlab extends Forge {
         code,
         grant_type: 'authorization_code',
         redirect_uri: this.redirectUrl,
-        ...(refreshToken && { refresh_token: refreshToken }),
       },
       ignoreResponseError: true,
     });
@@ -72,6 +70,7 @@ export class Gitlab extends Forge {
       console.error(response);
       throw new Error('Error getting access token');
     }
+
     return {
       accessToken: response.access_token,
       refreshToken: response.refresh_token,
