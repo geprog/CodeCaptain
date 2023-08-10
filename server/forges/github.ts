@@ -1,20 +1,15 @@
 import type { H3Event } from 'h3';
-import { Forge, Credentials, Tokens, ForgeUser } from './types';
+import { Forge, Credentials, Tokens, ForgeUser, Repo } from './types';
 import { User, Forge as DBForge } from '../schemas';
 import { Octokit } from 'octokit';
 
-export class Github extends Forge {
+export class Github implements Forge {
   private clientId: string;
   private clientSecret: string;
 
   constructor(forge: DBForge) {
-    super();
     this.clientId = forge.clientId;
     this.clientSecret = forge.clientSecret;
-  }
-
-  public getClientSecrect(): string {
-    return this.clientSecret;
   }
 
   private getClient(token: string) {
@@ -69,5 +64,39 @@ export class Github extends Forge {
       accessToken: response.access_token,
       refreshToken: response.refresh_token,
     };
+  }
+
+  public async refreshToken(refreshToken: string): Promise<Tokens> {
+    const response: any = await $fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      body: {
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
+        refresh_token: refreshToken,
+      },
+    });
+    if (response.error) {
+      console.error(response);
+      throw new Error('Error refreshing access token');
+    }
+
+    return {
+      accessToken: response.access_token,
+      refreshToken: response.refresh_token,
+    };
+  }
+
+  public async getRepos(token: string, search?: string): Promise<Repo[]> {
+    const client = this.getClient(token);
+    const repos = await client.request('GET /search/repositories', {
+      q: `is:public fork:false archived:false ${search}`.trim(),
+      per_page: 10,
+      sort: 'updated',
+    });
+
+    return repos.data.items.map((repo) => ({
+      id: repo.id.toString(),
+      name: repo.full_name,
+    }));
   }
 }

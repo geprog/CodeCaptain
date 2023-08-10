@@ -3,14 +3,13 @@ import { Forge, Tokens, Credentials, ForgeUser } from './types';
 import { Forge as DBForge } from '../schemas';
 import { Gitlab as GitlabApi } from '@gitbeaker/rest';
 
-export class Gitlab extends Forge {
+export class Gitlab implements Forge {
   private host: string;
   private clientId: string;
   private clientSecret: string;
   private redirectUrl = 'http://localhost:3000/api/auth/callback'; // TODO: allow to configure this redirect url
 
   constructor(forge: DBForge) {
-    super();
     this.host = forge.host || 'gitlab.com';
     this.clientId = forge.clientId;
     this.clientSecret = forge.clientSecret;
@@ -23,11 +22,7 @@ export class Gitlab extends Forge {
     };
   }
 
-  public getClientSecrect(): string {
-    return this.clientSecret;
-  }
-
-  private getClient(token: string) {
+  public getClient(token: string) {
     return new GitlabApi({
       host: `https://${this.host}`,
       oauthToken: token,
@@ -75,5 +70,36 @@ export class Gitlab extends Forge {
       accessToken: response.access_token,
       refreshToken: response.refresh_token,
     };
+  }
+
+  public async refreshToken(refreshToken: string): Promise<Tokens> {
+    const response: any = await $fetch(`https://${this.host}/oauth/token`, {
+      method: 'POST',
+      body: {
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token',
+      },
+      ignoreResponseError: true,
+    });
+    if (response.error) {
+      console.error(response);
+      throw new Error('Error refreshing access token');
+    }
+
+    return {
+      accessToken: response.access_token,
+      refreshToken: response.refresh_token,
+    };
+  }
+
+  public async getRepos(token: string, search?: string) {
+    const client = this.getClient(token);
+    const repos = await client.Projects.all({ search, membership: true, perPage: 10 });
+    return repos.map((repo) => ({
+      id: repo.id.toString(),
+      name: repo.name,
+    }));
   }
 }

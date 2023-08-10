@@ -1,9 +1,10 @@
 import type { H3Event } from 'h3';
-import { User, userSchema } from '../schemas';
+import { User, forgeSchema, userForgesSchema, userSchema } from '../schemas';
 import jwt from 'jsonwebtoken';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
+import { getForgeApiFromDB } from '../forges';
 
-const jwtSecret = '123456789';
+const jwtSecret = '123456789'; // TODO: move to nuxt settings
 
 export async function getUserFromCookie(event: H3Event) {
   const userToken = parseCookies(event).token;
@@ -28,4 +29,27 @@ export function setUserCookie(event: H3Event, user: User) {
   setCookie(event, 'token', token);
 
   return sendRedirect(event, '/');
+}
+
+export async function getUserForgeAPI(user: User, forgeId: number) {
+  const userForge = await db
+    .select()
+    .from(userForgesSchema)
+    .where(and(eq(userForgesSchema.userId, user.id), eq(userForgesSchema.forgeId, forgeId)))
+    .get();
+  if (!userForge) {
+    throw new Error('User forge not found');
+  }
+
+  const forgeModel = await db.select().from(forgeSchema).where(eq(forgeSchema.id, forgeId)).get();
+  if (!forgeModel) {
+    throw new Error('Forge not found');
+  }
+
+  const tokens = {
+    accessToken: userForge.accessToken,
+    refreshToken: userForge.refreshToken,
+  };
+
+  return getForgeApiFromDB({ ...user, tokens }, forgeModel);
 }

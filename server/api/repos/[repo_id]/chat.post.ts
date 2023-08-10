@@ -1,9 +1,6 @@
-import { Octokit } from 'octokit';
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const token = getHeader(event, 'gh_token');
-  const octokit = new Octokit({ auth: token });
 
   // TODO: check user access to repo
 

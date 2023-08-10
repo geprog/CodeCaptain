@@ -1,5 +1,5 @@
-import { Octokit } from 'octokit';
 import { promises as fs } from 'fs';
+import { getUserForgeAPI } from '../../../utils/auth';
 
 async function dirExists(path: string) {
   try {
@@ -11,36 +11,38 @@ async function dirExists(path: string) {
 }
 
 export default defineEventHandler(async (event) => {
-  // const token = getCookie(event, "gh_token");
-  const config = useRuntimeConfig();
-  const token = getHeader(event, 'gh_token');
-  const octokit = new Octokit({ auth: token });
-
-  // TODO: check user access to repo
+  const forgeId = event.context.params?.forge_id;
+  if (!forgeId) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'forgeId is required',
+    });
+  }
 
   const search = ((getQuery(event)?.search as string | undefined) || '').trim();
 
+  const config = useRuntimeConfig();
   const dataFolder = config.data_path;
-
   if (!(await dirExists(dataFolder))) {
     await fs.mkdir(dataFolder, { recursive: true });
   }
-
+  // TODO: load active repos from db
   const activeRepos = (await fs.readdir(dataFolder, { withFileTypes: true }))
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name);
 
-  const q = `is:public fork:false archived:false ${search}`;
+  const user = await getUserFromCookie(event);
+  if (!user) {
+    throw new Error('User not found');
+  }
 
-  const userRepos = await octokit.request('GET /search/repositories', {
-    q,
-    per_page: 10,
-    sort: 'updated',
-  });
+  const forge = await getUserForgeAPI(user, parseInt(forgeId, 10));
 
-  return userRepos.data.items.map((repo) => ({
+  const userRepos = await forge.getRepos(search);
+
+  return userRepos.map((repo) => ({
     id: repo.id.toString(),
-    full_name: repo.full_name,
+    name: repo.name,
     active: activeRepos.includes(repo.id.toString()),
   }));
 });

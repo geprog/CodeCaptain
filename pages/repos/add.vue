@@ -18,7 +18,7 @@
         :key="repo.id"
         class="flex border-b border-gray-200 items-center p-2 gap-2 w-full justify-between min-w-0"
       >
-        <span class="font-bold text-gray-300 flex-wrap truncate overflow-ellipsis">{{ repo.full_name }}</span>
+        <span class="font-bold text-gray-300 flex-wrap truncate overflow-ellipsis">{{ repo.name }}</span>
         <Button v-if="repo.active" :href="`/repos/${repo.id}/chat`">Open</Button>
         <Button v-else @click="cloneRepo(repo.id)">Activate</Button>
       </div>
@@ -27,24 +27,20 @@
 </template>
 
 <script setup lang="ts">
-const router = useRouter();
-const githubCookie = useGithubCookie();
-const user = await fetchGithubUser();
 const loading = ref(false);
+const { user } = useAuth();
 
 const search = ref(`user:${user.value?.login}`);
 const { data: repositories } = await useAsyncData(
   'repositories',
   () =>
     $fetch('/api/repos/search', {
-      headers: {
-        gh_token: githubCookie.value!,
-      },
       query: {
         search: search.value,
       },
     }),
   {
+    server: false,
     watch: [search],
   },
 );
@@ -64,12 +60,14 @@ const updateSearch = debounce((_search: string) => {
 
 async function cloneRepo(repoId: string) {
   loading.value = true;
+  const forgeId = 123; // TODO
   try {
     await $fetch(`/api/repos/${repoId}/clone`, {
       key: `cloneRepo-${repoId}`,
       method: 'POST',
-      headers: {
-        gh_token: githubCookie.value!,
+      body: {
+        forgeId,
+        repoId,
       },
     });
     await navigateTo(`/repos/${repoId}/chat`);

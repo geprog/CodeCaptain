@@ -1,4 +1,3 @@
-import { Octokit } from 'octokit';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 
@@ -16,13 +15,10 @@ async function exists(path: string, type: 'file' | 'dir' = 'dir') {
 }
 
 export default defineEventHandler(async (event) => {
-  // const token = getCookie(event, "gh_token");
-  const token = getHeader(event, 'gh_token');
-  const octokit = new Octokit({ auth: token });
   const config = useRuntimeConfig();
   const dataFolder = config.data_path;
 
-  // TODO: check user access to repo
+  // TODO: get user and all repos for that user from db
 
   if (!(await exists(dataFolder))) {
     await fs.mkdir(dataFolder, { recursive: true });
