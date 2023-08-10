@@ -30,21 +30,15 @@ export class Github extends Forge {
     return `https://github.com/login/oauth/authorize?client_id=${this.clientId}&scope=public_repo&state=${state}`;
   }
 
-  public async oauthCallback(event: H3Event): Promise<UserInfo> {
-    const tokens = await this.getTokens(event);
-
-    const token = tokens.accessToken;
-
+  public async getUserInfo(token: string): Promise<UserInfo> {
     const client = this.getClient(token);
-
     const githubUser = await client.request('GET /user');
-
     return {
       name: githubUser.data.name || undefined,
       avatarUrl: githubUser.data.avatar_url || undefined,
       email: githubUser.data.email || undefined,
       remoteUserId: githubUser.data.id.toString(),
-      tokens 
+     
     };
   }
 
@@ -70,8 +64,7 @@ export class Github extends Forge {
     //TODO: set expiration for accessTokens from github. Otherwise it won't provide refresh tokens
     return {
       accessToken: response.access_token,
-      refreshToken: response.refresh_token, 
-      rtExpires: response.refresh_token_expires_in,
+      refreshToken: response.refresh_token,
     };
   }
 }
