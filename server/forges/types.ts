@@ -11,6 +11,7 @@ export type UserInfo = {
   avatarUrl?: string;
   email?: string;
   remoteUserId: string;
+  tokens: Tokens;
 };
 type TokenState = 'valid' | 'expired' | 'invalid';
 
@@ -30,27 +31,30 @@ export abstract class Forge {
   public abstract getClientSecrect(): string;
   public abstract getCloneCredentials(todo: unknown): Promise<Credentials>;
   public abstract getOauthRedirectUrl(o: { state: string }): string;
-  public abstract getTokens(event: H3Event, refreshToken?: string): Promise<Tokens>;
-  public abstract getUserInfo(token: string): Promise<UserInfo>;
+  public abstract requestOauthTokens(event: H3Event, refreshToken?: string): Promise<Tokens>;
+  public abstract getUserInfo(tokens: Tokens): Promise<UserInfo>;
 
   public async oauthCallback(event: H3Event, tokens: Tokens): Promise<UserInfo> {
     const tokenState = verifyJWT(tokens.accessToken, this.getClientSecrect());
 
-    let validToken = '';
+    let validTokens:Tokens = {
+      accessToken: '',
+      refreshToken: ''
+    };
 
     switch (tokenState) {
       case 'expired':
-        validToken = (await this.getTokens(event, tokens.refreshToken)).accessToken;
+        validTokens = await this.requestOauthTokens(event, tokens.refreshToken);
         break;
       case 'invalid':
-        validToken = (await this.getTokens(event)).accessToken;
+        validTokens = await this.requestOauthTokens(event);
         break;
       case 'valid':
-        validToken = tokens.accessToken;
+        validTokens = tokens;
         break;
     }
 
-    const userInfo = await this.getUserInfo(validToken);
+    const userInfo = await this.getUserInfo(tokens);
 
     return userInfo;
   }

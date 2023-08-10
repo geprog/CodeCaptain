@@ -38,18 +38,19 @@ export class Gitlab extends Forge {
     return `https://${this.host}/oauth/authorize?client_id=${this.clientId}&response_type=code&redirect_uri=${this.redirectUrl}&state=${state}`;
   }
 
-  public async getUserInfo(token: string): Promise<UserInfo> {
-    const client = this.getClient(token);
+  public async getUserInfo(tokens: Tokens): Promise<UserInfo> {
+    const client = this.getClient(tokens.accessToken);
     const gitlabUser = await client.Users.showCurrentUser();
     return {
       name: gitlabUser.name || undefined,
       avatarUrl: gitlabUser.avatar_url || undefined,
       email: gitlabUser.email || undefined,
       remoteUserId: gitlabUser.id.toString(),
+      tokens
     };
   }
 
-  public async getTokens(event: H3Event, refreshToken?: string): Promise<Tokens> {
+  public async requestOauthTokens(event: H3Event, refreshToken?: string): Promise<Tokens> {
     const { code } = getQuery(event);
     if (!code) {
       throw new Error('No code provided');

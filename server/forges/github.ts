@@ -34,18 +34,19 @@ export class Github extends Forge {
     return `https://github.com/login/oauth/authorize?client_id=${this.clientId}&scope=public_repo&state=${state}`;
   }
 
-  public async getUserInfo(token: string): Promise<UserInfo> {
-    const client = this.getClient(token);
+  public async getUserInfo(tokens: Tokens): Promise<UserInfo> {
+    const client = this.getClient(tokens.accessToken);
     const githubUser = await client.request('GET /user');
     return {
       name: githubUser.data.name || undefined,
       avatarUrl: githubUser.data.avatar_url || undefined,
       email: githubUser.data.email || undefined,
       remoteUserId: githubUser.data.id.toString(),
+      tokens
     };
   }
 
-  public async getTokens(event: H3Event, refreshToken?: string): Promise<Tokens> {
+  public async requestOauthTokens(event: H3Event, refreshToken?: string): Promise<Tokens> {
     const { code } = getQuery(event);
 
     if (!code) {
