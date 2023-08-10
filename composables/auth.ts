@@ -2,14 +2,11 @@ import jwt_decode from 'jwt-decode';
 
 export const useAuth = () => {
   const token = useCookie('token');
-  const user = ref<{ name: string; avatar_url: string }>();
+  const userIdFromToken = ref<{ userId: string }>();
+
 
   if (token.value) {
-    user.value = token.value ? jwt_decode(token.value) : undefined;
-
-    // (async () => {
-    //   user.value = await $fetch('/api/user');
-    // })();
+    userIdFromToken.value = token.value ? jwt_decode(token.value) : undefined;
   }
 
   function login(forgeId: number) {
@@ -22,7 +19,7 @@ export const useAuth = () => {
 
   return {
     isAuthenticated: !!token.value,
-    user,
+    userIdFromToken,
     login,
     logout,
   };
