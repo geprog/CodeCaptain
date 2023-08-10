@@ -25,14 +25,19 @@ export default defineEventHandler(async (event) => {
 
   const forge = getForgeFromDB(forgeModel);
 
+  const tokens:Tokens = {
+    accessToken:  '',
+    refreshToken:   '',
+  }
+
   const userForgeModel = await db.select().from(userForgesSchema).where(eq(userForgesSchema.forgeId, forgeId)).get();
   if (!forgeModel) {
     throw new Error(`Forge with id ${forgeId} not found`);
   }
 
-  const tokens:Tokens = {
-    accessToken: userForgeModel.accessToken || '',
-    refreshToken: userForgeModel.refreshToken || '',
+  if(userForgeModel){
+    tokens.accessToken = userForgeModel.accessToken || '';
+    tokens.refreshToken = userForgeModel.refreshToken || '';
   }
 
   const oauthUser = await forge.oauthCallback(event, tokens);
