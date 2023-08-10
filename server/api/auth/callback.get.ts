@@ -1,6 +1,7 @@
 import { forgeSchema, userForgesSchema, userSchema } from '../../schemas';
 import { and, eq } from 'drizzle-orm';
 import { getForgeFromDB } from '../../forges';
+import { Tokens } from '../../forges/types';
 
 export default defineEventHandler(async (event) => {
   const authenticatedUser = await getUserFromCookie(event);
@@ -23,7 +24,18 @@ export default defineEventHandler(async (event) => {
   }
 
   const forge = getForgeFromDB(forgeModel);
-  const oauthUser = await forge.oauthCallback(event);
+
+  const userForgeModel = await db.select().from(userForgesSchema).where(eq(userForgesSchema.forgeId, forgeId)).get();
+  if (!forgeModel) {
+    throw new Error(`Forge with id ${forgeId} not found`);
+  }
+
+  const tokens:Tokens = {
+    accessToken: userForgeModel.accessToken || '',
+    refreshToken: userForgeModel.refreshToken || '',
+  }
+
+  const oauthUser = await forge.oauthCallback(event, tokens);
 
   // authenticated user => update user & login
   if (authenticatedUser) {
@@ -47,7 +59,6 @@ export default defineEventHandler(async (event) => {
         remoteUserId: oauthUser.remoteUserId,
         accessToken: oauthUser.tokens.accessToken,
         refreshToken: oauthUser.tokens.refreshToken,
-        refreshTokenExpires: oauthUser.tokens.rtExpires,
       })
       .onConflictDoNothing()
       .run();
@@ -101,7 +112,6 @@ export default defineEventHandler(async (event) => {
       remoteUserId: oauthUser.remoteUserId,
       accessToken: oauthUser.tokens.accessToken,
       refreshToken: oauthUser.tokens.refreshToken,
-      refreshTokenExpires: oauthUser.tokens.rtExpires,
     })
     .run();
 
