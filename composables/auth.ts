@@ -10,15 +10,12 @@ export const useAuth = () => {
   }>();
 
   function login(forgeId: number) {
-    if(process.browser){
-      window.location.href = `/api/auth/login?forgeId=${forgeId}`;
-    }
+    window.location.href = `/api/auth/login?forgeId=${forgeId}`;
+    
   }
 
   function logout() {
-    if(process.browser){
-      window.location.href = '/api/auth/logout';
-    }
+    window.location.href = '/api/auth/logout';
   }
 
   if (token.value) {
