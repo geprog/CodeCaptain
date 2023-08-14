@@ -1,4 +1,5 @@
 import jwt_decode from 'jwt-decode';
+import { browser } from 'process';
 
 export const useAuth = () => {
   const token = useCookie('token');
@@ -9,11 +10,15 @@ export const useAuth = () => {
   }>();
 
   function login(forgeId: number) {
-    window.location.href = `/api/auth/login?forgeId=${forgeId}`;
+    if(process.browser){
+      window.location.href = `/api/auth/login?forgeId=${forgeId}`;
+    }
   }
 
   function logout() {
-    window.location.href = '/api/auth/logout';
+    if(process.browser){
+      window.location.href = '/api/auth/logout';
+    }
   }
 
   if (token.value) {
