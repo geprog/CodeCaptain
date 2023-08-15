@@ -1,8 +1,9 @@
 import { Gitlab } from './gitlab';
-import { Forge as ForgeModel } from '../schemas';
+import { Forge as ForgeModel, userForgesSchema } from '../schemas';
 import { Github } from './github';
 import { Credentials, Forge, ForgeUser, Repo, Tokens, UserWithTokens } from './types';
 import jwtDecode from 'jwt-decode';
+import { eq } from 'drizzle-orm';
 
 const jwtSecret = '123456789'; // TODO: move to nuxt settings
 
@@ -25,7 +26,10 @@ class ForgeApi {
     const newTokens = await this.forge.refreshToken(user.tokens.refreshToken);
     user.tokens = newTokens;
 
-    // TODO: update user tokens in db
+    await db
+      .update(userForgesSchema)
+      .set({ accessToken: newTokens.accessToken, refreshToken: newTokens.refreshToken })
+      .where(eq(userForgesSchema.userId, user.id)).run();
 
     return newTokens;
   }
