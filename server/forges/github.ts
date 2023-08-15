@@ -60,6 +60,7 @@ export class Github implements Forge {
       throw new Error('Error getting access token');
     }
 
+
     return {
       accessToken: response.access_token,
       refreshToken: response.refresh_token,
@@ -72,6 +73,7 @@ export class Github implements Forge {
       body: {
         client_id: this.clientId,
         client_secret: this.clientSecret,
+        grant_type: 'refresh_token',
         refresh_token: refreshToken,
       },
     });
