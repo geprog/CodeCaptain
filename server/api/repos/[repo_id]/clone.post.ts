@@ -17,7 +17,9 @@ export default defineEventHandler(async (event) => {
   const token = getHeader(event, 'gh_token');
   const octokit = new Octokit({ auth: token });
 
+  // TODO: get repo by id from url
   // TODO: check user access to repo
+  // TODO: get forge of repo and use that forge to clone, get issues, ...
 
   const repoId = event.context.params?.repo_id;
   if (!repoId) {

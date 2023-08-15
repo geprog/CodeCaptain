@@ -29,3 +29,18 @@ export const userForgesSchema = sqliteTable('userForges', {
   accessTokenExpiresIn: integer('accessTokenExpiresIn').notNull(),
   refreshToken: text('refreshToken'),
 });
+
+export const repoSchema = sqliteTable('repos', {
+  id: integer('id').primaryKey(),
+  forgeId: integer('forgeId').notNull(),
+  remoteId: text('remoteId').notNull(),
+  name: text('name').notNull(),
+  url: text('url').notNull(),
+  cloneUrl: text('cloneUrl').notNull(),
+});
+
+export const userReposSchema = sqliteTable('userRepos', {
+  id: integer('id').primaryKey(),
+  userId: integer('userId').notNull(),
+  repoId: integer('repoId').notNull(),
+});

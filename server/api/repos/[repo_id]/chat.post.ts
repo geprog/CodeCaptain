@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
-  const token = getHeader(event, 'gh_token');
 
+  // TODO: get repo by id from url
   // TODO: check user access to repo
 
   const repoId = event.context.params?.repo_id;
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
   const message = (await readBody(event))?.message;
 
-  const chatResponse = await $fetch(`${config.api.url}/ask`, {
+  const chatResponse = await $fetch<{ error?: string }>(`${config.api.url}/ask`, {
     method: 'POST',
     body: {
       repo_name: repoId,

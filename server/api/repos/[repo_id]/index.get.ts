@@ -1,4 +1,3 @@
-import { Octokit } from 'octokit';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 
@@ -13,9 +12,8 @@ async function dirExists(path: string) {
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
-  const token = getHeader(event, 'gh_token');
-  const octokit = new Octokit({ auth: token });
 
+  // TODO: get repo by id from url
   // TODO: check user access to repo
 
   const dataFolder = path.join(config.data_path);
