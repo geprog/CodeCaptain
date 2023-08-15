@@ -1,5 +1,4 @@
 import jwt_decode from 'jwt-decode';
-import { browser } from 'process';
 
 export const useAuth = () => {
   const token = useCookie('token');
@@ -11,7 +10,6 @@ export const useAuth = () => {
 
   function login(forgeId: number) {
     window.location.href = `/api/auth/login?forgeId=${forgeId}`;
-    
   }
 
   function logout() {
@@ -21,8 +19,8 @@ export const useAuth = () => {
   if (token.value) {
     const decodedToken = jwt_decode(token.value) as { userId: string; exp: number; iat: number };
 
-    // TODO: logout if token is expired
-    if (decodedToken.exp * 1000 < Date.now()) {
+    // TODO: logout if token is expired and we are in the browser => check if there is a better way
+    if (decodedToken.exp * 1000 < Date.now() && globalThis.window) {
       logout();
     }
 
