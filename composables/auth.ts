@@ -25,6 +25,7 @@ export const useAuth = () => {
     }
 
     // TODO: load user data
+    // TODO: fix for SSR
     (async () => {
       user.value = await $fetch('/api/user');
     })();

@@ -2,10 +2,7 @@ import { Gitlab } from './gitlab';
 import { Forge as ForgeModel, userForgesSchema } from '../schemas';
 import { Github } from './github';
 import { Credentials, Forge, ForgeUser, Repo, Tokens, UserWithTokens } from './types';
-import jwtDecode from 'jwt-decode';
 import { eq } from 'drizzle-orm';
-
-const jwtSecret = '123456789'; // TODO: move to nuxt settings
 
 class ForgeApi {
   private user: UserWithTokens;
@@ -17,9 +14,17 @@ class ForgeApi {
   }
 
   private async refreshTokenIfNeeded(user: UserWithTokens): Promise<Tokens> {
-    const decoded = await jwtDecode<{ exp: number }>(user.tokens.accessToken);
-    if (decoded.exp * 1000 > Date.now()) {
+    // skip refreshing tokens if they don't expire (e.g. Github)
+    if (user.tokens.accessTokenExpiresIn === -1) {
       return user.tokens;
+    }
+
+    if (user.tokens.accessTokenExpiresIn * 1000 > Date.now()) {
+      return user.tokens;
+    }
+
+    if (!user.tokens.refreshToken) {
+      throw new Error("Can't refresh token as refresh token is missing");
     }
 
     // refresh token
@@ -29,7 +34,8 @@ class ForgeApi {
     await db
       .update(userForgesSchema)
       .set({ accessToken: newTokens.accessToken, refreshToken: newTokens.refreshToken })
-      .where(eq(userForgesSchema.userId, user.id)).run();
+      .where(eq(userForgesSchema.userId, user.id))
+      .run();
 
     return newTokens;
   }

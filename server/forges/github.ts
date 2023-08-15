@@ -53,17 +53,19 @@ export class Github implements Forge {
         client_id: this.clientId,
         client_secret: this.clientSecret,
         code,
+        grant_type: 'authorization_code',
       },
+      ignoreResponseError: true,
     });
     if (response.error) {
       console.error(response.error);
       throw new Error('Error getting access token');
     }
 
-
     return {
       accessToken: response.access_token,
-      refreshToken: response.refresh_token,
+      accessTokenExpiresIn: response.expires_in || -1, // TODO: we use -1 as github access_tokens don't expire
+      refreshToken: undefined, // TODO: we use an empty string for now as github access_tokens don't expire
     };
   }
 
@@ -84,7 +86,8 @@ export class Github implements Forge {
 
     return {
       accessToken: response.access_token,
-      refreshToken: response.refresh_token,
+      accessTokenExpiresIn: response.expires_in,
+      refreshToken: undefined, // TODO: we use an empty string for now as github access_tokens don't expire
     };
   }
 

@@ -3,6 +3,7 @@ CREATE TABLE `forges` (
 	`name` text,
 	`type` text NOT NULL,
 	`host` text,
+	`allowLogin` integer,
 	`clientId` text NOT NULL,
 	`clientSecret` text NOT NULL
 );
@@ -11,7 +12,15 @@ CREATE TABLE `userForges` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`userId` integer NOT NULL,
 	`forgeId` integer NOT NULL,
-	`remoteUserId` text NOT NULL
+	`remoteUserId` text NOT NULL,
+	`accessToken` text NOT NULL,
+	`accessTokenExpiresIn` integer NOT NULL,
+	`refreshToken` text
 );
 --> statement-breakpoint
-ALTER TABLE `users` DROP COLUMN `login`;
+CREATE TABLE `users` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`name` text,
+	`avatarUrl` text,
+	`email` text
+);

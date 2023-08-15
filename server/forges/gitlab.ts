@@ -66,8 +66,11 @@ export class Gitlab implements Forge {
       throw new Error('Error getting access token');
     }
 
+    console.log('Got access token', response);
+
     return {
       accessToken: response.access_token,
+      accessTokenExpiresIn: response.expires_in,
       refreshToken: response.refresh_token,
     };
   }
@@ -90,6 +93,7 @@ export class Gitlab implements Forge {
 
     return {
       accessToken: response.access_token,
+      accessTokenExpiresIn: response.expires_in,
       refreshToken: response.refresh_token,
     };
   }
