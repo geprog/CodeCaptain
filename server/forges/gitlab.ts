@@ -103,7 +103,7 @@ export class Gitlab implements Forge {
     const repos = await client.Projects.all({ search, membership: true, perPage: 10 });
     return repos.map((repo) => ({
       id: repo.id.toString(),
-      name: repo.name,
+      name: repo.name_with_namespace,
     }));
   }
 }
