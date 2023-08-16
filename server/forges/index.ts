@@ -57,6 +57,12 @@ class ForgeApi {
 
     return this.forge.getRepos(accessToken, search);
   }
+
+  public async getRepo(repoId: string): Promise<Repo[]> {
+    const { accessToken } = await this.refreshTokenIfNeeded(this.user);
+
+    return this.forge.getRepos(accessToken, search);
+  }
 }
 
 export function getForgeFromDB(forge: ForgeModel): Forge {

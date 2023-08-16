@@ -1,47 +1,23 @@
-import { promises as fs } from 'fs';
-import * as path from 'path';
-
-async function exists(path: string, type: 'file' | 'dir' = 'dir') {
-  try {
-    const stat = await fs.stat(path);
-    if (type === 'file') {
-      return stat.isFile();
-    } else {
-      return stat.isDirectory();
-    }
-  } catch {
-    return false;
-  }
-}
+import { repoSchema, userReposSchema } from '../../schemas';
+import { eq, inArray } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig();
-  const dataFolder = config.data_path;
-
-  // TODO: get user and all repos for that user from db
-
-  if (!(await exists(dataFolder))) {
-    await fs.mkdir(dataFolder, { recursive: true });
+  const user = await getUserFromCookie(event);
+  if (!user) {
+    return sendError(
+      event,
+      createError({
+        statusCode: 401,
+        message: 'Unauthorized',
+      }),
+    );
   }
 
-  const repos: { id: string; full_name: string; active: boolean }[] = [];
+  const userRepoIds = (await db.select().from(userReposSchema).where(eq(userReposSchema.userId, user.id)).all()).map(
+    (i) => i.repoId,
+  );
 
-  const repoFolders = await fs.readdir(dataFolder, { withFileTypes: true });
-  for (const dirent of repoFolders) {
-    if (!dirent.isDirectory()) continue;
-
-    if (!(await exists(path.join(dataFolder, dirent.name, 'repo.json'), 'file'))) {
-      continue;
-    }
-
-    const info = JSON.parse(await fs.readFile(path.join(dataFolder, dirent.name, 'repo.json'), 'utf-8'));
-
-    repos.push({
-      id: dirent.name,
-      full_name: info.full_name,
-      active: true,
-    });
-  }
+  const repos = await db.select().from(repoSchema).where(inArray(repoSchema.id, userRepoIds)).all();
 
   return repos;
 });

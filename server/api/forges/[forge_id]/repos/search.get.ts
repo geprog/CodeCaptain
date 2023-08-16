@@ -1,5 +1,4 @@
 import { promises as fs } from 'fs';
-import { getUserForgeAPI } from '../../../utils/auth';
 
 async function dirExists(path: string) {
   try {
@@ -26,12 +25,12 @@ export default defineEventHandler(async (event) => {
 
   const search = ((getQuery(event)?.search as string | undefined) || '').trim();
 
+  // TODO: load active repos from db
   const config = useRuntimeConfig();
   const dataFolder = config.data_path;
   if (!(await dirExists(dataFolder))) {
     await fs.mkdir(dataFolder, { recursive: true });
   }
-  // TODO: load active repos from db
   const activeRepos = (await fs.readdir(dataFolder, { withFileTypes: true }))
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name);
