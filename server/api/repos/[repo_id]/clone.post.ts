@@ -2,6 +2,9 @@ import { Octokit } from 'octokit';
 import * as path from 'path';
 import { simpleGit } from 'simple-git';
 import { promises as fs } from 'fs';
+import { repoSchema, userReposSchema } from '../../../schemas';
+import { eq } from 'drizzle-orm';
+
 
 async function dirExists(path: string) {
   try {
@@ -17,8 +20,8 @@ export default defineEventHandler(async (event) => {
   const token = getHeader(event, 'gh_token');
   const octokit = new Octokit({ auth: token });
 
-  // TODO: get repo by id from url
-  // TODO: check user access to repo
+  
+  
   // TODO: get forge of repo and use that forge to clone, get issues, ...
 
   const repoId = event.context.params?.repo_id;
@@ -29,7 +32,23 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const repo = (
+  const repoFromDb = await db.select().from(repoSchema).where(eq(repoSchema.id, Number(repoId))).get();
+
+  const user = await getUserFromCookie(event);
+
+  if(user){
+    const repoForUser = await db.select().from(userReposSchema).where(eq(userReposSchema.repoId, Number(repoId))).get();
+    const hasAcess = repoForUser && repoForUser.userId === user.id;
+    if(!hasAcess){
+      throw new Error(`user :${user.name} does not have access to repo with id:${repoId}`)
+    }
+  }else{
+    throw new Error('user not found while trying to fetch repo');
+  }
+
+
+  //TODO: map the data properly for repo
+  const repo = repoFromDb? repoFromDb: (
     await octokit.request('GET /repositories/:id', {
       id: repoId,
     })
