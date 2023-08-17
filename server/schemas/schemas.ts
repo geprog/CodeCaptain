@@ -39,6 +39,9 @@ export const repoSchema = sqliteTable('repos', {
   cloneUrl: text('cloneUrl').notNull(),
 });
 
+export type Repo = InferModel<typeof repoSchema, 'select'>;
+
+
 export const userReposSchema = sqliteTable('userRepos', {
   id: integer('id').primaryKey(),
   userId: integer('userId').notNull(),
