@@ -55,7 +55,7 @@ const search = ref('');
 const { data: repositories } = await useAsyncData(
   'repositories',
   () =>
-    $fetch(`/api/forges/${selectedForgeId.value}/search`, {
+    $fetch(`/api/forges/${selectedForgeId.value}/repos/search`, {
       query: {
         search: search.value,
       },
@@ -82,7 +82,7 @@ const updateSearch = debounce((_search: string) => {
 
 async function cloneRepo(repoId: string) {
   loading.value = true;
-  const forgeId = 123; // TODO
+  const forgeId = selectedForge.value;
   try {
     await $fetch(`/api/repos/${repoId}/clone`, {
       key: `cloneRepo-${repoId}`,
