@@ -31,6 +31,15 @@ export default defineEventHandler(async (event) => {
   }
 
   const user = await getUserFromCookie(event);
+  if (!user) {
+     return sendError(
+      event,
+      createError({
+        statusCode: 401,
+        message: 'Unauthorized',
+      }),
+    );
+  }
 
   if(user){
     const repoForUser = await db.select().from(userReposSchema).where(eq(userReposSchema.repoId, Number(repoId))).get();
