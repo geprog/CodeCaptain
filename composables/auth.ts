@@ -9,10 +9,13 @@ export const useAuth = () => {
   }>();
 
   function login(forgeId: number) {
+    //TODO: find a better way to share the forge id that is connected.
+    localStorage.setItem('forgeId',String(forgeId))
     window.location.href = `/api/auth/login?forgeId=${forgeId}`;
   }
 
   function logout() {
+    localStorage.removeItem('forgeId');
     window.location.href = '/api/auth/logout';
   }
 

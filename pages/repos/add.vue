@@ -48,7 +48,7 @@ const { user } = useAuth();
 const { data: forges } = await useFetch('/api/user/forges', {
   server: false,
 });
-const selectedForgeId = ref<number>();
+const selectedForgeId =  ref<number>(Number(localStorage.getItem('forgeId')));
 const selectedForge = computed(() => forges.value?.find((f) => f.id === selectedForgeId.value));
 
 const search = ref('');

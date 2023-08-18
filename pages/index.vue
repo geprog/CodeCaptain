@@ -10,14 +10,13 @@
             <Button class="flex justify-center items-center">Open</Button>
           </div>
         </Card>
-
-        <Card href="/repos/add">
-          <div class="flex flex-col items-center justify-between p-2 h-full gap-2 w-64">
-            <span class="font-bold text-gray-300 text-xl">Add a repository</span>
-            <Button class="flex justify-center items-center">+ Add</Button>
-          </div>
-        </Card>
       </template>
+      <Card href="/repos/add">
+        <div class="flex flex-col items-center justify-between p-2 h-full gap-2 w-64">
+          <span class="font-bold text-gray-300 text-xl">Add a repository</span>
+          <Button class="flex justify-center items-center">+ Add</Button>
+        </div>
+      </Card>
     </div>
 
     <div v-if="forges && forges.length > 0" class="flex flex-col mt-8">
