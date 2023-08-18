@@ -49,6 +49,7 @@ export async function getUserForgeAPI(user: User, forgeId: number) {
   const tokens = {
     accessToken: userForge.accessToken,
     refreshToken: userForge.refreshToken,
+    accessTokenExpiresIn: userForge.accessTokenExpiresIn,
   };
 
   console.log('tokens', tokens); // TODO: check tokens
