@@ -24,5 +24,5 @@ export interface Forge {
   getUserInfo(token: string): Promise<ForgeUser>;
   getCloneCredentials(token: string): Promise<Credentials>;
   getRepos(token: string, search?: string): Promise<Repo[]>;
-  getRepo(token: string, repoId: string): Promise<Repo>;
+  getRepo(repoId: string): Promise<Repo>;
 }
