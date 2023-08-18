@@ -13,10 +13,19 @@ export default defineEventHandler(async (event) => {
     );
   }
 
-  const forgeId = 1; // TODO:
-  const forge = await getUserForgeAPI(user, forgeId);
 
-  const repoId = '1'; // TODO
+  const forgeIdFromParams = event.context.params?.forge_id;
+  if (!forgeIdFromParams) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'repo_id is required',
+    });
+  }  if (!forgeIdFromParams) {
+    return;
+  }
+  const forge = await getUserForgeAPI(user, Number(forgeIdFromParams));
+
+  const repoId = await readBody(event) satisfies string;
 
   const forgeRepo = await forge.getRepo(repoId);
 
@@ -26,7 +35,7 @@ export default defineEventHandler(async (event) => {
       name: forgeRepo.name,
       cloneUrl: forgeRepo.cloneUrl,
       remoteId: forgeRepo.id,
-      forgeId,
+      forgeId:forgeIdFromParams satisfies Number,
       url: forgeRepo.url,
     })
     .returning()
@@ -36,6 +45,10 @@ export default defineEventHandler(async (event) => {
     userId: user.id,
     repoId: repo.id,
   });
+
+  await $fetch(`/api/repos/${repoId}/clone`,{
+    method: 'POST',
+  })
 
   return repo;
 });

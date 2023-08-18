@@ -48,7 +48,7 @@ const { user } = useAuth();
 const { data: forges } = await useFetch('/api/user/forges', {
   server: false,
 });
-const selectedForgeId =  ref<number>(Number(localStorage.getItem('forgeId')));
+const selectedForgeId = ref<number>();
 const selectedForge = computed(() => forges.value?.find((f) => f.id === selectedForgeId.value));
 
 const search = ref('');
@@ -84,14 +84,16 @@ async function cloneRepo(repoId: string) {
   loading.value = true;
   const forgeId = selectedForge.value;
   try {
-    await $fetch(`/api/repos/${repoId}/clone`, {
-      key: `cloneRepo-${repoId}`,
+    await $fetch(`/api/forges/${forgeId}/repos/add`, {
       method: 'POST',
       body: {
-        forgeId,
         repoId,
       },
     });
+  } catch (error) {
+    console.log(error);
+  }
+  try {
     await navigateTo(`/repos/${repoId}/chat`);
   } catch (error) {
     console.error(error);
