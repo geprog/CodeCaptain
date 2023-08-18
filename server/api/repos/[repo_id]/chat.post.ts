@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
   const chatResponse = await $fetch<{ error?: string }>(`${config.api.url}/ask`, {
     method: 'POST',
     body: {
-      repo_name: repo.name,
+      repo_name: repo.id,
       question: message,
     },
   });
