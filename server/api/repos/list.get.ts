@@ -17,10 +17,8 @@ export default defineEventHandler(async (event) => {
     (i) => i.repoId,
   );
 
-  console.log(userRepoIds)
-
   if (!userRepoIds || userRepoIds.length === 0) {
-    return;
+    return [];
   }
 
   const repos = await db.select().from(repoSchema).where(inArray(repoSchema.id, userRepoIds)).all();
