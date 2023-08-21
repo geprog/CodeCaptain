@@ -25,10 +25,13 @@ export default defineEventHandler(async (event) => {
   const forgeId = parseInt(forgeIdFromParams,10)
   console.log("🚀 ~ file: add.post.ts:26 ~ defineEventHandler ~ forgeId:", forgeId)
   const forge = await getUserForgeAPI(user, forgeId);
+  console.log("🚀 ~ file: add.post.ts:28 ~ defineEventHandler ~ forge:", forge)
 
   const repoId = await readBody(event) satisfies string;
 
   const forgeRepo = await forge.getRepo(repoId);
+  console.log("🚀 ~ file: add.post.ts:33 ~ defineEventHandler ~ forgeRepo:", forgeRepo)
+
 
   const repo = await db
     .insert(repoSchema)

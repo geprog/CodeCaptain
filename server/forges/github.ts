@@ -11,9 +11,8 @@ export class Github implements Forge {
   constructor(forge: DBForge) {
     this.clientId = forge.clientId;
     this.clientSecret = forge.clientSecret;
-    this.forgeId = forge.id
+    this.forgeId = forge.id;
   }
- 
 
   private getClient(token: string) {
     return new Octokit({
@@ -102,25 +101,35 @@ export class Github implements Forge {
       sort: 'updated',
     });
 
-    return repos.data.items.map((repo) => ({
-      name: repo.full_name,
-      cloneUrl: repo.clone_url,
-      id: repo.id,
-      forgeId:this.forgeId,
-      url: repo.url,
-    } satisfies Repo));
+    return repos.data.items.map(
+      (repo) =>
+        ({
+          name: repo.full_name,
+          cloneUrl: repo.clone_url,
+          id: repo.id,
+          forgeId: this.forgeId,
+          url: repo.url,
+        }) satisfies Repo,
+    );
   }
 
-  async getRepo(token: string,repoId: string): Promise<Repo> {
+  async getRepo(token: string, id: string): Promise<Repo> {
+    console.log('🚀 ~ file: github.ts:115 ~ Github ~ getRepo ~ repoId:', id);
     const client = this.getClient(token);
-    const repo = await client.request('GET /repositories/:id', {repoId})
+    try {
+      const repo = await client.request(`GET /repositories/{id}`, {
+        id
+      });
 
-    return {
-      name: repo.data.full_name,
-      cloneUrl: repo.data.clone_url,
-      id: repo.data.id,
-      forgeId:this.forgeId,
-      url: repo.data.url,
-    } satisfies Repo
+      return {
+        name: repo.data.full_name,
+        cloneUrl: repo.data.clone_url,
+        id: repo.data.id,
+        forgeId: this.forgeId,
+        url: repo.data.url,
+      } satisfies Repo;
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
