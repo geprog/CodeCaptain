@@ -13,9 +13,7 @@ export class Github implements Forge {
     this.clientSecret = forge.clientSecret;
     this.forgeId = forge.id
   }
-  getRepo(repoId: string): Promise<Repo> {
-    throw new Error('Method not implemented.');
-  }
+ 
 
   private getClient(token: string) {
     return new Octokit({
@@ -111,5 +109,18 @@ export class Github implements Forge {
       forgeId:this.forgeId,
       url: repo.url,
     } satisfies Repo));
+  }
+
+  async getRepo(token: string,repoId: string): Promise<Repo> {
+    const client = this.getClient(token);
+    const repo = await client.request('GET /repositories/:id', {repoId})
+
+    return {
+      name: repo.data.full_name,
+      cloneUrl: repo.data.clone_url,
+      id: repo.data.id,
+      forgeId:this.forgeId,
+      url: repo.data.url,
+    } satisfies Repo
   }
 }

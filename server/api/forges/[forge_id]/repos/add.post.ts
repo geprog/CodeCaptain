@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
     return;
   }
   const forgeId = parseInt(forgeIdFromParams,10)
+  console.log("🚀 ~ file: add.post.ts:26 ~ defineEventHandler ~ forgeId:", forgeId)
   const forge = await getUserForgeAPI(user, forgeId);
 
   const repoId = await readBody(event) satisfies string;

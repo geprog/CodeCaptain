@@ -61,7 +61,7 @@ class ForgeApi {
   public async getRepo(repoId: string): Promise<Repo> {
     const { accessToken } = await this.refreshTokenIfNeeded(this.user);
 
-    return this.forge.getRepos(accessToken, search);
+    return this.forge.getRepo(accessToken, repoId);
   }
 }
 

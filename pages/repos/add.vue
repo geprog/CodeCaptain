@@ -36,7 +36,7 @@
       >
         <span class="font-bold text-gray-300 flex-wrap truncate overflow-ellipsis">{{ repo.name }}</span>
         <Button v-if="repo.active" :href="`/repos/${repo.id}/chat`">Open</Button>
-        <Button v-else @click="cloneRepo(repo.id)">Activate</Button>
+        <Button v-else @click="cloneRepo(repo.id)">Import</Button>
       </div>
     </div>
   </div>
@@ -82,7 +82,8 @@ const updateSearch = debounce((_search: string) => {
 
 async function cloneRepo(repoId: string) {
   loading.value = true;
-  const forgeId = selectedForge.value;
+  const forgeId = selectedForgeId.value;
+  console.log("🚀 ~ file: add.vue:86 ~ cloneRepo ~ forgeId:", forgeId)
   try {
     await $fetch(`/api/forges/${forgeId}/repos/add`, {
       method: 'POST',

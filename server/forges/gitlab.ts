@@ -16,7 +16,7 @@ export class Gitlab implements Forge {
     this.clientSecret = forge.clientSecret;
     this.forgeId = forge.id;
   }
-
+ 
   public async getCloneCredentials(todo: unknown): Promise<Credentials> {
     return {
       username: 'oauth',
@@ -100,15 +100,31 @@ export class Gitlab implements Forge {
     };
   }
 
-  public async getRepos(token: string, search?: string):Promise<Repo[]> {
+  public async getRepos(token: string, search?: string): Promise<Repo[]> {
     const client = this.getClient(token);
     const repos = await client.Projects.all({ search, membership: true, perPage: 10 });
-    return repos.map((repo) => ({
+    return repos.map(
+      (repo) =>
+        ({
+          id: repo.id,
+          name: repo.name_with_namespace,
+          url: repo.web_url,
+          forgeId: this.forgeId,
+          cloneUrl: repo.http_url_to_repo,
+        }) satisfies Repo,
+    );
+  }
+
+  async getRepo(token: string, repoId: string): Promise<Repo> {
+    const client = this.getClient(token);
+    const repo = await client.Projects.show(repoId);
+
+    return {
       id: repo.id,
       name: repo.name_with_namespace,
       url: repo.web_url,
       forgeId: this.forgeId,
       cloneUrl: repo.http_url_to_repo,
-    }satisfies Repo));
+    } satisfies Repo
   }
 }
