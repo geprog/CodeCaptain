@@ -62,6 +62,9 @@ export default defineEventHandler(async (event) => {
 
   await $fetch(`/api/repos/${repoId}/clone`, {
     method: 'POST',
+    headers: {
+      // TODO: pass auth / session to clone
+    },
   });
 
   return repo;
