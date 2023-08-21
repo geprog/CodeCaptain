@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     .values({
       name: forgeRepo.name,
       cloneUrl: forgeRepo.cloneUrl,
-      remoteId: forgeRepo.id,
+      remoteId: forgeRepo.id.toString(),
       url: forgeRepo.url,
       forgeId: forgeRepo.forgeId,
     })
