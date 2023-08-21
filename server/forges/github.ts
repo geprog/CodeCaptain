@@ -120,12 +120,13 @@ export class Github implements Forge {
       repoId,
     });
 
+    // TODO: think about adding repo.data.default_branch:
     return {
+      id: repo.data.id,
       name: repo.data.full_name,
       cloneUrl: repo.data.clone_url,
-      id: repo.data.id,
       forgeId: this.forgeId,
-      url: repo.data.url,
+      url: repo.data.html_url,
     };
   }
 }
