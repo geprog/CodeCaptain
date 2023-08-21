@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     .values({
       name: forgeRepo.name,
       cloneUrl: forgeRepo.cloneUrl,
-      remoteId: forgeRepo.id.toString(),
+      remoteId: forgeRepo.id,
       url: forgeRepo.url,
       forgeId: forgeRepo.forgeId,
     })
@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
   await db.insert(userReposSchema).values({
     userId: user.id,
     repoId: repo.id,
-  });
+  }).run();
 
   await $fetch(`/api/repos/${repoId}/clone`, {
     method: 'POST',
