@@ -6,10 +6,15 @@ import { Octokit } from 'octokit';
 export class Github implements Forge {
   private clientId: string;
   private clientSecret: string;
+  private forgeId: number;
 
   constructor(forge: DBForge) {
     this.clientId = forge.clientId;
     this.clientSecret = forge.clientSecret;
+    this.forgeId = forge.id
+  }
+  getRepo(repoId: string): Promise<Repo> {
+    throw new Error('Method not implemented.');
   }
 
   private getClient(token: string) {
@@ -100,8 +105,11 @@ export class Github implements Forge {
     });
 
     return repos.data.items.map((repo) => ({
-      id: repo.id.toString(),
       name: repo.full_name,
-    }));
+      cloneUrl: repo.clone_url,
+      id: repo.id,
+      forgeId:this.forgeId,
+      url: repo.url,
+    } satisfies Repo));
   }
 }

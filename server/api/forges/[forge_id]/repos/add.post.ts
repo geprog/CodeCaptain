@@ -1,5 +1,4 @@
 import { repoSchema, userReposSchema } from '../../../../schemas';
-import { eq, inArray } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
   const user = await getUserFromCookie(event);
@@ -23,7 +22,8 @@ export default defineEventHandler(async (event) => {
   }  if (!forgeIdFromParams) {
     return;
   }
-  const forge = await getUserForgeAPI(user, Number(forgeIdFromParams));
+  const forgeId = parseInt(forgeIdFromParams,10)
+  const forge = await getUserForgeAPI(user, forgeId);
 
   const repoId = await readBody(event) satisfies string;
 
@@ -35,8 +35,8 @@ export default defineEventHandler(async (event) => {
       name: forgeRepo.name,
       cloneUrl: forgeRepo.cloneUrl,
       remoteId: forgeRepo.id,
-      forgeId:forgeIdFromParams satisfies Number,
       url: forgeRepo.url,
+      forgeId: forgeRepo.forgeId,
     })
     .returning()
     .get();

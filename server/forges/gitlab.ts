@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3';
-import { Forge, Tokens, Credentials, ForgeUser } from './types';
+import { Forge, Tokens, Credentials, ForgeUser, Repo } from './types';
 import { Forge as DBForge } from '../schemas';
 import { Gitlab as GitlabApi } from '@gitbeaker/rest';
 
@@ -8,11 +8,13 @@ export class Gitlab implements Forge {
   private clientId: string;
   private clientSecret: string;
   private redirectUrl = 'http://localhost:3000/api/auth/callback'; // TODO: allow to configure this redirect url
+  private forgeId: number;
 
   constructor(forge: DBForge) {
     this.host = forge.host || 'gitlab.com';
     this.clientId = forge.clientId;
     this.clientSecret = forge.clientSecret;
+    this.forgeId = forge.id;
   }
 
   public async getCloneCredentials(todo: unknown): Promise<Credentials> {
@@ -98,12 +100,15 @@ export class Gitlab implements Forge {
     };
   }
 
-  public async getRepos(token: string, search?: string) {
+  public async getRepos(token: string, search?: string):Promise<Repo[]> {
     const client = this.getClient(token);
     const repos = await client.Projects.all({ search, membership: true, perPage: 10 });
     return repos.map((repo) => ({
-      id: repo.id.toString(),
+      id: repo.id,
       name: repo.name_with_namespace,
-    }));
+      url: repo.web_url,
+      forgeId: this.forgeId,
+      cloneUrl: repo.http_url_to_repo,
+    }satisfies Repo));
   }
 }

@@ -13,8 +13,12 @@ export type UserWithTokens = User & { tokens: Tokens };
 export type ForgeUser = Omit<User, 'id'> & { remoteUserId: string };
 
 export type Repo = {
-  id: string;
   name: string;
+  cloneUrl: string;
+  forgeId: number;
+  id: number;
+  url: string;
+
 };
 
 export interface Forge {
