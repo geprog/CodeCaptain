@@ -37,17 +37,28 @@ export default defineEventHandler(async (event) => {
     .values({
       name: forgeRepo.name,
       cloneUrl: forgeRepo.cloneUrl,
-      remoteId: forgeRepo.id,
+      remoteId: forgeRepo.id.toString(),
       url: forgeRepo.url,
       forgeId: forgeRepo.forgeId,
+    })
+    .onConflictDoUpdate({
+      target: [repoSchema.forgeId, repoSchema.remoteId],
+      set: {
+        name: forgeRepo.name,
+        cloneUrl: forgeRepo.cloneUrl,
+        url: forgeRepo.url,
+      },
     })
     .returning()
     .get();
 
-  await db.insert(userReposSchema).values({
-    userId: user.id,
-    repoId: repo.id,
-  }).run();
+  await db
+    .insert(userReposSchema)
+    .values({
+      userId: user.id,
+      repoId: repo.id,
+    })
+    .run();
 
   await $fetch(`/api/repos/${repoId}/clone`, {
     method: 'POST',

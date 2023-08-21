@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, unique } from 'drizzle-orm/sqlite-core';
 import { InferModel } from 'drizzle-orm';
 
 export const userSchema = sqliteTable('users', {
@@ -30,17 +30,22 @@ export const userForgesSchema = sqliteTable('userForges', {
   refreshToken: text('refreshToken'),
 });
 
-export const repoSchema = sqliteTable('repos', {
-  id: integer('id').primaryKey(),
-  forgeId: integer('forgeId').notNull(),
-  remoteId: text('remoteId').notNull(),
-  name: text('name').notNull(),
-  url: text('url').notNull(),
-  cloneUrl: text('cloneUrl').notNull(),
-});
+export const repoSchema = sqliteTable(
+  'repos',
+  {
+    id: integer('id').primaryKey(),
+    forgeId: integer('forgeId').notNull(),
+    remoteId: text('remoteId').notNull(),
+    name: text('name').notNull(),
+    url: text('url').notNull(),
+    cloneUrl: text('cloneUrl').notNull(),
+  },
+  (table) => ({
+    forgeRemoteId: unique('uniqueForgeRemoteId').on(table.forgeId, table.remoteId),
+  }),
+);
 
 export type RepoFromDB = InferModel<typeof repoSchema, 'select'>;
-
 
 export const userReposSchema = sqliteTable('userRepos', {
   id: integer('id').primaryKey(),
