@@ -12,26 +12,25 @@ export default defineEventHandler(async (event) => {
     );
   }
 
-
   const forgeIdFromParams = event.context.params?.forge_id;
   if (!forgeIdFromParams) {
     throw createError({
       statusCode: 400,
       statusMessage: 'repo_id is required',
     });
-  }  if (!forgeIdFromParams) {
+  }
+  if (!forgeIdFromParams) {
     return;
   }
-  const forgeId = parseInt(forgeIdFromParams,10)
-  console.log("🚀 ~ file: add.post.ts:26 ~ defineEventHandler ~ forgeId:", forgeId)
+  const forgeId = parseInt(forgeIdFromParams, 10);
+  console.log('🚀 ~ file: add.post.ts:26 ~ defineEventHandler ~ forgeId:', forgeId);
   const forge = await getUserForgeAPI(user, forgeId);
-  console.log("🚀 ~ file: add.post.ts:28 ~ defineEventHandler ~ forge:", forge)
+  console.log('🚀 ~ file: add.post.ts:28 ~ defineEventHandler ~ forge:', forge);
 
-  const repoId = await readBody(event) satisfies string;
+  const { repoId } = (await readBody(event)) as { repoId: string };
 
   const forgeRepo = await forge.getRepo(repoId);
-  console.log("🚀 ~ file: add.post.ts:33 ~ defineEventHandler ~ forgeRepo:", forgeRepo)
-
+  console.log('🚀 ~ file: add.post.ts:33 ~ defineEventHandler ~ forgeRepo:', forgeRepo);
 
   const repo = await db
     .insert(repoSchema)
@@ -50,9 +49,9 @@ export default defineEventHandler(async (event) => {
     repoId: repo.id,
   });
 
-  await $fetch(`/api/repos/${repoId}/clone`,{
+  await $fetch(`/api/repos/${repoId}/clone`, {
     method: 'POST',
-  })
+  });
 
   return repo;
 });

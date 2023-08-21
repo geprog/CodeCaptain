@@ -67,7 +67,7 @@ export class Github implements Forge {
     return {
       accessToken: response.access_token,
       accessTokenExpiresIn: response.expires_in || -1, // TODO: we use -1 as github access_tokens don't expire
-      refreshToken: undefined, // TODO: we use an empty string for now as github access_tokens don't expire
+      refreshToken: null, // TODO: we use an empty string for now as github access_tokens don't expire
     };
   }
 
@@ -89,7 +89,7 @@ export class Github implements Forge {
     return {
       accessToken: response.access_token,
       accessTokenExpiresIn: response.expires_in,
-      refreshToken: undefined, // TODO: we use an empty string for now as github access_tokens don't expire
+      refreshToken: null, // TODO: we use an empty string for now as github access_tokens don't expire
     };
   }
 
@@ -113,23 +113,19 @@ export class Github implements Forge {
     );
   }
 
-  async getRepo(token: string, id: string): Promise<Repo> {
-    console.log('🚀 ~ file: github.ts:115 ~ Github ~ getRepo ~ repoId:', id);
+  async getRepo(token: string, repoId: string): Promise<Repo> {
     const client = this.getClient(token);
-    try {
-      const repo = await client.request(`GET /repositories/{id}`, {
-        id
-      });
 
-      return {
-        name: repo.data.full_name,
-        cloneUrl: repo.data.clone_url,
-        id: repo.data.id,
-        forgeId: this.forgeId,
-        url: repo.data.url,
-      } satisfies Repo;
-    } catch (error) {
-      console.log(error);
-    }
+    const repo = await client.request(`GET /repositories/{repoId}`, {
+      repoId,
+    });
+
+    return {
+      name: repo.data.full_name,
+      cloneUrl: repo.data.clone_url,
+      id: repo.data.id,
+      forgeId: this.forgeId,
+      url: repo.data.url,
+    };
   }
 }
