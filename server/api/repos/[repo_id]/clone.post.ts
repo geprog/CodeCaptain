@@ -17,7 +17,6 @@ async function dirExists(path: string) {
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const token = getHeader(event, 'gh_token');
-  const octokit = new Octokit({ auth: token });
 
   // TODO: get forge of repo and use that forge to clone, get issues, ...
 
@@ -60,9 +59,6 @@ export default defineEventHandler(async (event) => {
   } else {
     console.log('repo does not exist in the db.');
   }
-
-
-    
 
   const folder = path.join(config.data_path, repo.id.toString());
 
