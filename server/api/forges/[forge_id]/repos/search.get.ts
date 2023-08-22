@@ -2,14 +2,6 @@ import { promises as fs } from 'fs';
 import { RepoFromDB, repoSchema, userReposSchema } from '../../../../schemas';
 import { and, eq, inArray } from 'drizzle-orm';
 
-async function dirExists(path: string) {
-  try {
-    const stat = await fs.stat(path);
-    return stat.isDirectory();
-  } catch {
-    return false;
-  }
-}
 
 export default defineEventHandler(async (event) => {
   const forgeId = event.context.params?.forge_id;
