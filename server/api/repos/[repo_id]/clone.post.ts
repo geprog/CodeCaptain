@@ -125,6 +125,7 @@ export default defineEventHandler(async (event) => {
   // }
 
   console.log('start indexing ...');
+  //TODO: adjust index endpoint
   const indexingResponse = await $fetch(`${config.api.url}/index`, {
     method: 'POST',
     body: {
