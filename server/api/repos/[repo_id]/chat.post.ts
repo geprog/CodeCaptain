@@ -1,6 +1,5 @@
-import { repoSchema, userReposSchema } from "../../../schemas";
+import { repoSchema, userReposSchema } from '../../../schemas';
 import { eq } from 'drizzle-orm';
-
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
@@ -14,11 +13,15 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const repo = await db.select().from(repoSchema).where(eq(repoSchema.id, Number(repoId))).get();
+  const repo = await db
+    .select()
+    .from(repoSchema)
+    .where(eq(repoSchema.id, Number(repoId)))
+    .get();
 
   const user = await getUserFromCookie(event);
   if (!user) {
-     return sendError(
+    return sendError(
       event,
       createError({
         statusCode: 401,
@@ -27,16 +30,19 @@ export default defineEventHandler(async (event) => {
     );
   }
 
-  if(user){
-    const repoForUser = await db.select().from(userReposSchema).where(eq(userReposSchema.repoId, Number(repoId))).get();
+  if (user) {
+    const repoForUser = await db
+      .select()
+      .from(userReposSchema)
+      .where(eq(userReposSchema.repoId, Number(repoId)))
+      .get();
     const hasAcess = repoForUser && repoForUser.userId === user.id;
-    if(!hasAcess){
-      throw new Error(`user :${user.name} does not have access to repo with id:${repoId}`)
+    if (!hasAcess) {
+      throw new Error(`user :${user.name} does not have access to repo with id:${repoId}`);
     }
-  }else{
+  } else {
     throw new Error('user not found while trying to fetch repo');
   }
-
 
   const message = (await readBody(event))?.message;
 

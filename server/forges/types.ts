@@ -1,7 +1,7 @@
 import { H3Event } from 'h3';
 import { User } from '../schemas';
 
-export type Tokens = { accessToken: string; accessTokenExpiresIn: number; refreshToken: string | null};
+export type Tokens = { accessToken: string; accessTokenExpiresIn: number; refreshToken: string | null };
 
 export type Credentials = {
   username: string;
@@ -18,7 +18,6 @@ export type Repo = {
   forgeId: number;
   id: number;
   url: string;
-
 };
 
 export interface Forge {
@@ -28,5 +27,5 @@ export interface Forge {
   getUserInfo(token: string): Promise<ForgeUser>;
   getCloneCredentials(token: string): Promise<Credentials>;
   getRepos(token: string, search?: string): Promise<Repo[]>;
-  getRepo(token: string,repoId: string): Promise<Repo>;
+  getRepo(token: string, repoId: string): Promise<Repo>;
 }

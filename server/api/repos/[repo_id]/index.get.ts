@@ -3,7 +3,6 @@ import * as path from 'path';
 import { userReposSchema } from '../../../schemas';
 import { eq } from 'drizzle-orm';
 
-
 async function dirExists(path: string) {
   try {
     const stat = await fs.stat(path);
@@ -32,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
   const user = await getUserFromCookie(event);
   if (!user) {
-     return sendError(
+    return sendError(
       event,
       createError({
         statusCode: 401,
@@ -41,13 +40,17 @@ export default defineEventHandler(async (event) => {
     );
   }
 
-  if(user){
-    const repoForUser = await db.select().from(userReposSchema).where(eq(userReposSchema.repoId, Number(repoId))).get();
+  if (user) {
+    const repoForUser = await db
+      .select()
+      .from(userReposSchema)
+      .where(eq(userReposSchema.repoId, Number(repoId)))
+      .get();
     const hasAcess = repoForUser && repoForUser.userId === user.id;
-    if(!hasAcess){
-      throw new Error(`user :${user.name} does not have access to repo with id:${repoId}`)
+    if (!hasAcess) {
+      throw new Error(`user :${user.name} does not have access to repo with id:${repoId}`);
     }
-  }else{
+  } else {
     throw new Error('user not found while trying to fetch repo');
   }
 

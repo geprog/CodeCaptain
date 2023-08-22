@@ -2,7 +2,6 @@ import { promises as fs } from 'fs';
 import { RepoFromDB, repoSchema, userReposSchema } from '../../../../schemas';
 import { and, eq, inArray } from 'drizzle-orm';
 
-
 export default defineEventHandler(async (event) => {
   const forgeId = event.context.params?.forge_id;
   if (!forgeId) {
@@ -36,9 +35,9 @@ export default defineEventHandler(async (event) => {
           ),
           eq(repoSchema.forgeId, Number(forgeId)),
         ),
-      ).all();
+      )
+      .all();
   }
-
 
   const forge = await getUserForgeAPI(user, parseInt(forgeId, 10));
 
@@ -47,6 +46,6 @@ export default defineEventHandler(async (event) => {
   return userRepos.map((repo) => ({
     id: repo.id.toString(),
     name: repo.name,
-    active: activeRepos.map(ar=> ar.id).includes(repo.id),
+    active: activeRepos.map((ar) => ar.id).includes(repo.id),
   }));
 });

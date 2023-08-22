@@ -2,7 +2,6 @@ import { repoSchema, userReposSchema } from '../../../../schemas';
 
 export default defineEventHandler(async (event) => {
   const user = await getUserFromCookie(event);
-  console.log("🚀 ~ file: add.post.ts:5 ~ defineEventHandler ~ user:", user)
   if (!user) {
     return sendError(
       event,
@@ -24,15 +23,11 @@ export default defineEventHandler(async (event) => {
     return;
   }
   const forgeId = parseInt(forgeIdFromParams, 10);
-  console.log('🚀 ~ file: add.post.ts:26 ~ defineEventHandler ~ forgeId:', forgeId);
   const forge = await getUserForgeAPI(user, forgeId);
-  console.log('🚀 ~ file: add.post.ts:28 ~ defineEventHandler ~ forge:', forge);
 
   const { repoId } = (await readBody(event)) as { repoId: string };
-  console.log("🚀 ~ file: add.post.ts:32 ~ defineEventHandler ~ repoId:", repoId)
 
   const forgeRepo = await forge.getRepo(repoId);
-  console.log('🚀 ~ file: add.post.ts:33 ~ defineEventHandler ~ forgeRepo:', forgeRepo);
 
   const repo = await db
     .insert(repoSchema)
@@ -64,8 +59,8 @@ export default defineEventHandler(async (event) => {
 
   await $fetch(`/api/repos/${repoId}/clone`, {
     method: 'POST',
-    body:{
-      ...user
+    body: {
+      ...user,
     },
     headers: {
       // TODO: pass auth / session to clone

@@ -50,11 +50,7 @@ export default defineEventHandler(async (event) => {
     console.log('repo does not exist in the db.');
   }
 
- const repo = await db
-    .select()
-    .from(repoSchema)
-    .where(eq(repoSchema.id, userRrepoForUser.repoId))
-    .get();
+  const repo = await db.select().from(repoSchema).where(eq(repoSchema.id, userRrepoForUser.repoId)).get();
 
   const folder = path.join(config.data_path, repo.remoteId.toString());
 
