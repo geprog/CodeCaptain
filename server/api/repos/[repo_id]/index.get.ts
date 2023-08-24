@@ -1,8 +1,7 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import { userReposSchema } from '../../../schemas';
+import { repoSchema, userReposSchema } from '../../../schemas';
 import { eq } from 'drizzle-orm';
-
 
 async function dirExists(path: string) {
   try {
@@ -15,9 +14,7 @@ async function dirExists(path: string) {
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
-
   const dataFolder = path.join(config.data_path);
-
   if (!(await dirExists(dataFolder))) {
     await fs.mkdir(dataFolder, { recursive: true });
   }
@@ -32,7 +29,7 @@ export default defineEventHandler(async (event) => {
 
   const user = await getUserFromCookie(event);
   if (!user) {
-     return sendError(
+    return sendError(
       event,
       createError({
         statusCode: 401,
@@ -41,24 +38,30 @@ export default defineEventHandler(async (event) => {
     );
   }
 
-  if(user){
-    const repoForUser = await db.select().from(userReposSchema).where(eq(userReposSchema.repoId, Number(repoId))).get();
-    const hasAcess = repoForUser && repoForUser.userId === user.id;
-    if(!hasAcess){
-      throw new Error(`user :${user.name} does not have access to repo with id:${repoId}`)
-    }
-  }else{
-    throw new Error('user not found while trying to fetch repo');
+  const repoForUser = await db
+    .select()
+    .from(userReposSchema)
+    .where(eq(userReposSchema.repoId, Number(repoId)))
+    .get();
+  if (repoForUser && repoForUser.userId === user.id) {
+    throw new Error(`user :${user.name} does not have access to repo with id:${repoId}`);
   }
 
-  const body = await fs.readFile(path.join(dataFolder, repoId, 'repo.json'), 'utf-8');
+  const repo = await db
+    .select()
+    .from(repoSchema)
+    .where(eq(repoSchema.id, Number(repoId)))
+    .get();
 
-  const repo = JSON.parse(body);
+  if (!repo) {
+    return sendError(
+      event,
+      createError({
+        statusCode: 404,
+        message: 'Repo not found',
+      }),
+    );
+  }
 
-  return {
-    id: repo.id,
-    full_name: repo.full_name,
-    link: repo.html_url,
-    active: true,
-  };
+  return repo;
 });

@@ -1,4 +1,3 @@
-import { Octokit } from 'octokit';
 import * as path from 'path';
 import { simpleGit } from 'simple-git';
 import { promises as fs } from 'fs';
@@ -16,10 +15,17 @@ async function dirExists(path: string) {
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
-  const token = getHeader(event, 'gh_token');
-  const octokit = new Octokit({ auth: token });
 
-  // TODO: get forge of repo and use that forge to clone, get issues, ...
+  const user = await getUserFromCookie(event);
+  if (!user) {
+    return sendError(
+      event,
+      createError({
+        statusCode: 401,
+        message: 'Unauthorized',
+      }),
+    );
+  }
 
   const repoId = event.context.params?.repo_id;
   if (!repoId) {
@@ -34,35 +40,16 @@ export default defineEventHandler(async (event) => {
     .from(repoSchema)
     .where(eq(repoSchema.id, Number(repoId)))
     .get();
-  console.log('repoFromDb', repo);
 
-  const user = await getUserFromCookie(event);
- if (!user) {
-     return sendError(
-      event,
-      createError({
-        statusCode: 401,
-        message: 'Unauthorized',
-      }),
-    );
-  }
   const repoForUser = await db
     .select()
     .from(userReposSchema)
     .where(eq(userReposSchema.repoId, Number(repoId)))
     .get();
 
-  if (repoForUser) {
-    const hasAcess = repoForUser && repoForUser.userId === user.id;
-    if (!hasAcess) {
-      throw new Error(`user :${user.name} does not have access to repo with id:${repoId}`);
-    }
-  } else {
-    console.log('repo does not exist in the db.');
+  if (repoForUser && repoForUser.userId === user.id) {
+    throw new Error(`user :${user.name} does not have access to repo with id:${repoId}`);
   }
-
-
-    
 
   const folder = path.join(config.data_path, repo.id.toString());
 
@@ -77,10 +64,6 @@ export default defineEventHandler(async (event) => {
     console.log('pulled', log);
   }
 
-  // write repo.json
-  await fs.writeFile(path.join(folder, 'repo.json'), JSON.stringify(repo, null, 2));
-  console.log('wrote repo.json');
-
   // write issues
   if (!(await dirExists(path.join(folder, 'issues')))) {
     await fs.mkdir(path.join(folder, 'issues'), { recursive: true });
@@ -89,7 +72,7 @@ export default defineEventHandler(async (event) => {
     await fs.mkdir(path.join(folder, 'issues'), { recursive: true });
   }
 
-  //TODO: adjust issues with current api
+  const userForgeApi = await getUserForgeAPI(user, repo.forgeId);
 
   // const issuesPaginator = octokit.paginate.iterator('GET /repos/{owner}/{repo}/issues', {
   //   owner: repo.owner.login,
@@ -133,7 +116,7 @@ export default defineEventHandler(async (event) => {
   // }
 
   console.log('start indexing ...');
-  const indexingResponse = await $fetch(`${config.api.url}/index`, {
+  const indexingResponse = await $fetch<{ error?: string }>(`${config.api.url}/index`, {
     method: 'POST',
     body: {
       repo_name: repoId,
