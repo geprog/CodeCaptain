@@ -16,7 +16,7 @@ export class Gitlab implements Forge {
     this.clientSecret = forge.clientSecret;
     this.forgeId = forge.id;
   }
- 
+
   public async getCloneCredentials(todo: unknown): Promise<Credentials> {
     return {
       username: 'oauth',
@@ -125,6 +125,6 @@ export class Gitlab implements Forge {
       url: repo.web_url,
       forgeId: this.forgeId,
       cloneUrl: repo.http_url_to_repo,
-    } satisfies Repo
+    } satisfies Repo;
   }
 }

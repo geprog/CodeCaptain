@@ -111,10 +111,7 @@
       "indexes": {
         "uniqueForgeRemoteId": {
           "name": "uniqueForgeRemoteId",
-          "columns": [
-            "forgeId",
-            "remoteId"
-          ],
+          "columns": ["forgeId", "remoteId"],
           "isUnique": true
         }
       },

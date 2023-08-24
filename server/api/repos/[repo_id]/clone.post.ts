@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { simpleGit } from 'simple-git';
 import { promises as fs } from 'fs';
-import { repoSchema, userReposSchema } from '../../../schemas';
+import { RepoFromDB, repoSchema, userReposSchema } from '../../../schemas';
 import { eq } from 'drizzle-orm';
 
 async function dirExists(path: string) {
@@ -35,23 +35,31 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const repo = await db
-    .select()
-    .from(repoSchema)
-    .where(eq(repoSchema.id, Number(repoId)))
-    .get();
+  const user = await readBody(event);
+  console.log('🚀 ~ file: clone.post.ts:39 ~ defineEventHandler ~ user:', user);
+  if (!user) {
+    return sendError(
+      event,
+      createError({
+        statusCode: 401,
+        message: 'Unauthorized',
+      }),
+    );
+  }
+  const userRrepoForUser = await db.select().from(userReposSchema).where(eq(userReposSchema.userId, user.id)).get();
 
-  const repoForUser = await db
-    .select()
-    .from(userReposSchema)
-    .where(eq(userReposSchema.repoId, Number(repoId)))
-    .get();
-
-  if (repoForUser && repoForUser.userId === user.id) {
-    throw new Error(`user :${user.name} does not have access to repo with id:${repoId}`);
+  if (userRrepoForUser) {
+    const hasAcess = userRrepoForUser.userId === user.id;
+    if (!hasAcess) {
+      throw new Error(`user :${user.name} does not have access to repo with id:${repoId}`);
+    }
+  } else {
+    console.log('repo does not exist in the db.');
   }
 
-  const folder = path.join(config.data_path, repo.id.toString());
+  const repo = await db.select().from(repoSchema).where(eq(repoSchema.id, userRrepoForUser.repoId)).get();
+
+  const folder = path.join(config.data_path, repo.remoteId.toString());
 
   // clone repo
   console.log('clone', repo.cloneUrl, path.join(folder, 'repo'));

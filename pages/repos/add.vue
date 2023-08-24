@@ -83,7 +83,6 @@ const updateSearch = debounce((_search: string) => {
 async function cloneRepo(repoId: string) {
   loading.value = true;
   const forgeId = selectedForgeId.value;
-  console.log("🚀 ~ file: add.vue:86 ~ cloneRepo ~ forgeId:", forgeId)
   try {
     await $fetch(`/api/forges/${forgeId}/repos/add`, {
       method: 'POST',
