@@ -27,37 +27,18 @@ export default defineEventHandler(async (event) => {
     );
   }
 
-  const repoId = event.context.params?.repo_id;
-  if (!repoId) {
+  const _repoId = event.context.params?.repo_id;
+  if (!_repoId) {
     throw createError({
       statusCode: 400,
       statusMessage: 'repo_id is required',
     });
   }
+  const repoId = parseInt(_repoId, 10);
 
-  const user = await readBody(event);
-  console.log('🚀 ~ file: clone.post.ts:39 ~ defineEventHandler ~ user:', user);
-  if (!user) {
-    return sendError(
-      event,
-      createError({
-        statusCode: 401,
-        message: 'Unauthorized',
-      }),
-    );
-  }
-  const userRrepoForUser = await db.select().from(userReposSchema).where(eq(userReposSchema.userId, user.id)).get();
+  await requireUserAccessToRepo(user, repoId);
 
-  if (userRrepoForUser) {
-    const hasAcess = userRrepoForUser.userId === user.id;
-    if (!hasAcess) {
-      throw new Error(`user :${user.name} does not have access to repo with id:${repoId}`);
-    }
-  } else {
-    console.log('repo does not exist in the db.');
-  }
-
-  const repo = await db.select().from(repoSchema).where(eq(repoSchema.id, userRrepoForUser.repoId)).get();
+  const repo = await db.select().from(repoSchema).where(eq(repoSchema.id, repoId)).get();
 
   const folder = path.join(config.data_path, repo.remoteId.toString());
 

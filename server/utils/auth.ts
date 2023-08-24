@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3';
-import { User, forgeSchema, userForgesSchema, userSchema } from '../schemas';
+import { User, forgeSchema, userForgesSchema, userReposSchema, userSchema } from '../schemas';
 import jwt from 'jsonwebtoken';
 import { and, eq } from 'drizzle-orm';
 import { getForgeApiFromDB } from '../forges';
@@ -55,4 +55,13 @@ export async function getUserForgeAPI(user: User, forgeId: number) {
   console.log('tokens', tokens); // TODO: check tokens
 
   return getForgeApiFromDB({ ...user, tokens }, forgeModel);
+}
+
+export async function requireUserAccessToRepo(user: User, repoId: number) {
+  const userRepo = await db
+    .select()
+    .from(userReposSchema)
+    .where(and(eq(userReposSchema.userId, user.id), eq(userReposSchema.repoId, repoId)))
+    .get();
+  return !!userRepo;
 }
