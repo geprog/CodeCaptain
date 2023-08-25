@@ -1,17 +1,15 @@
 <template>
-  <div class="h-40 text-wrap">
-    <a
-      :href="href"
-      class="flex justify-center w-60 p-2 h-full rounded-lg border bg-gray-800 border-gray-800"
-      :class="{
-        'hover:border-gray-500': href,
-      }"
-    >
-      <slot />
-    </a>
+  <div
+    class="rounded-lg border bg-transparent border-stone-300 dark:border-stone-800 dark:hover:border-stone-500 relative overflow-hidden duration-500 hover:border-primary/10 group hover:drop-shadow-md"
+  >
+    <slot />
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{ href?: string }>();
+defineProps<{
+  href?: string;
+  title?: string;
+  subtitle?: string;
+}>();
 </script>
