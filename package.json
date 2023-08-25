@@ -18,7 +18,9 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@iconify/json": "^2.2.106",
     "@nuxt/devtools": "latest",
+    "@nuxthq/ui": "^2.7.0",
     "@nuxtjs/tailwindcss": "6.8.0",
     "@types/better-sqlite3": "7.6.4",
     "@types/jsonwebtoken": "^9.0.2",
