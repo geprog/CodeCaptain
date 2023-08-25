@@ -1,6 +1,3 @@
-import { repoSchema } from '../../../schemas';
-import { eq } from 'drizzle-orm';
-
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
 
@@ -17,7 +14,7 @@ export default defineEventHandler(async (event) => {
   const message = (await readBody(event))?.message;
 
   const config = useRuntimeConfig();
-  const chatResponse = await $fetch<{ error?: string }>(`${config.api.url}/ask`, {
+  const chatResponse = await $fetch<{ error?: string; answer: string }>(`${config.api.url}/ask`, {
     method: 'POST',
     body: {
       repo_name: repo.id,
