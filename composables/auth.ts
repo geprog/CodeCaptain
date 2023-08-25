@@ -1,12 +1,7 @@
-import jwt_decode from 'jwt-decode';
+export async function useAuth() {
+  const { data: user, refresh: updateSession } = await useFetch('/api/user');
 
-export const useAuth = () => {
-  const token = useCookie('token');
-  const user = ref<{
-    name: string;
-    avatarUrl: string;
-    email: string;
-  }>();
+  const isAuthenticated = computed(() => !!user.value?.id);
 
   function login(forgeId: number) {
     window.location.href = `/api/auth/login?forgeId=${forgeId}`;
@@ -16,25 +11,11 @@ export const useAuth = () => {
     window.location.href = '/api/auth/logout';
   }
 
-  if (token.value) {
-    const decodedToken = jwt_decode(token.value) as { userId: string; exp: number; iat: number };
-
-    // TODO: logout if token is expired and we are in the browser => check if there is a better way
-    if (decodedToken.exp * 1000 < Date.now() && globalThis.window) {
-      logout();
-    }
-
-    // TODO: load user data
-    // TODO: fix for SSR
-    (async () => {
-      user.value = await $fetch('/api/user');
-    })();
-  }
-
   return {
-    isAuthenticated: !!token.value,
+    isAuthenticated,
     user,
     login,
     logout,
+    updateSession,
   };
-};
+}

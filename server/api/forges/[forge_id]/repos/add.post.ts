@@ -1,4 +1,41 @@
+import type { H3Event } from 'h3';
 import { repoSchema, userReposSchema } from '../../../../schemas';
+
+export async function getSessionHeader(event: H3Event) {
+  const config = useRuntimeConfig();
+
+  console.log(getHeaders(event));
+
+  const sessionName = config.auth.name || 'h3';
+
+  let sealedSession: string | undefined;
+
+  // Try header first
+  if (config.sessionHeader !== false) {
+    const headerName =
+      typeof config.sessionHeader === 'string'
+        ? config.sessionHeader.toLowerCase()
+        : `x-${sessionName.toLowerCase()}-session`;
+    const headerValue = event.node.req.headers[headerName];
+    if (typeof headerValue === 'string') {
+      sealedSession = headerValue;
+    }
+  }
+
+  // Fallback to cookies
+  if (!sealedSession) {
+    sealedSession = getCookie(event, sessionName);
+  }
+
+  if (!sealedSession) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+    });
+  }
+
+  return { [sessionName]: sealedSession };
+}
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
@@ -46,13 +83,13 @@ export default defineEventHandler(async (event) => {
     })
     .run();
 
+  const sessionHeader = await getSessionHeader(event);
+
   await $fetch(`/api/repos/${repoId}/clone`, {
     method: 'POST',
-    body: {
-      ...user,
-    },
     headers: {
-      // TODO: pass auth / session to clone
+      // forward session header
+      ...sessionHeader,
     },
   });
 

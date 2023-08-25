@@ -32,17 +32,8 @@
 </template>
 
 <script setup lang="ts">
-const { login } = useAuth();
+const { login } = await useAuth();
 
-const repositories = ref(
-  (
-    await useFetch('/api/repos/list', {
-      server: false,
-    })
-  ).data,
-);
-
-const { data: forges } = await useFetch('/api/user/forges', {
-  server: false,
-});
+const { data: repositories } = await useFetch('/api/repos/list');
+const { data: forges } = await useFetch('/api/user/forges');
 </script>

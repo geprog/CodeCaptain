@@ -1,9 +1,20 @@
-import { forgeSchema, userForgesSchema, userSchema } from '../../schemas';
+import type { H3Event } from 'h3';
+import { User, forgeSchema, userForgesSchema, userSchema } from '../../schemas';
 import { and, eq } from 'drizzle-orm';
 import { getForgeFromDB } from '../../forges';
 
+async function loginUser(event: H3Event, user: User) {
+  const session = await useAuthSession(event);
+
+  await session.update({
+    userId: user.id,
+  });
+
+  return sendRedirect(event, '/');
+}
+
 export default defineEventHandler(async (event) => {
-  const authenticatedUser = await getUserFromCookie(event);
+  const authenticatedUser = await getUser(event);
 
   const { state } = getQuery(event);
   if (!state) {
@@ -54,7 +65,7 @@ export default defineEventHandler(async (event) => {
       .onConflictDoNothing()
       .run();
 
-    return setUserCookie(event, user);
+    return loginUser(event, user);
   }
 
   if (!forgeModel.allowLogin) {
@@ -81,7 +92,7 @@ export default defineEventHandler(async (event) => {
       .returning()
       .get();
 
-    return setUserCookie(event, user);
+    return loginUser(event, user);
   }
 
   // completely new user => create user and userForge and login
@@ -107,5 +118,5 @@ export default defineEventHandler(async (event) => {
     })
     .run();
 
-  return setUserCookie(event, user);
+  return loginUser(event, user);
 });

@@ -1,4 +1,5 @@
 export default defineEventHandler(async (event) => {
-  deleteCookie(event, 'token');
+  const session = await useAuthSession(event);
+  await session.clear();
   return sendRedirect(event, '/');
 });

@@ -1,20 +1,26 @@
-import type { H3Event } from 'h3';
+import type { H3Event, SessionConfig } from 'h3';
 import { User, forgeSchema, repoSchema, userForgesSchema, userReposSchema, userSchema } from '../schemas';
-import jwt from 'jsonwebtoken';
 import { and, eq } from 'drizzle-orm';
 import { getForgeFromDB, ForgeApi } from '../forges';
 
-const jwtSecret = '123456789'; // TODO: move to nuxt settings
+const sessionConfig: SessionConfig = useRuntimeConfig().auth || {};
+
+export type AuthSession = {
+  userId: number;
+};
+
+export async function useAuthSession(event: H3Event) {
+  const session = await useSession<AuthSession>(event, sessionConfig);
+  return session;
+}
 
 export async function getUser(event: H3Event): Promise<User | undefined> {
-  const userToken = parseCookies(event).token;
-  if (!userToken) {
+  const session = await useAuthSession(event);
+  if (!session.data?.userId) {
     return undefined;
   }
 
-  const { userId } = jwt.verify(userToken, jwtSecret) as { userId: number };
-
-  return await db.select().from(userSchema).where(eq(userSchema.id, userId)).get();
+  return await db.select().from(userSchema).where(eq(userSchema.id, session.data.userId)).get();
 }
 
 export async function requireUser(event: H3Event): Promise<User> {
@@ -27,20 +33,6 @@ export async function requireUser(event: H3Event): Promise<User> {
   }
 
   return user;
-}
-
-export function setUserCookie(event: H3Event, user: User) {
-  const token = jwt.sign(
-    {
-      userId: user.id,
-    },
-    jwtSecret,
-    { expiresIn: '1h' },
-  );
-
-  setCookie(event, 'token', token);
-
-  return sendRedirect(event, '/');
 }
 
 export async function getUserForgeAPI(user: User, forgeId: number) {

@@ -44,10 +44,7 @@
 
 <script setup lang="ts">
 const loading = ref(false);
-const { user } = useAuth();
-const { data: forges } = await useFetch('/api/user/forges', {
-  server: false,
-});
+const { data: forges } = await useFetch('/api/user/forges');
 const selectedForgeId = ref<number>();
 const selectedForge = computed(() => forges.value?.find((f) => f.id === selectedForgeId.value));
 
@@ -61,7 +58,6 @@ const { data: repositories } = await useAsyncData(
       },
     }),
   {
-    server: false,
     watch: [search, selectedForgeId],
   },
 );
