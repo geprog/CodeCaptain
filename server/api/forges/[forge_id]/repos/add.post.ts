@@ -19,9 +19,7 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'repo_id is required',
     });
   }
-  if (!forgeIdFromParams) {
-    return;
-  }
+
   const forgeId = parseInt(forgeIdFromParams, 10);
   const forge = await getUserForgeAPI(user, forgeId);
 

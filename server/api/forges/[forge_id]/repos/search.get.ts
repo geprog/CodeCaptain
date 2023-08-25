@@ -1,8 +1,18 @@
-import { promises as fs } from 'fs';
 import { RepoFromDB, repoSchema, userReposSchema } from '../../../../schemas';
 import { and, eq, inArray } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
+  const user = await getUserFromCookie(event);
+  if (!user) {
+    return sendError(
+      event,
+      createError({
+        statusCode: 401,
+        message: 'Unauthorized',
+      }),
+    );
+  }
+
   const forgeId = event.context.params?.forge_id;
   if (!forgeId) {
     throw createError({
@@ -10,19 +20,13 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'forgeId is required',
     });
   }
-
-  const user = await getUserFromCookie(event);
-  if (!user) {
-    throw new Error('User not found');
-  }
+  const forge = await getUserForgeAPI(user, parseInt(forgeId, 10));
 
   const search = ((getQuery(event)?.search as string | undefined) || '').trim();
 
   // TODO: use caching along with the db query
-  const repoIdsForUser = await db.select().from(userReposSchema).where(eq(userReposSchema.userId, user.id)).all();
-
   let activeRepos: RepoFromDB[] = [];
-
+  const repoIdsForUser = await db.select().from(userReposSchema).where(eq(userReposSchema.userId, user.id)).all();
   if (repoIdsForUser && repoIdsForUser.length !== 0) {
     activeRepos = await db
       .select()
@@ -39,11 +43,9 @@ export default defineEventHandler(async (event) => {
       .all();
   }
 
-  const forge = await getUserForgeAPI(user, parseInt(forgeId, 10));
-
   const userRepos = await forge.getRepos(search);
 
-  return userRepos.map((repo) => ({
+  return userRepos.items.map((repo) => ({
     id: repo.id.toString(),
     name: repo.name,
     active: activeRepos.map((ar) => ar.id).includes(repo.id),

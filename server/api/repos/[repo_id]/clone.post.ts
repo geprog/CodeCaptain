@@ -4,18 +4,7 @@ import { promises as fs } from 'fs';
 import { repoSchema } from '../../../schemas';
 import { eq } from 'drizzle-orm';
 
-async function dirExists(path: string) {
-  try {
-    const stat = await fs.stat(path);
-    return stat.isDirectory();
-  } catch {
-    return false;
-  }
-}
-
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig();
-
   const user = await getUserFromCookie(event);
   if (!user) {
     return sendError(
@@ -40,7 +29,10 @@ export default defineEventHandler(async (event) => {
 
   const repo = await db.select().from(repoSchema).where(eq(repoSchema.id, repoId)).get();
 
+  const config = useRuntimeConfig();
   const folder = path.join(config.data_path, repo.remoteId.toString());
+
+  await createDataFolder();
 
   // clone repo
   console.log('clone', repo.cloneUrl, path.join(folder, 'repo'));
@@ -63,8 +55,6 @@ export default defineEventHandler(async (event) => {
 
   const userForgeApi = await getUserForgeAPI(user, repo.forgeId);
 
-  // TODO: paginate over all issues
-
   let page = 1;
   while (true) {
     const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), { page, perPage: 50 });
@@ -86,7 +76,7 @@ export default defineEventHandler(async (event) => {
 
     console.log('wrote', issues.length, 'issues');
 
-    // TODO: check total
+    // TODO: improve stop condition
     if (issues.length < 50) {
       break;
     }

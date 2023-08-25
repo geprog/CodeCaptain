@@ -1,11 +1,8 @@
-import { repoSchema, userReposSchema } from '../../../schemas';
+import { repoSchema } from '../../../schemas';
 import { eq } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig();
-
   const repoId = event.context.params?.repo_id;
-
   if (!repoId) {
     throw createError({
       statusCode: 400,
@@ -30,22 +27,11 @@ export default defineEventHandler(async (event) => {
     );
   }
 
-  if (user) {
-    const repoForUser = await db
-      .select()
-      .from(userReposSchema)
-      .where(eq(userReposSchema.repoId, Number(repoId)))
-      .get();
-    const hasAcess = repoForUser && repoForUser.userId === user.id;
-    if (!hasAcess) {
-      throw new Error(`user :${user.name} does not have access to repo with id:${repoId}`);
-    }
-  } else {
-    throw new Error('user not found while trying to fetch repo');
-  }
+  await requireAccessToRepo(user, parseInt(repoId, 10));
 
   const message = (await readBody(event))?.message;
 
+  const config = useRuntimeConfig();
   const chatResponse = await $fetch<{ error?: string }>(`${config.api.url}/ask`, {
     method: 'POST',
     body: {

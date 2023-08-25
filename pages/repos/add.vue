@@ -77,27 +77,20 @@ function debounce<T extends Function>(cb: T, wait = 20) {
 
 const updateSearch = debounce((_search: string) => {
   search.value = _search;
-  console.log('search', _search);
 }, 1000);
 
 async function cloneRepo(repoId: string) {
   loading.value = true;
   const forgeId = selectedForgeId.value;
-  try {
-    await $fetch(`/api/forges/${forgeId}/repos/add`, {
-      method: 'POST',
-      body: {
-        repoId,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-  }
-  try {
-    await navigateTo(`/repos/${repoId}/chat`);
-  } catch (error) {
-    console.error(error);
-  }
+
+  await $fetch(`/api/forges/${forgeId}/repos/add`, {
+    method: 'POST',
+    body: {
+      repoId,
+    },
+  });
+
+  await navigateTo(`/repos/${repoId}/chat`);
   loading.value = false;
 }
 </script>
