@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "7d4b6633-ca0d-4665-9683-3675bcf2e2b0",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "c5713245-63c5-4605-9567-fb4243856666",
+  "prevId": "7d4b6633-ca0d-4665-9683-3675bcf2e2b0",
   "tables": {
     "forges": {
       "name": "forges",
@@ -108,7 +108,13 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "uniqueForgeRemoteId": {
+          "name": "uniqueForgeRemoteId",
+          "columns": ["forgeId", "remoteId"],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}

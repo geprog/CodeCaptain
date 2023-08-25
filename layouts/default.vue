@@ -7,7 +7,7 @@
       >
       <div class="ml-auto flex gap-4 items-center">
         <template v-if="user">
-          <img :src="user.avatar_url" alt="User profile icon" class="w-8 h-auto rounded-full" />
+          <img :src="user.avatarUrl" alt="User profile icon" class="w-8 h-auto rounded-full" />
           <button
             class="border rounded px-2 py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white"
             @click="logout"
@@ -15,7 +15,11 @@
             Logout
           </button>
         </template>
-        <Button v-else @click="login"> <Icon name="fa-brands:github" /> Login with GitHub </Button>
+        <template v-else>
+          <Button v-for="forge in forges" :key="forge.id" @click="login(forge.id)">
+            <Icon name="fa-brands:github" /> Login with {{ forge.name }}
+          </Button>
+        </template>
       </div>
     </header>
 
@@ -31,9 +35,8 @@
 </template>
 
 <script setup lang="ts">
-const login = githubLogin;
-const logout = githubLogout;
-const user = await fetchGithubUser();
+const { user, login, logout } = await useAuth();
+const forges = await $fetch('/api/forges');
 </script>
 
 <style>

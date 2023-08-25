@@ -3,7 +3,23 @@
     <span class="m-auto text-2xl">Cloning and indexing repo ...</span>
   </div>
 
+  <div v-else-if="!selectedForgeId">
+    <li
+      v-for="forge in forges?.filter((f) => f.isConnected)"
+      :key="forge.id"
+      class="cursor-pointer hover:underline"
+      @click="selectedForgeId = forge.id"
+    >
+      {{ forge.name }} - {{ forge.host }}
+    </li>
+  </div>
+
   <div v-else class="mx-auto flex flex-col items-center max-w-2xl">
+    <div v-if="selectedForge" class="flex items-center gap-2">
+      <span class="text-xl font-bold">{{ selectedForge?.name }} - {{ selectedForge.host }}</span>
+      <div @click="selectedForgeId = undefined" class="cursor-pointer">x</div>
+    </div>
+
     <TextInput
       :model-value="search"
       placeholder="Search for a repo ..."
@@ -18,34 +34,32 @@
         :key="repo.id"
         class="flex border-b border-gray-200 items-center p-2 gap-2 w-full justify-between min-w-0"
       >
-        <span class="font-bold text-gray-300 flex-wrap truncate overflow-ellipsis">{{ repo.full_name }}</span>
+        <span class="font-bold text-gray-300 flex-wrap truncate overflow-ellipsis">{{ repo.name }}</span>
         <Button v-if="repo.active" :href="`/repos/${repo.id}/chat`">Open</Button>
-        <Button v-else @click="cloneRepo(repo.id)">Activate</Button>
+        <Button v-else @click="cloneRepo(repo.id)">Import</Button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const router = useRouter();
-const githubCookie = useGithubCookie();
-const user = await fetchGithubUser();
 const loading = ref(false);
+const { data: forges } = await useFetch('/api/user/forges');
+const selectedForgeId = ref<number>();
+const selectedForge = computed(() => forges.value?.find((f) => f.id === selectedForgeId.value));
 
-const search = ref(`user:${user.value?.login}`);
+const search = ref('');
 const { data: repositories } = await useAsyncData(
   'repositories',
   () =>
-    $fetch('/api/repos/search', {
-      headers: {
-        gh_token: githubCookie.value!,
-      },
+    $fetch(`/api/forges/${selectedForgeId.value}/repos/search`, {
       query: {
         search: search.value,
       },
     }),
   {
-    watch: [search],
+    watch: [search, selectedForgeId],
+    immediate: false,
   },
 );
 
@@ -60,22 +74,24 @@ function debounce<T extends Function>(cb: T, wait = 20) {
 
 const updateSearch = debounce((_search: string) => {
   search.value = _search;
-}, 500);
+}, 1000);
 
-async function cloneRepo(repoId: string) {
+async function cloneRepo(remoteRepoId: string) {
   loading.value = true;
+  const forgeId = selectedForgeId.value;
+
   try {
-    await $fetch(`/api/repos/${repoId}/clone`, {
-      key: `cloneRepo-${repoId}`,
+    const repo = await $fetch(`/api/forges/${forgeId}/repos/add`, {
       method: 'POST',
-      headers: {
-        gh_token: githubCookie.value!,
+      body: {
+        remoteRepoId,
       },
     });
-    await navigateTo(`/repos/${repoId}/chat`);
+    await navigateTo(`/repos/${repo.id}/chat`);
   } catch (error) {
     console.error(error);
   }
+
   loading.value = false;
 }
 </script>

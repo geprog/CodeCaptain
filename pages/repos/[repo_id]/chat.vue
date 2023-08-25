@@ -4,8 +4,8 @@
   </div>
   <div v-else class="flex items-center flex-col w-full">
     <div class="flex w-full p-2 items-center">
-      <span class="mx-auto text-2xl">{{ repo.full_name }}</span>
-      <Button :href="repo.link" target="_blank">Github</Button>
+      <span class="mx-auto text-2xl">{{ repo.name }}</span>
+      <Button :href="repo.url" target="_blank">Open repo</Button>
       <Button @click="reIndex">re-index</Button>
     </div>
 
@@ -81,18 +81,11 @@ import VueMarkdown from 'vue-markdown-render';
 
 const chatHistory = ref([{ id: 2, sender: 'assistant', text: 'Hi there! How can I assist you?' }]);
 const inputText = ref('');
-const githubCookie = useGithubCookie();
 const thinking = ref(false);
 const route = useRoute();
 const repoId = route.params.repo_id;
 
-const { data: repo } = await useAsyncData('repo', () =>
-  $fetch(`/api/repos/${repoId}`, {
-    headers: {
-      gh_token: githubCookie.value!,
-    },
-  }),
-);
+const { data: repo } = await useFetch(`/api/repos/${repoId}`);
 
 async function sendMessage() {
   if (thinking.value) {
@@ -113,31 +106,27 @@ async function sendMessage() {
 
   thinking.value = true;
 
-  try {
-    const res: { answer: string } = await $fetch(`/api/repos/${repoId}/chat`, {
-      method: 'POST',
-      body: JSON.stringify({
-        message,
-      }),
-      headers: {
-        gh_token: githubCookie.value!,
-      },
-    });
+  const res = await $fetch(`/api/repos/${repoId}/chat`, {
+    method: 'POST',
+    body: JSON.stringify({
+      message,
+    }),
+    ignoreResponseError: true,
+  });
 
+  if (res.error) {
+    chatHistory.value.push({
+      id: Date.now(),
+      sender: 'error',
+      text: res.error,
+    });
+  }
+
+  if (res.answer) {
     chatHistory.value.push({
       id: Date.now(),
       sender: 'assistant',
       text: res.answer,
-    });
-
-    console.log(res.answer);
-  } catch (error) {
-    console.error(error);
-
-    chatHistory.value.push({
-      id: Date.now(),
-      sender: 'error',
-      text: (error as Error).message,
     });
   }
 
@@ -149,11 +138,7 @@ async function reIndex() {
   loading.value = true;
   try {
     await $fetch(`/api/repos/${repoId}/clone`, {
-      key: `cloneRepo-${repoId}`,
       method: 'POST',
-      headers: {
-        gh_token: githubCookie.value!,
-      },
     });
     await navigateTo(`/repos/${repoId}/chat`);
   } catch (error) {

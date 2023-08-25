@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `uniqueForgeRemoteId` ON `repos` (`forgeId`,`remoteId`);

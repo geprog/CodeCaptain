@@ -1,11 +1,5 @@
-import { Octokit } from 'octokit';
-
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig();
-  const token = getHeader(event, 'gh_token');
-  const octokit = new Octokit({ auth: token });
-
-  // TODO: check user access to repo
+  const user = await requireUser(event);
 
   const repoId = event.context.params?.repo_id;
   if (!repoId) {
@@ -15,12 +9,15 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const repo = await requireAccessToRepo(user, parseInt(repoId, 10));
+
   const message = (await readBody(event))?.message;
 
-  const chatResponse = await $fetch(`${config.api.url}/ask`, {
+  const config = useRuntimeConfig();
+  const chatResponse = await $fetch<{ error?: string; answer: string }>(`${config.api.url}/ask`, {
     method: 'POST',
     body: {
-      repo_name: repoId,
+      repo_name: repo.id,
       question: message,
     },
   });
