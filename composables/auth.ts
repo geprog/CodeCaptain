@@ -1,4 +1,5 @@
 export async function useAuth() {
+  // TODO: use store
   const { data: user, refresh: updateSession } = await useFetch('/api/user');
 
   const isAuthenticated = computed(() => !!user.value?.id);
