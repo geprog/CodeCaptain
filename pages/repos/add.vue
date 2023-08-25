@@ -59,6 +59,7 @@ const { data: repositories } = await useAsyncData(
     }),
   {
     watch: [search, selectedForgeId],
+    immediate: false,
   },
 );
 
@@ -75,18 +76,22 @@ const updateSearch = debounce((_search: string) => {
   search.value = _search;
 }, 1000);
 
-async function cloneRepo(repoId: string) {
+async function cloneRepo(remoteRepoId: string) {
   loading.value = true;
   const forgeId = selectedForgeId.value;
 
-  await $fetch(`/api/forges/${forgeId}/repos/add`, {
-    method: 'POST',
-    body: {
-      repoId,
-    },
-  });
+  try {
+    const repo = await $fetch(`/api/forges/${forgeId}/repos/add`, {
+      method: 'POST',
+      body: {
+        remoteRepoId,
+      },
+    });
+    await navigateTo(`/repos/${repo.id}/chat`);
+  } catch (error) {
+    console.error(error);
+  }
 
-  await navigateTo(`/repos/${repoId}/chat`);
   loading.value = false;
 }
 </script>
