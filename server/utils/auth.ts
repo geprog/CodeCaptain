@@ -57,7 +57,7 @@ export async function getUserForgeAPI(user: User, forgeId: number) {
   return getForgeApiFromDB({ ...user, tokens }, forgeModel);
 }
 
-export async function requireUserAccessToRepo(user: User, repoId: number) {
+export async function requireAccessToRepo(user: User, repoId: number) {
   const userRepo = await db
     .select()
     .from(userReposSchema)

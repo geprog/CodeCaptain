@@ -1,7 +1,7 @@
 import { Gitlab } from './gitlab';
 import { Forge as ForgeModel, userForgesSchema } from '../schemas';
 import { Github } from './github';
-import { Credentials, Forge, ForgeUser, Repo, Tokens, UserWithTokens } from './types';
+import { Credentials, Forge, ForgeUser, Issue, PaginatedList, Pagination, Repo, Tokens, UserWithTokens } from './types';
 import { eq } from 'drizzle-orm';
 
 class ForgeApi {
@@ -52,16 +52,22 @@ class ForgeApi {
     return this.forge.getUserInfo(accessToken);
   }
 
-  public async getRepos(search?: string): Promise<Repo[]> {
+  public async getRepos(search?: string, pagination?: Pagination): Promise<PaginatedList<Repo>> {
     const { accessToken } = await this.refreshTokenIfNeeded(this.user);
 
-    return this.forge.getRepos(accessToken, search);
+    return this.forge.getRepos(accessToken, search, pagination);
   }
 
   public async getRepo(repoId: string): Promise<Repo> {
     const { accessToken } = await this.refreshTokenIfNeeded(this.user);
 
     return this.forge.getRepo(accessToken, repoId);
+  }
+
+  public async getIssues(repoId: string, pagination?: Pagination): Promise<PaginatedList<Issue>> {
+    const { accessToken } = await this.refreshTokenIfNeeded(this.user);
+
+    return this.forge.getIssues(accessToken, repoId, pagination);
   }
 }
 

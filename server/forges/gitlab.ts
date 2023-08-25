@@ -1,7 +1,9 @@
 import type { H3Event } from 'h3';
-import { Forge, Tokens, Credentials, ForgeUser, Repo } from './types';
+import { Forge, Tokens, Credentials, ForgeUser, Repo, Pagination, PaginatedList, Issue } from './types';
 import { Forge as DBForge } from '../schemas';
 import { Gitlab as GitlabApi } from '@gitbeaker/rest';
+import { r } from 'drizzle-orm/query-promise.d-0dd411fc';
+import { is } from 'drizzle-orm';
 
 export class Gitlab implements Forge {
   private host: string;
@@ -100,19 +102,19 @@ export class Gitlab implements Forge {
     };
   }
 
-  public async getRepos(token: string, search?: string): Promise<Repo[]> {
+  public async getRepos(token: string, search?: string, pagination?: Pagination): Promise<PaginatedList<Repo>> {
     const client = this.getClient(token);
     const repos = await client.Projects.all({ search, membership: true, perPage: 10 });
-    return repos.map(
-      (repo) =>
-        ({
-          id: repo.id,
-          name: repo.name_with_namespace,
-          url: repo.web_url,
-          forgeId: this.forgeId,
-          cloneUrl: repo.http_url_to_repo,
-        }) satisfies Repo,
-    );
+    return {
+      items: repos.map((repo) => ({
+        id: repo.id,
+        name: repo.name_with_namespace,
+        url: repo.web_url,
+        forgeId: this.forgeId,
+        cloneUrl: repo.http_url_to_repo,
+      })),
+      total: repos.length,
+    };
   }
 
   async getRepo(token: string, repoId: string): Promise<Repo> {
@@ -125,6 +127,27 @@ export class Gitlab implements Forge {
       url: repo.web_url,
       forgeId: this.forgeId,
       cloneUrl: repo.http_url_to_repo,
-    } satisfies Repo;
+    };
+  }
+
+  async getIssues(token: string, repoId: string, pagination?: Pagination): Promise<PaginatedList<Issue>> {
+    const client = this.getClient(token);
+
+    const issues = await client.Issues.all({
+      projectId: repoId,
+      perPage: pagination?.perPage || 10,
+      page: pagination?.page || 1,
+    });
+
+    return {
+      items: issues.map((issue) => ({
+        title: issue.title,
+        description: issue.description,
+        number: issue.iid,
+        labels: issue.labels || [],
+        comments: [], // TODO: get comments
+      })),
+      total: 0, // TODO: get total
+    };
   }
 }

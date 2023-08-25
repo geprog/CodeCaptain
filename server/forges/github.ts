@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3';
-import { Forge, Credentials, Tokens, ForgeUser, Repo } from './types';
+import { Forge, Credentials, Tokens, ForgeUser, Repo, PaginatedList, Pagination, Issue } from './types';
 import { User, Forge as DBForge } from '../schemas';
 import { Octokit } from 'octokit';
 
@@ -93,24 +93,27 @@ export class Github implements Forge {
     };
   }
 
-  public async getRepos(token: string, search?: string): Promise<Repo[]> {
+  public async getRepos(token: string, search?: string, pagination?: Pagination): Promise<PaginatedList<Repo>> {
     const client = this.getClient(token);
     const repos = await client.request('GET /search/repositories', {
-      q: `is:public fork:false archived:false ${search}`.trim(),
+      q: `is:public fork:false archived:false ${search}`.trim(), // TODO: filter by owned repos
       per_page: 10,
       sort: 'updated',
     });
 
-    return repos.data.items.map(
-      (repo) =>
-        ({
-          name: repo.full_name,
-          cloneUrl: repo.clone_url,
-          id: repo.id,
-          forgeId: this.forgeId,
-          url: repo.url,
-        }) satisfies Repo,
-    );
+    return {
+      items: repos.data.items.map(
+        (repo) =>
+          ({
+            name: repo.full_name,
+            cloneUrl: repo.clone_url,
+            id: repo.id,
+            forgeId: this.forgeId,
+            url: repo.url,
+          }) satisfies Repo,
+      ),
+      total: 0, // TODO
+    };
   }
 
   async getRepo(token: string, repoId: string): Promise<Repo> {
@@ -127,6 +130,28 @@ export class Github implements Forge {
       cloneUrl: repo.data.clone_url,
       forgeId: this.forgeId,
       url: repo.data.html_url,
+    };
+  }
+
+  async getIssues(token: string, repoId: string, pagination?: Pagination): Promise<PaginatedList<Issue>> {
+    const client = this.getClient(token);
+
+    const issues = await client.request(`GET /repos/{owner}/{repo}/issues`, {
+      owner: repoId.split('/')[0],
+      repo: repoId.split('/')[1],
+      per_page: pagination?.perPage || 10,
+      page: pagination?.page || 1,
+    });
+
+    return {
+      items: issues.data.map((issue) => ({
+        title: issue.title,
+        description: issue.body || '',
+        number: issue.number,
+        labels: issue.labels.map((label) => (typeof label === 'string' ? label : label.name || '')),
+        comments: [], // TODO: get comments
+      })),
+      total: 0, // TODO: get total
     };
   }
 }

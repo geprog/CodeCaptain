@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { simpleGit } from 'simple-git';
 import { promises as fs } from 'fs';
-import { RepoFromDB, repoSchema, userReposSchema } from '../../../schemas';
+import { repoSchema } from '../../../schemas';
 import { eq } from 'drizzle-orm';
 
 async function dirExists(path: string) {
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
   }
   const repoId = parseInt(_repoId, 10);
 
-  await requireUserAccessToRepo(user, repoId);
+  await requireAccessToRepo(user, repoId);
 
   const repo = await db.select().from(repoSchema).where(eq(repoSchema.id, repoId)).get();
 
@@ -63,46 +63,35 @@ export default defineEventHandler(async (event) => {
 
   const userForgeApi = await getUserForgeAPI(user, repo.forgeId);
 
-  // const issuesPaginator = octokit.paginate.iterator('GET /repos/{owner}/{repo}/issues', {
-  //   owner: repo.owner.login,
-  //   repo: repo.name,
-  // });
+  // TODO: paginate over all issues
 
-  // for await (const response of issuesPaginator) {
-  //   const issues = response.data;
-  //   for (const issue of issues) {
-  //     if (typeof issue === 'string' || !issue) {
-  //       continue;
-  //     }
+  let page = 1;
+  while (true) {
+    const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), { page, perPage: 50 });
+    for await (const issue of issues) {
+      let issueString = `# issue "${issue.title}" (${issue.number})`;
+      if (issue.labels.length !== 0) {
+        issueString += `\n\nLabels: ` + issue.labels.join(', ');
+      }
+      if (issue.description !== '') {
+        issueString += `\n\n${issue.description}`;
+      }
+      if (issue.comments.length !== 0) {
+        issueString +=
+          `\n\n## Comments:\n` +
+          issue.comments.map((comment) => `- ${comment.author.login}: ${comment.body}`).join('\n');
+      }
+      await fs.writeFile(path.join(folder, 'issues', `${issue.number}.md`), issueString);
+    }
 
-  //     // const pull_request = issue.pull_request?.diff_url;
+    console.log('wrote', issues.length, 'issues');
 
-  //     let issueString = `# issue "${issue.title}" (${issue.number})`;
-
-  //     if (issue.labels.length !== 0) {
-  //       issueString +=
-  //         `\n\nLabels: ` +
-  //         issue.labels
-  //           .map((label, index) => (typeof label === 'string' ? label : `${label.name} (${label.description})`))
-  //           .join(', ');
-  //     }
-
-  //     if (issue.body !== '') {
-  //       issueString += `\n\n${issue.body}`;
-  //     }
-
-  //     if (issue.comments !== 0) {
-  //       const comments = (await octokit.request(`GET ${issue.comments_url}`)).data;
-
-  //       issueString +=
-  //         `\n\n## Comments:\n` + comments.map((comment) => `- ${comment.user.login}: ${comment.body}`).join('\n');
-  //     }
-
-  //     await fs.writeFile(path.join(folder, 'issues', `${issue.number}.md`), issueString);
-  //   }
-  //   console.log('wrote ', response.data.length, ' issues');
-  //   break;
-  // }
+    // TODO: check total
+    if (issues.length < 50) {
+      break;
+    }
+    page += 1;
+  }
 
   console.log('start indexing ...');
   const indexingResponse = await $fetch<{ error?: string }>(`${config.api.url}/index`, {
