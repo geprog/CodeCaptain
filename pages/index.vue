@@ -34,6 +34,6 @@
 <script setup lang="ts">
 const { login } = await useAuth();
 
-const { data: repositories } = await useFetch('/api/repos/list');
+const { data: repositories } = await useFetch('/api/repos');
 const { data: forges } = await useFetch('/api/user/forges');
 </script>

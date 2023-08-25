@@ -9,5 +9,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  return await requireAccessToRepo(user, parseInt(repoId, 10));
+  const repo = await requireAccessToRepo(user, parseInt(repoId, 10));
+  return repo;
 });
