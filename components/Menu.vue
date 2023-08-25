@@ -95,6 +95,7 @@
         aria-expanded="false"
         data-state="closed"
         class="flex items-center justify-between gap-4 px-2 py-1 rounded lg:w-full hover:bg-stone-100 dark:hover:bg-stone-800"
+        @click="logout"
       >
         <div class="flex flex-row-reverse items-center justify-start w-full gap-4 lg:flex-row">
           <span class="relative flex shrink-0 overflow-hidden rounded-full w-8 h-8 lg:w-10 lg:h-10">
@@ -131,5 +132,5 @@
 <script setup lang="ts">
 const { user, login, logout } = await useAuth();
 
-const forges = await $fetch('/api/user/forges');
+const { data: forges } = await useFetch('/api/user/forges');
 </script>
