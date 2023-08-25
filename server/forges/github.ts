@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3';
 import { Forge, Credentials, Tokens, ForgeUser, Repo, PaginatedList, Pagination, Issue } from './types';
-import { User, Forge as DBForge } from '../schemas';
+import { Forge as DBForge } from '../schemas';
 import { Octokit } from 'octokit';
 
 export class Github implements Forge {
@@ -20,10 +20,10 @@ export class Github implements Forge {
     });
   }
 
-  public async getCloneCredentials(todo: unknown): Promise<Credentials> {
+  public async getCloneCredentials(token: string): Promise<Credentials> {
     return {
       username: 'oauth',
-      password: 'todo-token',
+      password: token,
     };
   }
 

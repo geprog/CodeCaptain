@@ -2,8 +2,6 @@ import type { H3Event } from 'h3';
 import { Forge, Tokens, Credentials, ForgeUser, Repo, Pagination, PaginatedList, Issue } from './types';
 import { Forge as DBForge } from '../schemas';
 import { Gitlab as GitlabApi } from '@gitbeaker/rest';
-import { r } from 'drizzle-orm/query-promise.d-0dd411fc';
-import { is } from 'drizzle-orm';
 
 export class Gitlab implements Forge {
   private host: string;
@@ -19,10 +17,10 @@ export class Gitlab implements Forge {
     this.forgeId = forge.id;
   }
 
-  public async getCloneCredentials(todo: unknown): Promise<Credentials> {
+  public async getCloneCredentials(token: string): Promise<Credentials> {
     return {
-      username: 'oauth',
-      password: 'todo-token',
+      username: 'x-oauth-basic',
+      password: token,
     };
   }
 

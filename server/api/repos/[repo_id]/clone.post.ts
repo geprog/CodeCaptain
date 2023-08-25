@@ -1,8 +1,6 @@
 import * as path from 'path';
 import { simpleGit } from 'simple-git';
 import { promises as fs } from 'fs';
-import { repoSchema } from '../../../schemas';
-import { eq } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
@@ -23,11 +21,18 @@ export default defineEventHandler(async (event) => {
 
   await createDataFolder();
 
-  // clone repo
-  console.log('clone', repo.cloneUrl, path.join(folder, 'repo'));
+  const userForgeApi = await getUserForgeAPI(user, repo.forgeId);
 
   if (!(await dirExists(path.join(folder, 'repo')))) {
-    let log = await simpleGit().clone(repo.cloneUrl, path.join(folder, 'repo'));
+    const cloneCredentials = await userForgeApi.getCloneCredentials();
+    const cloneUrl = repo.cloneUrl.replace(
+      'https://',
+      `https://${cloneCredentials.username}:${cloneCredentials.password}@`,
+    );
+
+    console.log('cloneUrl', cloneUrl);
+
+    let log = await simpleGit().clone(cloneUrl, path.join(folder, 'repo'));
     console.log('cloned', log);
   } else {
     let log = await simpleGit(path.join(folder, 'repo')).pull();
@@ -41,8 +46,6 @@ export default defineEventHandler(async (event) => {
     await fs.rm(path.join(folder, 'issues'), { recursive: true });
     await fs.mkdir(path.join(folder, 'issues'), { recursive: true });
   }
-
-  const userForgeApi = await getUserForgeAPI(user, repo.forgeId);
 
   let page = 1;
   while (true) {
