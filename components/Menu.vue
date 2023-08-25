@@ -16,32 +16,8 @@
       <div class="px-6 py-2">
         <h2 class="px-2 mb-2 text-lg font-semibold tracking-tight">Workspace</h2>
         <div class="space-y-1">
-          <NuxtLink to="/">
-            <button
-              class="inline-flex items-center text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 duration-200 hover:bg-stone-200 hover:text-stone-900 h-9 rounded-md px-3 justify-start w-full"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="w-4 h-4 mr-2"
-              >
-                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <path d="M10 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1"></path>
-                <path d="M14 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1"></path>
-              </svg>
-              Repos
-            </button>
-          </NuxtLink>
-          <MenuItem to="/" title="Repos" icon="i-gear" />
-          <MenuItem to="/" title="Settings" icon="i-gear" />
+          <MenuItem to="/" title="Repos" icon="i-ion-ios-chatboxes" />
+          <MenuItem to="/" title="Settings" icon="i-ion-ios-settings" />
           <MenuItem to="https://geprog.com" title="Geprog" icon="i-ion-android-favorite-outline" />
         </div>
       </div>
