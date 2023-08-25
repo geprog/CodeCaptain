@@ -2,16 +2,7 @@ import { RepoFromDB, repoSchema, userReposSchema } from '../../../../schemas';
 import { and, eq, inArray } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
-  const user = await getUserFromCookie(event);
-  if (!user) {
-    return sendError(
-      event,
-      createError({
-        statusCode: 401,
-        message: 'Unauthorized',
-      }),
-    );
-  }
+  const user = await requireUser(event);
 
   const forgeId = event.context.params?.forge_id;
   if (!forgeId) {

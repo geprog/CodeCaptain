@@ -5,16 +5,7 @@ import { repoSchema } from '../../../schemas';
 import { eq } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
-  const user = await getUserFromCookie(event);
-  if (!user) {
-    return sendError(
-      event,
-      createError({
-        statusCode: 401,
-        message: 'Unauthorized',
-      }),
-    );
-  }
+  const user = await requireUser(event);
 
   const _repoId = event.context.params?.repo_id;
   if (!_repoId) {
@@ -25,9 +16,7 @@ export default defineEventHandler(async (event) => {
   }
   const repoId = parseInt(_repoId, 10);
 
-  await requireAccessToRepo(user, repoId);
-
-  const repo = await db.select().from(repoSchema).where(eq(repoSchema.id, repoId)).get();
+  const repo = await requireAccessToRepo(user, repoId);
 
   const config = useRuntimeConfig();
   const folder = path.join(config.data_path, repo.remoteId.toString());

@@ -2,6 +2,8 @@ import { repoSchema } from '../../../schemas';
 import { eq } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
+  const user = await requireUser(event);
+
   const repoId = event.context.params?.repo_id;
   if (!repoId) {
     throw createError({
@@ -10,24 +12,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const repo = await db
-    .select()
-    .from(repoSchema)
-    .where(eq(repoSchema.id, Number(repoId)))
-    .get();
-
-  const user = await getUserFromCookie(event);
-  if (!user) {
-    return sendError(
-      event,
-      createError({
-        statusCode: 401,
-        message: 'Unauthorized',
-      }),
-    );
-  }
-
-  await requireAccessToRepo(user, parseInt(repoId, 10));
+  const repo = await requireAccessToRepo(user, parseInt(repoId, 10));
 
   const message = (await readBody(event))?.message;
 

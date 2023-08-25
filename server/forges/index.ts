@@ -4,7 +4,7 @@ import { Github } from './github';
 import { Credentials, Forge, ForgeUser, Issue, PaginatedList, Pagination, Repo, Tokens, UserWithTokens } from './types';
 import { eq } from 'drizzle-orm';
 
-class ForgeApi {
+export class ForgeApi {
   private user: UserWithTokens;
   private forge: Forge;
 
@@ -80,9 +80,4 @@ export function getForgeFromDB(forge: ForgeModel): Forge {
     default:
       throw new Error(`Unknown forge type: ${forge.type}`);
   }
-}
-
-// TODO: find better name
-export function getForgeApiFromDB(user: UserWithTokens, forge: ForgeModel): ForgeApi {
-  return new ForgeApi(user, getForgeFromDB(forge));
 }

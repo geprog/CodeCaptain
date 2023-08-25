@@ -1,12 +1,12 @@
 import type { H3Event } from 'h3';
-import { User, forgeSchema, userForgesSchema, userReposSchema, userSchema } from '../schemas';
+import { User, forgeSchema, repoSchema, userForgesSchema, userReposSchema, userSchema } from '../schemas';
 import jwt from 'jsonwebtoken';
 import { and, eq } from 'drizzle-orm';
-import { getForgeApiFromDB } from '../forges';
+import { getForgeFromDB, ForgeApi } from '../forges';
 
 const jwtSecret = '123456789'; // TODO: move to nuxt settings
 
-export async function getUserFromCookie(event: H3Event) {
+export async function getUser(event: H3Event): Promise<User | undefined> {
   const userToken = parseCookies(event).token;
   if (!userToken) {
     return undefined;
@@ -15,6 +15,18 @@ export async function getUserFromCookie(event: H3Event) {
   const { userId } = jwt.verify(userToken, jwtSecret) as { userId: number };
 
   return await db.select().from(userSchema).where(eq(userSchema.id, userId)).get();
+}
+
+export async function requireUser(event: H3Event): Promise<User> {
+  const user = await getUser(event);
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+    });
+  }
+
+  return user;
 }
 
 export function setUserCookie(event: H3Event, user: User) {
@@ -38,12 +50,18 @@ export async function getUserForgeAPI(user: User, forgeId: number) {
     .where(and(eq(userForgesSchema.userId, user.id), eq(userForgesSchema.forgeId, forgeId)))
     .get();
   if (!userForge) {
-    throw new Error('User forge not found');
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Access to forge denied',
+    });
   }
 
   const forgeModel = await db.select().from(forgeSchema).where(eq(forgeSchema.id, forgeId)).get();
   if (!forgeModel) {
-    throw new Error('Forge not found');
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Forge not found',
+    });
   }
 
   const tokens = {
@@ -52,9 +70,8 @@ export async function getUserForgeAPI(user: User, forgeId: number) {
     accessTokenExpiresIn: userForge.accessTokenExpiresIn,
   };
 
-  console.log('tokens', tokens); // TODO: check tokens
-
-  return getForgeApiFromDB({ ...user, tokens }, forgeModel);
+  const forge = getForgeFromDB(forgeModel);
+  return new ForgeApi({ ...user, tokens }, forge);
 }
 
 export async function requireAccessToRepo(user: User, repoId: number) {
@@ -63,5 +80,26 @@ export async function requireAccessToRepo(user: User, repoId: number) {
     .from(userReposSchema)
     .where(and(eq(userReposSchema.userId, user.id), eq(userReposSchema.repoId, repoId)))
     .get();
-  return !!userRepo;
+
+  if (!userRepo) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Access to repo denied',
+    });
+  }
+
+  const repo = await db
+    .select()
+    .from(repoSchema)
+    .where(eq(repoSchema.id, Number(repoId)))
+    .get();
+
+  if (!repo) {
+    throw createError({
+      statusCode: 404,
+      message: 'Repo not found',
+    });
+  }
+
+  return repo;
 }
