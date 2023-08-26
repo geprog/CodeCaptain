@@ -2,7 +2,7 @@
   <div v-if="loading || !repo" class="flex w-full items-center justify-center">
     <span class="text-2xl">loading ...</span>
   </div>
-  <div v-else class="flex items-center flex-col w-full">
+  <div v-else class="flex items-center flex-col w-full flex-grow">
     <div class="flex w-full p-2 items-center">
       <span class="mx-auto text-2xl">{{ repo.name }}</span>
 
@@ -10,7 +10,7 @@
         <UButton icon="i-ion-git-pull-request" variant="outline" label="Open repo" />
       </NuxtLink>
 
-      <UButton icon="i-ion-cloud-download-outline" label="Pull repo" variant="outline" class="ml-2" @click="reIndex" />
+      <UButton icon="i-ion-cloud-download-outline" label="Sync repo" variant="outline" class="ml-2" @click="reIndex" />
     </div>
 
     <div class="flex-1 flex w-full max-w-4xl flex-col p-4 gap-4 items-center overflow-y-auto">
@@ -24,31 +24,37 @@
         }"
       >
         <template v-if="message.sender === 'user'">
-          <div class="w-10" />
-          <div class="rounded bg-zinc-200 flex-1 p-2">
-            <vue-markdown :source="message.text" />
-          </div>
-          <div class="flex items-center justify-center rounded w-10 h-10 p-2">
+          <div class="w-10 flex-shrink-0" />
+          <UAlert color="primary" variant="subtle">
+            <template #title>
+              <vue-markdown :source="message.text" />
+            </template>
+          </UAlert>
+          <div class="flex items-center justify-center rounded w-10 h-10 p-2 flex-shrink-0">
             <span class="text-2xl">💁</span>
           </div>
         </template>
         <template v-else-if="message.sender === 'error'">
-          <div class="flex items-center justify-center w-10 h-10 p-2">
+          <div class="flex items-center justify-center w-10 h-10 p-2 flex-shrink-0">
             <span class="text-2xl">❌</span>
           </div>
-          <div class="rounded bg-red-600 flex-1 p-2">
-            <vue-markdown :source="message.text" />
-          </div>
-          <div class="w-10" />
+          <UAlert color="red" variant="subtle">
+            <template #title>
+              <vue-markdown :source="message.text" />
+            </template>
+          </UAlert>
+          <div class="w-10 flex-shrink-0" />
         </template>
         <template v-else>
-          <div class="flex items-center justify-center rounded w-10 h-10 p-2">
+          <div class="flex items-center justify-center rounded w-10 h-10 p-2 flex-shrink-0">
             <span class="text-2xl">🤖</span>
           </div>
-          <div class="rounded bg-zinc-300 flex-1 p-2">
-            <vue-markdown :source="message.text" />
-          </div>
-          <div class="w-10" />
+          <UAlert color="violet" variant="subtle">
+            <template #title>
+              <vue-markdown :source="message.text" />
+            </template>
+          </UAlert>
+          <div class="w-10 flex-shrink-0" />
         </template>
       </div>
 
@@ -63,24 +69,18 @@
       <div class="flex-grow">
         <UInput
           v-model="inputText"
-          @keydown.enter="sendMessage"
           color="primary"
           variant="outline"
+          size="lg"
           placeholder="Type a message..."
+          @keydown.enter="sendMessage"
         />
       </div>
 
-      <!-- <TextInput
-
-        type="text"
-        class="flex-1 px-4 h-12 mr-6"
-        placeholder="Type a message..."
-      /> -->
       <input type="checkbox" id="inputCheck" hidden />
 
       <label for="inputCheck" class="fab-btn flex items-center justify-center cursor-pointer" @click="sendMessage">
-        <UButton icon="i-mdi-send" :ui="{ rounded: 'rounded-full' }" @click="sendMessage" />
-        <!-- <span class="text-2xl font-bold text-white">&gt;</span> -->
+        <UButton icon="i-mdi-send" size="lg" :ui="{ rounded: 'rounded-full' }" @click="sendMessage" />
       </label>
     </div>
   </div>
@@ -150,7 +150,6 @@ async function reIndex() {
     await $fetch(`/api/repos/${repoId}/clone`, {
       method: 'POST',
     });
-    await navigateTo(`/repos/${repoId}/chat`);
   } catch (error) {
     console.error(error);
   }

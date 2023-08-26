@@ -1,5 +1,8 @@
 <template>
-  <div class="flex flex-col space-y-2 text-center">
+  <div class="flex flex-col space-y-2 text-center justify-center items-center">
+    <img src="/logo_light.svg" alt="CodeCaptain logo" class="w-32 dark:hidden" />
+    <img src="/logo_dark.svg" alt="CodeCaptain dark logo" class="w-32 hidden dark:block" />
+
     <h1 class="text-3xl font-semibold tracking-tight">Sign In to Your Account</h1>
   </div>
   <div class="grid gap-6">
