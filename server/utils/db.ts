@@ -4,6 +4,7 @@ import { migrate as _migrate } from 'drizzle-orm/better-sqlite3/migrator';
 // @ts-ignore
 import Database from 'better-sqlite3';
 
-const sqlite = new Database(process.env.DATABASE_NAME ?? 'code_captain.db');
+const config = useRuntimeConfig();
+const sqlite = new Database(config.db.path);
 
 export const db: BetterSQLite3Database = drizzle(sqlite);
