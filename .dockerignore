@@ -5,11 +5,14 @@
 !/ai
 !/components
 !/composables
+!/contrib
+!/docker
 !/layouts
+!/middleware
 !/pages
 !/public
 !/server
-!/contrib
+!/app.config.ts
 !/nuxt.config.ts
 !/package.json
 !/pnpm-lock.yaml
@@ -17,7 +20,6 @@
 !/tsconfig.json
 !/requirements.txt
 !/Procfile
-!/docker
 
 # Ignore unnecessary files inside allowed directories
 # This should go after the allowed directories
