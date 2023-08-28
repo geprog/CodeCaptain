@@ -12,10 +12,10 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 data_path = os.getenv("DATA_PATH")
 
 
-def ask(repo_name, question, chat_history=[]):
+def ask(repo_id, question, chat_history=[]):
     embeddings = OpenAIEmbeddings(disallowed_special=())
 
-    repo_path = os.path.join(data_path, repo_name)
+    repo_path = os.path.join(data_path, repo_id)
 
     db = DeepLake(
         dataset_path=os.path.join(repo_path, "vector_store"),

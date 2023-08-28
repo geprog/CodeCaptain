@@ -14,8 +14,8 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 data_path = os.getenv("DATA_PATH")
 
 
-def generate_index(repo_name):
-    repo_path = os.path.join(data_path, repo_name)
+def generate_index(repo_id):
+    repo_path = os.path.join(data_path, repo_id)
 
     embeddings = OpenAIEmbeddings(disallowed_special=())
     docs = []

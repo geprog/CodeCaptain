@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   const repo = await requireAccessToRepo(user, repoId);
 
   const config = useRuntimeConfig();
-  const folder = path.join(config.data_path, repo.remoteId.toString());
+  const folder = path.join(config.data_path, repo.id.toString());
 
   await createDataFolder();
 
@@ -29,8 +29,6 @@ export default defineEventHandler(async (event) => {
       'https://',
       `https://${cloneCredentials.username}:${cloneCredentials.password}@`,
     );
-
-    console.log('cloneUrl', cloneUrl);
 
     let log = await simpleGit().clone(cloneUrl, path.join(folder, 'repo'));
     console.log('cloned', log);
@@ -47,6 +45,7 @@ export default defineEventHandler(async (event) => {
     await fs.mkdir(path.join(folder, 'issues'), { recursive: true });
   }
 
+  // TODO: skip issues that are already up to date
   let page = 1;
   while (true) {
     const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), { page, perPage: 50 });
@@ -79,7 +78,7 @@ export default defineEventHandler(async (event) => {
   const indexingResponse = await $fetch<{ error?: string }>(`${config.api.url}/index`, {
     method: 'POST',
     body: {
-      repo_name: repoId,
+      repo_id: repo.id,
     },
   });
 
