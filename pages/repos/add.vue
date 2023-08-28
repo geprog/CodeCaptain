@@ -35,6 +35,7 @@
             placeholder="Search for a repository ..."
             :disabled="!selectedForge"
             size="lg"
+            icon="i-heroicons-magnifying-glass-20-solid"
             @update:model-value="updateSearch"
           />
         </div>

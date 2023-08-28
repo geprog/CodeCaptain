@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-col">
-    <span class="text-2xl font-bold mb-4">Hey 👋, I will help you understanding your own code 😜</span>
+  <div class="flex flex-col w-full">
+    <h1 class="text-2xl font-bold mb-4 text-center">Hey 👋, I will help you understanding your own code 😜</h1>
 
-    <div class="flex flex-wrap gap-4 mt-4">
+    <div class="flex flex-wrap gap-4 mt-4 mx-auto">
       <template v-if="repositories">
         <NuxtLink v-for="repo in repositories" :key="repo.id" :to="`/repos/${repo.id}/chat`">
           <Card>
