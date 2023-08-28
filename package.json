@@ -11,7 +11,7 @@
     "db:drop": "drizzle-kit drop",
     "db:push": "drizzle-kit push:sqlite",
     "db:explorer": "drizzle-kit studio",
-    "db:up": "tsx server/contrib/index.ts",
+    "db:up": "tsx contrib/migrate.ts",
     "clean": "rm -rf dist/ node_modules/ .eslintcache",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
