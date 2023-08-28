@@ -1,43 +1,16 @@
 <template>
-  <div class="flex flex-col h-screen w-screen text-gray-200 bg-gray-700">
-    <header class="flex w-full h-16 border-gray-700 bg-gray-900 border-b p-4 items-center">
-      <a class="text-xl flex gap-2 items-center" href="/">
-        <img src="/icon.svg" alt="CodeCaptain logo" class="w-10 -rotate-45" />
-        codecaptain.ai</a
-      >
-      <div class="ml-auto flex gap-4 items-center">
-        <template v-if="user">
-          <img :src="user.avatarUrl" alt="User profile icon" class="w-8 h-auto rounded-full" />
-          <button
-            class="border rounded px-2 py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white"
-            @click="logout"
-          >
-            Logout
-          </button>
-        </template>
-        <template v-else>
-          <Button v-for="forge in forges" :key="forge.id" @click="login(forge.id)">
-            <Icon name="fa-brands:github" /> Login with {{ forge.name }}
-          </Button>
-        </template>
-      </div>
-    </header>
+  <div
+    class="flex flex-col min-h-screen w-screen lg:flex-row bg-gradient-to-tl from-stone-200 to-stone-100 dark:from-neutral-950 dark:to-neutral-900"
+  >
+    <Menu />
 
-    <main class="flex w-full h-full flex-grow overflow-auto">
-      <template v-if="user">
-        <slot />
-      </template>
-      <div v-else>
-        <span>Please login ;-)</span>
-      </div>
+    <main
+      class="flex p-4 m-2 bg-white shadow dark:shadow-none lg:w-full lg:p-6 dark:bg-neutral-950 lg:ml-72 rounded-xl dark:rounded-none dark:m-0 dark:lg:ml-72"
+    >
+      <slot />
     </main>
   </div>
 </template>
-
-<script setup lang="ts">
-const { user, login, logout } = await useAuth();
-const forges = await $fetch('/api/forges');
-</script>
 
 <style>
 * {
