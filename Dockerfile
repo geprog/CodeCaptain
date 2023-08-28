@@ -5,7 +5,7 @@ RUN corepack enable
 RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm build
-RUN tsx contrib/build-migrate.ts
+RUN pnpm tsx contrib/build-migrate.ts
 
 FROM node:18-alpine as overmind
 WORKDIR /app
@@ -20,11 +20,14 @@ ENV NITRO_PORT=3000
 ENV DATA_PATH=/app/data
 EXPOSE 3000
 WORKDIR /app
-COPY --from=builder /app/.output .output
-COPY --from=overmind /app/overmind /bin/overmind
-RUN apt update -y && apt install tmux nodejs git -y
+RUN apt update -y && apt install tmux nodejs git musl-dev -y
+RUN ln -s /usr/lib/x86_64-linux-musl/libc.so /lib/libc.musl-x86_64.so.1
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY Procfile .
+COPY docker/start.sh .
+COPY --from=overmind /app/overmind /bin/overmind
+COPY --from=builder /app/contrib/dist ./contrib
+COPY --from=builder /app/.output .output
 COPY ai ai
-CMD ["overmind", "start"]
+CMD ["./start.sh"]

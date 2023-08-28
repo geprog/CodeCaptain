@@ -9,6 +9,7 @@
 !/pages
 !/public
 !/server
+!/contrib
 !/nuxt.config.ts
 !/package.json
 !/pnpm-lock.yaml
@@ -16,6 +17,7 @@
 !/tsconfig.json
 !/requirements.txt
 !/Procfile
+!/docker
 
 # Ignore unnecessary files inside allowed directories
 # This should go after the allowed directories
