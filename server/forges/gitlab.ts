@@ -19,7 +19,7 @@ export class Gitlab implements Forge {
 
   public async getCloneCredentials(token: string): Promise<Credentials> {
     return {
-      username: 'x-oauth-basic',
+      username: 'oauth2',
       password: token,
     };
   }
@@ -32,7 +32,10 @@ export class Gitlab implements Forge {
   }
 
   public getOauthRedirectUrl({ state }: { state: string }): string {
-    return `https://${this.host}/oauth/authorize?client_id=${this.clientId}&response_type=code&redirect_uri=${this.redirectUrl}&state=${state}`;
+    const scopes = ['read_user', 'read_repository', 'read_api', 'email', 'profile', 'api'];
+    return `https://${this.host}/oauth/authorize?client_id=${this.clientId}&response_type=code&redirect_uri=${
+      this.redirectUrl
+    }&state=${state}&scope=${scopes.join('%20')}`;
   }
 
   public async getUserInfo(token: string): Promise<ForgeUser> {

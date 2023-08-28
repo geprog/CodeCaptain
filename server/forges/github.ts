@@ -22,13 +22,16 @@ export class Github implements Forge {
 
   public async getCloneCredentials(token: string): Promise<Credentials> {
     return {
-      username: 'oauth',
+      username: 'oauth2',
       password: token,
     };
   }
 
   public getOauthRedirectUrl({ state }: { state: string }): string {
-    return `https://github.com/login/oauth/authorize?client_id=${this.clientId}&scope=public_repo&state=${state}`;
+    const scopes = ['read:user', 'user:email', 'repo'];
+    return `https://github.com/login/oauth/authorize?client_id=${
+      this.clientId
+    }&scope=public_repo&state=${state}&scope=${scopes.join('%20')}`;
   }
 
   public async getUserInfo(token: string): Promise<ForgeUser> {
@@ -66,8 +69,8 @@ export class Github implements Forge {
 
     return {
       accessToken: response.access_token,
-      accessTokenExpiresIn: response.expires_in || -1, // TODO: we use -1 as github access_tokens don't expire
-      refreshToken: null, // TODO: we use an empty string for now as github access_tokens don't expire
+      accessTokenExpiresIn: response.expires_in || -1, // We use -1 as github access_tokens issued by oauth apps don't expire
+      refreshToken: response.refresh_token || null, // Use null as oauth apps don't return refresh tokens
     };
   }
 
