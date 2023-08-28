@@ -5,9 +5,6 @@ export default defineNuxtConfig({
     api: {
       url: process.env.NUXT_API_URL ?? 'http://localhost:8000',
     },
-    db: {
-      path: `${process.env.DATA_PATH || 'data'}/code_captain.db`,
-    },
     auth: {
       name: 'nuxt-session',
       password: process.env.NUXT_AUTH_PASSWORD ?? 'my-super-secret-password-is-minimum-32-characters-long',
