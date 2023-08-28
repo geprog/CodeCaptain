@@ -1,0 +1,1 @@
+ALTER TABLE forges ADD `owner` integer;

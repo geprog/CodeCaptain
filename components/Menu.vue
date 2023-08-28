@@ -34,6 +34,7 @@
                 :icon="forge.isConnected ? 'i-ion-code' : 'i-ion-ios-repeat'"
                 @click="!forge.isConnected && login(forge.id)"
               />
+              <MenuItem to="/forges/add" title="Add forge" icon="i-heroicons-plus" />
             </div>
           </div>
         </div>
