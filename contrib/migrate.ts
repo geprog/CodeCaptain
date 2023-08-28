@@ -10,7 +10,6 @@ dotenv.config({ path: '.env' });
 
 async function main() {
   console.log('Migrating database ...');
-  console.log(process.env.MIGRATIONS_PATH);
   migrate(db, { migrationsFolder: process.env.MIGRATIONS_PATH || path.join('server', 'db', 'migrations') });
 
   console.log('Seeding database ...');
