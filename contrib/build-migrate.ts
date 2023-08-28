@@ -31,6 +31,14 @@ const modules = ['drizzle-orm', 'better-sqlite3', 'bindings', 'prebuild-install'
         },
         watch: true,
       }),
+      copy({
+        resolveFrom: 'out',
+        assets: {
+          from: ['server/db/migrations/**/*'],
+          to: ['migrations'],
+        },
+        watch: true,
+      }),
     ],
   });
 })();
