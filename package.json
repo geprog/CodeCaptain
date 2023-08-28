@@ -21,16 +21,16 @@
     "@iconify/json": "^2.2.106",
     "@nuxt/devtools": "latest",
     "@nuxthq/ui": "^2.7.0",
-    "@nuxtjs/tailwindcss": "6.8.0",
-    "@types/better-sqlite3": "7.6.4",
+    "@nuxtjs/tailwindcss": "^6.8.0",
+    "@types/better-sqlite3": "^7.6.4",
     "@types/jsonwebtoken": "^9.0.2",
-    "@types/node": "18",
-    "better-sqlite3": "8.5.0",
+    "@types/node": "^18",
+    "better-sqlite3": "^8.5.0",
     "dotenv": "^16.3.1",
     "drizzle-kit": "^0.19.12",
     "esbuild": "^0.19.2",
     "esbuild-plugin-copy": "^2.1.1",
-    "nuxt": "3.6.1",
+    "nuxt": "^3.7.0",
     "prettier": "^3.0.1",
     "tsx": "^3.12.7",
     "typescript": "^5.1.6"
@@ -38,13 +38,18 @@
   "dependencies": {
     "@gitbeaker/core": "^39.10.3",
     "@gitbeaker/rest": "^39.10.3",
-    "better-sqlite3": "8.5.0",
-    "drizzle-orm": "0.27.2",
+    "better-sqlite3": "^8.5.0",
+    "drizzle-orm": "^0.27.2",
     "jsonwebtoken": "^9.0.1",
     "jwt-decode": "^3.1.2",
-    "nuxt-icon": "0.4.1",
-    "octokit": "2.1.0",
-    "simple-git": "3.19.1",
-    "vue-markdown-render": "2.0.1"
+    "nuxt-icon": "^0.4.1",
+    "octokit": "^2.1.0",
+    "simple-git": "^3.19.1",
+    "vue-markdown-render": "^2.0.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "node-fetch-native": "1.2.0"
+    }
   }
 }
