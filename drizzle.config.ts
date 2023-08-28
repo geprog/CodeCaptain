@@ -6,7 +6,7 @@ export default {
   schema: ['./server/schemas/*.ts'],
   out: './server/db/migrations',
   dbCredentials: {
-    url: 'code_captain.db',
+    url: 'data/code_captain.db',
   },
   driver: 'better-sqlite',
   breakpoints: true,
