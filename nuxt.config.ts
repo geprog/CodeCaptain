@@ -23,9 +23,6 @@ export default defineNuxtConfig({
     '**/-*.*',
     '/<rootDir>/data',
   ],
-  nitro: {
-    preset: 'lagon',
-  },
   ui: {
     icons: ['mdi', 'simple-icons', 'heroicons', 'ion'],
   },

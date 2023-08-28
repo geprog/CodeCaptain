@@ -5,6 +5,7 @@ RUN corepack enable
 RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm build
+RUN tsx contrib/build-migrate.ts
 
 FROM node:18-alpine as overmind
 WORKDIR /app
