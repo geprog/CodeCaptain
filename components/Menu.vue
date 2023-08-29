@@ -29,8 +29,8 @@
               <MenuItem
                 v-for="forge in forges"
                 :key="forge.id"
-                to="/"
-                :title="forge.name"
+                :to="forge.owner === user?.id ? `/forges/${forge.id}` : '/'"
+                :title="forge.host"
                 :icon="forge.isConnected ? 'i-ion-code' : 'i-ion-ios-repeat'"
                 @click="!forge.isConnected && login(forge.id)"
               />
