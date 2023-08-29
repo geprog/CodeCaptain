@@ -25,13 +25,14 @@
 <script setup lang="ts">
 import { z } from 'zod';
 
+const forgeTypes = ['gitlab']; // TODO: support other forges
+
 const schema = z.object({
   host: z.string().nonempty(),
+  type: z.enum(['gitlab']),
   clientId: z.string().nonempty(),
   clientSecret: z.string().nonempty(),
 });
-
-const forgeTypes = ['gitlab']; // TODO: support other forges
 
 const newForge = ref({
   host: undefined,
