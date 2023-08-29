@@ -149,7 +149,7 @@ export class Gitlab implements Forge {
         labels: issue.labels || [],
         comments: [], // TODO: get comments
       })),
-      total: paginationInfo.total, // TODO: get total
+      total: paginationInfo.total
     };
   }
 }
