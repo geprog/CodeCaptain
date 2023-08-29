@@ -20,7 +20,7 @@ async function main() {
       .insert(forgeSchema)
       .values({
         id: forge?.id,
-        name: 'Github',
+        host: 'github.com',
         type: 'github',
         owner: null,
         allowLogin: true,
@@ -30,7 +30,8 @@ async function main() {
       .onConflictDoUpdate({
         target: forgeSchema.id,
         set: {
-          name: 'Github',
+          host: 'github.com',
+          owner: null,
           allowLogin: true,
           clientId: process.env.GITHUB_CLIENT_ID,
           clientSecret: process.env.GITHUB_CLIENT_SECRET,
