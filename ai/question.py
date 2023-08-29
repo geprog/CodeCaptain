@@ -16,8 +16,6 @@ chats = {}
 
 
 def ask(repo_id: int, question: str, chat_history=[]):
-    history = ChatMessageHistory()
-
     embeddings = OpenAIEmbeddings(disallowed_special=())
 
     repo_path = os.path.join(data_path, str(repo_id))
@@ -32,33 +30,18 @@ def ask(repo_id: int, question: str, chat_history=[]):
     retriever.search_kwargs["maximal_marginal_relevance"] = True
     retriever.search_kwargs["k"] = 20
 
-    template = """You are a chatbot having a conversation with a human.
-
-    Given the following extracted parts of a long document and a question, create a final answer.
-
-    {context}
-
-    {chat_history}
-    Human: {human_input}
-    Chatbot:"""
-
-    prompt = PromptTemplate(
-        input_variables=["chat_history", "human_input", "context"], template=template
-    )
     memory = ConversationBufferMemory(
-        memory_key="chat_history", input_key="human_input"
+        memory_key="chat_history", return_messages=True, output_key="answer"
     )
-    chain = load_qa_chain(
-        OpenAI(temperature=0), chain_type="stuff", memory=memory, prompt=prompt
+    qa = ConversationalRetrievalChain.from_llm(
+        llm=ChatOpenAI(temperature=0),
+        memory=memory,
+        retriever=retriever,
+        return_source_documents=True,
     )
-
-    model = ChatOpenAI(model_name="gpt-3.5-turbo-16k")
-    qa = ConversationalRetrievalChain.from_llm(model, retriever=retriever)
     end = time.time()
 
-    chat_history = []
-    result = qa({"question": question, "chat_history": chat_history})
-    chat_history.append((question, result["answer"]))
+    result = qa(question)
     return result["answer"], chat_history
 
     end = time.time()
