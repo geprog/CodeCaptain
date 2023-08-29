@@ -2,7 +2,6 @@
 name = "codecaptain"
 version = "0.1.0"
 description = ""
-authors = ["Anbraten <anton@ju60.de>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
