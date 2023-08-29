@@ -22,7 +22,6 @@ async function main() {
         id: forge?.id,
         name: 'Github',
         type: 'github',
-        owner: null,
         allowLogin: true,
         clientId: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,

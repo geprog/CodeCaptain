@@ -14,7 +14,6 @@ export const forgeSchema = sqliteTable('forges', {
   name: text('name'),
   type: text('type').notNull(), // github, gitlab, gitea, bitbucket, etc
   host: text('host'),
-  owner: integer('owner'),
   allowLogin: integer('allowLogin', { mode: 'boolean' }),
   clientId: text('clientId').notNull(),
   clientSecret: text('clientSecret').notNull(),
