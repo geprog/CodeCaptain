@@ -40,6 +40,8 @@ const { data: forge } = await useFetch(`/api/forges/${forgeId}`);
 
 const form = ref<HTMLFormElement>();
 
+const toast = useToast();
+
 async function submit() {
   await form.value!.validate();
 
@@ -47,11 +49,23 @@ async function submit() {
     method: 'POST',
     body: forge.value,
   });
+
+  toast.add({
+    title: 'Forge updated',
+    description: `Forge ${forge.value!.host} updated successfully`,
+    color: 'green',
+  });
 }
 
 async function deleteForge() {
   await $fetch(`/api/forges/${forgeId}`, {
     method: 'DELETE',
+  });
+
+  toast.add({
+    title: 'Forge removed',
+    description: `Forge ${forge.value!.host} removed successfully`,
+    color: 'green',
   });
 
   await navigateTo('/');

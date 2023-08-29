@@ -27,6 +27,8 @@ import { z } from 'zod';
 
 const forgeTypes = ['gitlab']; // TODO: support other forges
 
+const toast = useToast();
+
 const schema = z.object({
   host: z.string().nonempty(),
   type: z.enum(['gitlab']),
@@ -52,5 +54,11 @@ async function submit() {
   });
 
   await navigateTo(`/forges/${forge.id}`);
+
+  toast.add({
+    title: 'Forge added',
+    description: `Forge ${forge.host} added successfully`,
+    color: 'green',
+  });
 }
 </script>

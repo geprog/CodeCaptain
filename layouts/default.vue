@@ -9,6 +9,8 @@
     >
       <slot />
     </main>
+
+    <UNotifications />
   </div>
 </template>
 

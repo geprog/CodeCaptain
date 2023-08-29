@@ -12,8 +12,8 @@
           <USelectMenu
             searchable
             searchable-placeholder="Search a forge ..."
-            :search-attributes="['name', 'host']"
-            option-attribute="name"
+            :search-attributes="['host']"
+            option-attribute="host"
             value-attribute="id"
             placeholder="Select a forge ..."
             size="lg"
@@ -22,7 +22,7 @@
           >
             <template #label>
               <UIcon name="i-ion-code" class="w-4 h-4" />
-              {{ selectedForge?.name }}
+              {{ selectedForge?.host }}
             </template>
           </USelectMenu>
         </div>
