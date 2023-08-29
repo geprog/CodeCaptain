@@ -18,14 +18,14 @@ def heart_beat():
 
 @app.post("/index")
 def perform_index(indexInfo: IndexInfo):
-    generate_index(indexInfo.repo_name)
+    generate_index(indexInfo.repo_id)
     return indexInfo
 
 
 @app.post("/ask")
 def conversation(conversationInput: Conversation):
     conversationInput.answer, conversationInput.chat_history = ask(
-        conversationInput.repo_name,
+        conversationInput.repo_id,
         conversationInput.question,
         conversationInput.chat_history,
     )

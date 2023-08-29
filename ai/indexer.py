@@ -4,7 +4,7 @@ import sys
 import meta_information
 from langchain.document_loaders import TextLoader
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.vectorstores import DeepLake
+from langchain.vectorstores import FAISS
 from langchain.text_splitter import CharacterTextSplitter
 from dotenv import load_dotenv
 
@@ -14,8 +14,8 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 data_path = os.getenv("DATA_PATH")
 
 
-def generate_index(repo_name):
-    repo_path = os.path.join(data_path, repo_name)
+def generate_index(repo_id: int):
+    repo_path = os.path.join(data_path, str(repo_id))
 
     embeddings = OpenAIEmbeddings(disallowed_special=())
     docs = []
@@ -46,15 +46,8 @@ def generate_index(repo_name):
             except Exception as e:
                 pass
 
-    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
-    texts = text_splitter.split_documents(docs)
-
-    db = DeepLake(
-        dataset_path=os.path.join(repo_path, "vector_store"),
-        embedding_function=embeddings,
-        overwrite=True,
-    )
-    db.add_documents(texts)
+    db = FAISS.from_documents(docs, embeddings)
+    db.save_local(os.path.join(repo_path, "vector_store"))
 
     print("done")
 
