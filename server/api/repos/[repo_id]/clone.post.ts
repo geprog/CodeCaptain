@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
   console.log('fetching issues ...');
   let page = 1;
   while (true) {
-    const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), { page, perPage: 50 });
+    const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), { page, perPage: 2 });
     for await (const issue of issues) {
       let issueString = `# issue "${issue.title}" (${issue.number})`;
       if (issue.labels.length !== 0) {
@@ -78,8 +78,7 @@ export default defineEventHandler(async (event) => {
 
     console.log('wrote', issues.length, 'issues');
 
-    // TODO: improve stop condition
-    if (issues.length < 50) {
+    if (issues.length < 50 || page === total) {
       break;
     }
     page += 1;
