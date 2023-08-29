@@ -139,9 +139,15 @@ export class Github implements Forge {
   async getIssues(token: string, repoId: string, pagination?: Pagination): Promise<PaginatedList<Issue>> {
     const client = this.getClient(token);
 
+    const repo = await client.request(`GET /repositories/{repoId}`, {
+      repoId,
+    });
+
+    console.log(repo)
+
     const issues = await client.request(`GET /repos/{owner}/{repo}/issues`, {
-      owner: repoId.split('/')[0],
-      repo: repoId.split('/')[1],
+      owner: repo.data.owner.login,
+      repo: repo.data.name,
       per_page: pagination?.perPage || 10,
       page: pagination?.page || 1,
     });
