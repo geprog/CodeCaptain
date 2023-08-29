@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 
 class IndexInfo(BaseModel):
-    repo_id: str
+    repo_id: int
 
 
 class IssueIndexInfo(BaseModel):
@@ -12,7 +12,7 @@ class IssueIndexInfo(BaseModel):
 
 
 class Conversation(BaseModel):
-    repo_id: str
+    repo_id: int
     question: str
-    answer = ""
+    answer: str = ""
     chat_history: Tuple[(str, str)] = []

@@ -33,7 +33,17 @@ export default defineEventHandler(async (event) => {
     let log = await simpleGit().clone(cloneUrl, path.join(folder, 'repo'));
     console.log('cloned', log);
   } else {
-    let log = await simpleGit(path.join(folder, 'repo')).pull();
+    const cloneCredentials = await userForgeApi.getCloneCredentials();
+    const cloneUrl = repo.cloneUrl.replace(
+      'https://',
+      `https://${cloneCredentials.username}:${cloneCredentials.password}@`,
+    );
+
+    await simpleGit(path.join(folder, 'repo')).removeRemote('origin');
+    await simpleGit(path.join(folder, 'repo')).addRemote('origin', cloneUrl);
+
+    // TODO: use default branch instead of main
+    let log = await simpleGit(path.join(folder, 'repo')).pull('origin', 'main');
     console.log('pulled', log);
   }
 
@@ -46,6 +56,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // TODO: skip issues that are already up to date
+  console.log('fetching issues ...');
   let page = 1;
   while (true) {
     const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), { page, perPage: 50 });
@@ -89,6 +100,8 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'cannot index repo',
     });
   }
+
+  console.log('done indexing');
 
   return 'ok';
 });
