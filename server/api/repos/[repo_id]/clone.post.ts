@@ -58,8 +58,9 @@ export default defineEventHandler(async (event) => {
   // TODO: skip issues that are already up to date
   console.log('fetching issues ...');
   let page = 1;
+  const perPage = 50;
   while (true) {
-    const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), { page, perPage: 50 });
+    const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), { page, perPage });
     for await (const issue of issues) {
       let issueString = `# issue "${issue.title}" (${issue.number})`;
       if (issue.labels.length !== 0) {
@@ -76,13 +77,13 @@ export default defineEventHandler(async (event) => {
       await fs.writeFile(path.join(folder, 'issues', `${issue.number}.md`), issueString);
     }
 
-    console.log('wrote', issues.length, 'issues');
-
-    if (issues.length < 50 || page * 50 >= total) {
+    if (issues.length < perPage || page * perPage >= total) {
       break;
     }
     page += 1;
   }
+
+  console.log(`wrote ${page * perPage} issues`);
 
   console.log('start indexing ...');
   const indexingResponse = await $fetch<{ error?: string }>(`${config.api.url}/index`, {

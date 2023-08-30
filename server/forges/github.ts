@@ -2,6 +2,7 @@ import type { H3Event } from 'h3';
 import { Forge, Credentials, Tokens, ForgeUser, Repo, PaginatedList, Pagination, Issue } from './types';
 import { Forge as DBForge } from '../schemas';
 import { Octokit } from 'octokit';
+import type { ResponseHeaders } from '@octokit/types';
 
 export class Github implements Forge {
   private clientId: string;
@@ -25,6 +26,33 @@ export class Github implements Forge {
       username: 'oauth2',
       password: token,
     };
+  }
+
+  private getTotalPagesFromHeaders(headers: ResponseHeaders) {
+    /*
+      Sample link header:
+      link:
+      <https://api.github.com/repositories/1300192/issues?page=2>; rel="prev",
+      <https://api.github.com/repositories/1300192/issues?page=4>; rel="next",
+      <https://api.github.com/repositories/1300192/issues?page=515>; rel="last",
+      <https://api.github.com/repositories/1300192/issues?page=1>; rel="first"
+    */
+
+    if (!headers.link) {
+      return 0;
+    }
+
+    const linkToLastPage = headers.link.split(',').find((link) => link.includes('rel="last"'));
+    if (!linkToLastPage) {
+      return 0;
+    }
+
+    const match = /\?page=(.*?)\>/.exec(linkToLastPage);
+    if (!match || match.length != 2) {
+      return 0;
+    }
+
+    return parseInt(match[1]);
   }
 
   public getOauthRedirectUrl({ state }: { state: string }): string {
@@ -98,10 +126,13 @@ export class Github implements Forge {
 
   public async getRepos(token: string, search?: string, pagination?: Pagination): Promise<PaginatedList<Repo>> {
     const client = this.getClient(token);
+
+    const perPage = pagination?.perPage || 10;
     const repos = await client.request('GET /search/repositories', {
       q: `is:public fork:false archived:false ${search}`.trim(), // TODO: filter by owned repos
-      per_page: 10,
+      per_page: perPage,
       sort: 'updated',
+      page: pagination?.page,
     });
 
     return {
@@ -115,7 +146,7 @@ export class Github implements Forge {
             url: repo.url,
           }) satisfies Repo,
       ),
-      total: 0, // TODO
+      total: this.getTotalPagesFromHeaders(repos.headers) * perPage,
     };
   }
 
@@ -143,26 +174,14 @@ export class Github implements Forge {
       repoId,
     });
 
-
+    const perPage = pagination?.perPage || 10;
     const issues = await client.request(`GET /repos/{owner}/{repo}/issues`, {
       owner: repo.data.owner.login,
       repo: repo.data.name,
-      per_page: pagination?.perPage || 10,
-      page: pagination?.page || 1,
+      per_page: perPage,
+      page: pagination?.page,
     });
 
-    let total = 0; //if there are no pages. It occurs when the response doesn't have link attribute in headers
-
-    if(issues.headers.link){
-      const linkToLastPage = issues.headers.link.split(',').find(link=> link.split('; ')[1]==='rel="last"');
-      const totalPage = parseInt(linkToLastPage?.split('&')[1].split('=')[1].split('>')[0] || '0'); //e.g <https://api.github.com/repositories/659184353/issues?per_page=2&page=3>; rel="last"
-      const perPage = parseInt(linkToLastPage?.split('?')[1].split('&')[0].split('=')[1] || '0');
-
-      total = totalPage * perPage;
-
-    }
-
-      
     return {
       items: issues.data.map((issue) => ({
         title: issue.title,
@@ -171,7 +190,7 @@ export class Github implements Forge {
         labels: issue.labels.map((label) => (typeof label === 'string' ? label : label.name || '')),
         comments: [], // TODO: get comments
       })),
-      total,
+      total: this.getTotalPagesFromHeaders(issues.headers) * perPage,
     };
   }
 }

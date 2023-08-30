@@ -134,11 +134,11 @@ export class Gitlab implements Forge {
   async getIssues(token: string, repoId: string, pagination?: Pagination): Promise<PaginatedList<Issue>> {
     const client = this.getClient(token);
 
-    const {data: issues,paginationInfo} = await client.Issues.all({
+    const { data: issues, paginationInfo } = await client.Issues.all({
       projectId: repoId,
       perPage: pagination?.perPage || 10,
       page: pagination?.page || 1,
-      showExpanded: true
+      showExpanded: true,
     });
 
     return {
@@ -149,7 +149,7 @@ export class Gitlab implements Forge {
         labels: issue.labels || [],
         comments: [], // TODO: get comments
       })),
-      total: paginationInfo.total
+      total: paginationInfo.total,
     };
   }
 }
