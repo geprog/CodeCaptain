@@ -11,6 +11,9 @@ export default defineNuxtConfig({
     },
     data_path: process.env.DATA_PATH ?? 'data',
   },
+  imports: {
+    dirs: ['stores'],
+  },
   ignore: ['data/**/*'],
   ui: {
     icons: ['mdi', 'simple-icons', 'heroicons', 'ion'],

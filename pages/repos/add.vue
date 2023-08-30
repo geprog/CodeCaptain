@@ -67,20 +67,13 @@ const selectedForgeId = ref(forges.value?.[0]?.id);
 const selectedForge = computed(() => forges.value?.find((f) => f.id === selectedForgeId.value));
 
 const search = ref('');
-const { data: repositories } = await useAsyncData(
-  'repositories',
-  () =>
-    $fetch(`/api/forges/${selectedForge.value?.id}/repos/search`, {
-      query: {
-        search: search.value,
-      },
-      credentials: 'include', // TODO why unauthorized?
-    }),
-  {
-    watch: [search, selectedForge],
-    immediate: false,
+const { data: repositories } = await useFetch(`/api/forges/${selectedForge.value?.id}/repos/search`, {
+  query: {
+    search: search.value,
   },
-);
+  watch: [search, selectedForgeId],
+  credentials: 'include', // TODO why unauthorized?
+});
 
 function debounce<T extends Function>(cb: T, wait = 20) {
   let h = 0;
@@ -92,6 +85,9 @@ function debounce<T extends Function>(cb: T, wait = 20) {
 }
 
 const updateSearch = debounce((_search: string) => {
+  if (search.value.length < 3) {
+    return;
+  }
   search.value = _search;
 }, 1000);
 
