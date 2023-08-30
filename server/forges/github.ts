@@ -151,14 +151,18 @@ export class Github implements Forge {
       page: pagination?.page || 1,
     });
 
-    let total = 1; //if there are no pages. It occurs when the response doesn't have link attribute in headers
+    let total = 0; //if there are no pages. It occurs when the response doesn't have link attribute in headers
 
     if(issues.headers.link){
       const linkToLastPage = issues.headers.link.split(',').find(link=> link.split('; ')[1]==='rel="last"');
-      total = Number(linkToLastPage?.split('&')[1].split('=')[1].split('>')[0]); //e.g <https://api.github.com/repositories/659184353/issues?per_page=2&page=3>; rel="last"
+      const totalPage = parseInt(linkToLastPage?.split('&')[1].split('=')[1].split('>')[0] || '0'); //e.g <https://api.github.com/repositories/659184353/issues?per_page=2&page=3>; rel="last"
+      const perPage = parseInt(linkToLastPage?.split('?')[1].split('&')[0].split('=')[1] || '0');
+
+      total = totalPage * perPage;
+
     }
 
-    console.log(total)
+      
     return {
       items: issues.data.map((issue) => ({
         title: issue.title,

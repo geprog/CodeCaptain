@@ -78,7 +78,7 @@ export default defineEventHandler(async (event) => {
 
     console.log('wrote', issues.length, 'issues');
 
-    if (issues.length < 50 || page === total) {
+    if (issues.length < 50 || page * 50 >= total) {
       break;
     }
     page += 1;
