@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
   console.log('fetching issues ...');
   let page = 1;
   while (true) {
-    const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), { page, perPage: 2 });
+    const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), { page, perPage: 50 });
     for await (const issue of issues) {
       let issueString = `# issue "${issue.title}" (${issue.number})`;
       if (issue.labels.length !== 0) {
