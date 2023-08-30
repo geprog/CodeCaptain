@@ -15,6 +15,7 @@ export type ForgeUser = Omit<User, 'id'> & { remoteUserId: string };
 export type Pagination = {
   page: number;
   perPage: number;
+  since?: Date;
 };
 
 export type PaginatedList<T> = {

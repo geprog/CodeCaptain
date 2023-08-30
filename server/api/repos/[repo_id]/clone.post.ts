@@ -1,6 +1,8 @@
 import * as path from 'path';
 import { simpleGit } from 'simple-git';
 import { promises as fs } from 'fs';
+import { repoSchema } from '~/server/schemas';
+import { eq } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
@@ -60,7 +62,11 @@ export default defineEventHandler(async (event) => {
   let page = 1;
   const perPage = 50;
   while (true) {
-    const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), { page, perPage });
+    const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), {
+      page,
+      perPage,
+      since: repo.lastFetch || undefined,
+    });
     for await (const issue of issues) {
       let issueString = `# issue "${issue.title}" (${issue.number})`;
       if (issue.labels.length !== 0) {
@@ -84,6 +90,14 @@ export default defineEventHandler(async (event) => {
   }
 
   console.log(`wrote ${page * perPage} issues`);
+
+  await db
+    .update(repoSchema)
+    .set({
+      lastFetch: new Date(),
+    })
+    .where(eq(repoSchema.id, repo.id))
+    .run();
 
   console.log('start indexing ...');
   const indexingResponse = await $fetch<{ error?: string }>(`${config.api.url}/index`, {
