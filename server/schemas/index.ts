@@ -39,6 +39,7 @@ export const repoSchema = sqliteTable(
     name: text('name').notNull(),
     url: text('url').notNull(),
     cloneUrl: text('cloneUrl').notNull(),
+    lastFetch: integer('lastIndex', { mode: 'timestamp' }),
   },
   (table) => ({
     forgeRemoteId: unique('uniqueForgeRemoteId').on(table.forgeId, table.remoteId),
