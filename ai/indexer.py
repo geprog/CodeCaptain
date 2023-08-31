@@ -43,7 +43,6 @@ def generate_index(repo_id: int):
     )
     print('generating meta information: file structure described as text')
    
-    # index issues
     print('started embedding issues')
     for dirpath, _, filenames in os.walk(os.path.join(repo_path, "issues")):
         for file in filenames:
@@ -60,7 +59,7 @@ def generate_index(repo_id: int):
     docs = text_splitter.split_documents(docs)
     embeddingApi = OpenAIEmbeddings(chunk_size=1000)
 
-    db = FAISS.from_documents(docs, embeddingApi)
+    db = FAISS.from_documents(docs, embeddingApi,wait_time=30, batch_size=10)
     db.save_local(os.path.join(repo_path, "vector_store"))
 
     print("done")
