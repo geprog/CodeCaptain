@@ -93,6 +93,7 @@ const chatHistory = ref([{ id: 2, sender: 'assistant', text: 'Hi there! How can 
 const inputText = ref('');
 const thinking = ref(false);
 const route = useRoute();
+const toast = useToast();
 const repoId = route.params.repo_id;
 
 const { data: repo } = await useFetch(`/api/repos/${repoId}`);
@@ -150,8 +151,18 @@ async function reIndex() {
     await $fetch(`/api/repos/${repoId}/clone`, {
       method: 'POST',
     });
+    toast.add({
+      title: 'Success',
+      description: 'Repo synced successfully',
+      color: 'green',
+    });
   } catch (error) {
     console.error(error);
+    toast.add({
+      title: 'Error',
+      description: 'An error occurred while syncing the repo',
+      color: 'red',
+    });
   }
   loading.value = false;
 }

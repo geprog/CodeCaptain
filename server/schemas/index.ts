@@ -1,5 +1,5 @@
 import { sqliteTable, text, integer, unique } from 'drizzle-orm/sqlite-core';
-import { InferModel } from 'drizzle-orm';
+import { InferSelectModel } from 'drizzle-orm';
 
 export const userSchema = sqliteTable('users', {
   id: integer('id').primaryKey(),
@@ -7,18 +7,18 @@ export const userSchema = sqliteTable('users', {
   avatarUrl: text('avatarUrl'),
   email: text('email'),
 });
-export type User = InferModel<typeof userSchema, 'select'>;
+export type User = InferSelectModel<typeof userSchema>;
 
 export const forgeSchema = sqliteTable('forges', {
   id: integer('id').primaryKey(),
-  name: text('name'),
   type: text('type').notNull(), // github, gitlab, gitea, bitbucket, etc
-  host: text('host'),
+  host: text('host').unique().notNull(),
+  owner: integer('owner'),
   allowLogin: integer('allowLogin', { mode: 'boolean' }),
   clientId: text('clientId').notNull(),
   clientSecret: text('clientSecret').notNull(),
 });
-export type Forge = InferModel<typeof forgeSchema, 'select'>;
+export type Forge = InferSelectModel<typeof forgeSchema>;
 
 export const userForgesSchema = sqliteTable('userForges', {
   id: integer('id').primaryKey(),
@@ -46,7 +46,7 @@ export const repoSchema = sqliteTable(
   }),
 );
 
-export type RepoFromDB = InferModel<typeof repoSchema, 'select'>;
+export type RepoFromDB = InferSelectModel<typeof repoSchema>;
 
 export const userReposSchema = sqliteTable('userRepos', {
   id: integer('id').primaryKey(),

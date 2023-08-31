@@ -12,6 +12,7 @@
 !/pages
 !/public
 !/server
+!/stores
 !/app.config.ts
 !/nuxt.config.ts
 !/package.json

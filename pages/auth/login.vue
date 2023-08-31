@@ -15,7 +15,7 @@
         <UIcon v-if="forge.type === 'github'" name="i-ion-logo-github" class="w-4 h-4 mr-2" />
         <UIcon v-else-if="forge.type === 'gitlab'" name="i-ion-logo-gitlab" class="w-4 h-4 mr-2" />
 
-        {{ forge.name }}
+        {{ forge.host }}
       </button>
     </div>
   </div>
