@@ -14,5 +14,5 @@ class IssueIndexInfo(BaseModel):
 class Conversation(BaseModel):
     repo_id: int
     question: str
+    chat_id: int
     answer: str = ""
-    chat_history: Tuple[(str, str)] = []

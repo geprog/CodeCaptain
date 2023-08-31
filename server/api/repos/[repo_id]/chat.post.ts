@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
     method: 'POST',
     body: {
       repo_id: repo.id,
+      chat_id: repo.id, // TODO: support opening and closing chats
       question: message,
     },
   });
