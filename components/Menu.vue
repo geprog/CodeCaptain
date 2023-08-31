@@ -26,14 +26,22 @@
         <div dir="ltr" class="relative overflow-hidden px-4">
           <div data-radix-scroll-area-viewport="" class="h-full w-full rounded-[inherit]">
             <div class="p-2 space-y-1">
-              <MenuItem
-                v-for="forge in forges"
-                :key="forge.id"
-                :to="forge.owner === user?.id ? `/forges/${forge.id}` : '/'"
-                :title="forge.host"
-                :icon="forge.isConnected ? 'i-ion-code' : 'i-ion-ios-repeat'"
-                @click="!forge.isConnected && login(forge.id)"
-              />
+              <div v-for="forge in forges" :key="forge.id" class="flex">
+                <MenuItem
+                  :key="forge.id"
+                  to="/"
+                  :title="forge.host"
+                  :icon="forge.isConnected ? 'i-ion-code' : 'i-ion-ios-repeat'"
+                  @click="!forge.isConnected && login(forge.id)"
+                />
+                <MenuItem
+                  v-if="forge.owner === user?.id"
+                  :to="`/forges/${forge.id}`"
+                  icon="i-ion-ios-settings"
+                  class="w-auto"
+                />
+              </div>
+              <MenuItem to="/forges/add" title="Add forge" icon="i-heroicons-plus" />
             </div>
           </div>
         </div>
@@ -72,7 +80,7 @@
 <script setup lang="ts">
 const { user, login, logout } = await useAuth();
 
-const { data: forges } = await useFetch('/api/user/forges');
+const { forges } = await useForgesStore();
 
 const colorMode = useColorMode();
 const isDark = computed({

@@ -1,6 +1,14 @@
 <template>
-  <div class="flex w-full justify-center">
-    <UForm ref="form" :schema="schema" :state="newForge" @submit.prevent="submit">
+  <div class="flex flex-col w-full items-center">
+    <h1 class="text-2xl mb-8">Add a new forge</h1>
+
+    <UForm
+      ref="form"
+      :schema="schema"
+      :state="newForge"
+      @submit.prevent="submit"
+      class="flex flex-col gap-2 w-full max-w-2xl"
+    >
       <UFormGroup label="Host" name="host">
         <UInput v-model="newForge.host" />
       </UFormGroup>
@@ -17,7 +25,7 @@
         <UInput v-model="newForge.clientSecret" />
       </UFormGroup>
 
-      <UButton type="submit" label="Add forge" icon="i-heroicons-plus" class="mt-2" />
+      <UButton type="submit" label="Add forge" icon="i-heroicons-plus" class="mt-2 mx-auto" />
     </UForm>
   </div>
 </template>
@@ -28,6 +36,7 @@ import { z } from 'zod';
 const forgeTypes = ['gitlab']; // TODO: support other forges
 
 const toast = useToast();
+const { reloadForges } = await useForgesStore();
 
 const schema = z.object({
   host: z.string().nonempty(),
@@ -53,7 +62,9 @@ async function submit() {
     body: newForge.value,
   });
 
-  await navigateTo(`/forges/${forge.id}`);
+  await reloadForges();
+
+  await navigateTo(`/`);
 
   toast.add({
     title: 'Forge added',
