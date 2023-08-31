@@ -139,7 +139,6 @@ export class Gitlab implements Forge {
       perPage: pagination?.perPage || 10,
       page: pagination?.page || 1,
       showExpanded: true,
-      updatedAfter: pagination?.since?.toISOString(),
     });
 
     return {

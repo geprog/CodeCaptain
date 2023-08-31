@@ -180,7 +180,6 @@ export class Github implements Forge {
       repo: repo.data.name,
       per_page: perPage,
       page: pagination?.page,
-      since: pagination?.since?.toISOString(),
     });
 
     return {
