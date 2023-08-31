@@ -65,9 +65,10 @@ const loading = ref(false);
 const { data: forges } = await useFetch('/api/user/forges');
 const selectedForgeId = ref(forges.value?.[0]?.id);
 const selectedForge = computed(() => forges.value?.find((f) => f.id === selectedForgeId.value));
+const searchUrl = computed(()=> `/api/forges/${selectedForge.value?.id}/repos/search`)
 
 const search = ref('');
-const { data: repositories } = await useFetch(`/api/forges/${selectedForge.value?.id}/repos/search`, {
+const { data: repositories } = await useFetch(searchUrl, {
   query: {
     search: search.value,
   },
