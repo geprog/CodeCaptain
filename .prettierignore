@@ -2,5 +2,5 @@ pnpm-lock.yaml
 dist
 coverage/
 .pnpm-store/
-migrations/meta/*.json
-migrations/*.sql
+server/db/migrations/meta/*.json
+server/db/migrations/*.sql
