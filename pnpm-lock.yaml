@@ -18,8 +18,8 @@ dependencies:
     specifier: ^8.5.0
     version: 8.5.0
   drizzle-orm:
-    specifier: ^0.27.2
-    version: 0.27.2(@types/better-sqlite3@7.6.4)(better-sqlite3@8.5.0)
+    specifier: ^0.28.5
+    version: 0.28.5(@types/better-sqlite3@7.6.4)(better-sqlite3@8.5.0)
   jsonwebtoken:
     specifier: ^9.0.1
     version: 9.0.1
@@ -38,6 +38,9 @@ dependencies:
   vue-markdown-render:
     specifier: ^2.0.1
     version: 2.0.1
+  zod:
+    specifier: ^3.22.2
+    version: 3.22.2
 
 devDependencies:
   '@iconify/json':
@@ -4137,8 +4140,8 @@ packages:
       - supports-color
     dev: true
 
-  /drizzle-orm@0.27.2(@types/better-sqlite3@7.6.4)(better-sqlite3@8.5.0):
-    resolution: {integrity: sha512-ZvBvceff+JlgP7FxHKe0zOU9CkZ4RcOtibumIrqfYzDGuOeF0YUY0F9iMqYpRM7pxnLRfC+oO7rWOUH3T5oFQA==}
+  /drizzle-orm@0.28.5(@types/better-sqlite3@7.6.4)(better-sqlite3@8.5.0):
+    resolution: {integrity: sha512-6r6Iw4c38NAmW6TiKH3TUpGUQ1YdlEoLJOQptn8XPx3Z63+vFNKfAiANqrIiYZiMjKR9+NYAL219nFrmo1duXA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=3'
@@ -9303,4 +9306,3 @@ packages:
 
   /zod@3.22.2:
     resolution: {integrity: sha512-wvWkphh5WQsJbVk1tbx1l1Ly4yg+XecD+Mq280uBGt9wa5BKSWf4Mhp6GmrkPixhMxmabYY7RbzlwVP32pbGCg==}
-    dev: true

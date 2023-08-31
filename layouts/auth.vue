@@ -16,6 +16,8 @@
         <canvas ref="canvas" />
       </div>
     </div>
+
+    <UNotifications />
   </div>
 </template>
 

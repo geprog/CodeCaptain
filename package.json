@@ -39,13 +39,14 @@
     "@gitbeaker/core": "^39.10.3",
     "@gitbeaker/rest": "^39.10.3",
     "better-sqlite3": "^8.5.0",
-    "drizzle-orm": "^0.27.2",
+    "drizzle-orm": "^0.28.5",
     "jsonwebtoken": "^9.0.1",
     "jwt-decode": "^3.1.2",
     "nuxt-icon": "^0.4.1",
     "octokit": "^2.1.0",
     "simple-git": "^3.19.1",
-    "vue-markdown-render": "^2.0.1"
+    "vue-markdown-render": "^2.0.1",
+    "zod": "^3.22.2"
   },
   "pnpm": {
     "overrides": {
