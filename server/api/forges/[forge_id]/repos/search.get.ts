@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'forgeId is required',
     });
   }
+
   const forge = await getUserForgeAPI(user, parseInt(forgeId, 10));
 
   const search = ((getQuery(event)?.search as string | undefined) || '').trim();
