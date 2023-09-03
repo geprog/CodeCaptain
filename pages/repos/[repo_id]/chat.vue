@@ -65,6 +65,20 @@
       </div>
     </div>
 
+    <div v-if="chatHistory.length < 2" class="flex gap-4">
+      <UButton size="lg" label="What is this project about?" @click="askQuestion('What is this project about?')" />
+      <UButton
+        size="lg"
+        label="Which programming languages are used in this project?"
+        @click="askQuestion('Which programming languages are used in this project?')"
+      />
+      <UButton
+        size="lg"
+        label="Could you explain the technical project structure to me?"
+        @click="askQuestion('Could you explain the technical project structure to me?')"
+      />
+    </div>
+
     <div class="flex my-4 mx-12 w-full max-w-4xl justify-center gap-2">
       <div class="flex-grow">
         <UInput
@@ -97,6 +111,11 @@ const toast = useToast();
 const repoId = route.params.repo_id;
 
 const { data: repo } = await useFetch(`/api/repos/${repoId}`);
+
+async function askQuestion(message: string) {
+  inputText.value = message;
+  await sendMessage();
+}
 
 async function sendMessage() {
   if (thinking.value) {
