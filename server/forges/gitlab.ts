@@ -54,8 +54,8 @@ export class Gitlab implements Forge {
       throw new Error('No code provided');
     }
 
-    const redirectUri = event.context.request.url;
-
+    const config = useRuntimeConfig();
+    const redirectUri = `${config.public.APP_URL}/api/auth/callback`;
     const response: any = await $fetch(`https://${this.host}/oauth/token`, {
       method: 'POST',
       body: {
