@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
   const message = (await readBody(event))?.message;
 
   const config = useRuntimeConfig();
-  const chatResponse = await $fetch<{ error?: string; answer: string }>(`${config.api.url}/ask`, {
+  const chatResponse = await $fetch<{ error?: string; answer: string }>(`${config.ai.url}/ask`, {
     method: 'POST',
     body: {
       repo_id: repo.id,

@@ -100,7 +100,7 @@ export default defineEventHandler(async (event) => {
     .run();
 
   console.log('start indexing ...');
-  const indexingResponse = await $fetch<{ error?: string }>(`${config.api.url}/index`, {
+  const indexingResponse = await $fetch<{ error?: string }>(`${config.ai.url}/index`, {
     method: 'POST',
     body: {
       repo_id: repo.id,
