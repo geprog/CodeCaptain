@@ -38,7 +38,7 @@
                   v-if="forge.owner === user?.id"
                   :to="`/forges/${forge.id}`"
                   icon="i-ion-ios-settings"
-                  class="w-auto"
+                  class="!w-auto"
                 />
               </div>
               <MenuItem to="/forges/add" title="Add forge" icon="i-heroicons-plus" />
