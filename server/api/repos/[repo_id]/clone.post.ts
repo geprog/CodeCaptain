@@ -57,15 +57,15 @@ export default defineEventHandler(async (event) => {
     await fs.mkdir(path.join(folder, 'issues'), { recursive: true });
   }
 
-  // TODO: skip issues that are already up to date
-  console.log('fetching issues ...');
   let page = 1;
   const perPage = 50;
+  const since = repo.lastFetch || undefined;
+  console.log('fetching issues since', since, '...');
   while (true) {
     const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), {
       page,
       perPage,
-      since: repo.lastFetch || undefined,
+      since,
     });
     for await (const issue of issues) {
       let issueString = `# issue "${issue.title}" (${issue.number})`;
