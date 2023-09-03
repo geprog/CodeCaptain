@@ -21,4 +21,13 @@ export default defineNuxtConfig({
   ui: {
     icons: ['mdi', 'simple-icons', 'heroicons', 'ion'],
   },
+  app: {
+    head: {
+      title: 'CodeCaptain.ai',
+      link: [
+        { rel: 'alternate icon', type: 'image/png', href: '/logo.png' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
+      ],
+    },
+  },
 });
