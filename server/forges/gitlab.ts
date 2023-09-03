@@ -31,7 +31,7 @@ export class Gitlab implements Forge {
   }
 
   public getOauthRedirectUrl({ state, redirectUri }: { state: string; redirectUri: string }): string {
-    const scopes = ['read_user', 'read_repository', 'read_api', 'email', 'profile', 'api'];
+    const scopes = ['read_user', 'read_repository', 'read_api', 'email', 'profile'];
     return `https://${this.host}/oauth/authorize?client_id=${
       this.clientId
     }&response_type=code&redirect_uri=${redirectUri}&state=${state}&scope=${scopes.join('%20')}`;

@@ -19,6 +19,7 @@
 
       <ForgeOAuthConfig
         :forge-type="forge.type"
+        :forge-host="forge.host"
         v-model:forge-client-id="forge.clientId"
         v-model:forge-client-secret="forge.clientSecret"
       />

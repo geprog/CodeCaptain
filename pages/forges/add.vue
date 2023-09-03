@@ -17,9 +17,10 @@
         <USelectMenu v-model="newForge.type" :options="forgeTypes" />
       </UFormGroup>
 
-      <template v-if="newForge.type">
+      <template v-if="newForge.type && newForge.host">
         <ForgeOAuthConfig
           :forge-type="newForge.type"
+          :forge-host="newForge.host"
           v-model:forge-client-id="newForge.clientId"
           v-model:forge-client-secret="newForge.clientSecret"
         />
