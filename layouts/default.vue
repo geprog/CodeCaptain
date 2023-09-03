@@ -14,6 +14,12 @@
   </div>
 </template>
 
+<script setup lang="ts">
+useHead({
+  titleTemplate: (titleChunk) => (titleChunk ? `${titleChunk} - CodeCaptain.ai` : 'CodeCaptain.ai'),
+});
+</script>
+
 <style>
 * {
   font-family: 'Inter', sans-serif;
