@@ -27,5 +27,7 @@ export default defineEventHandler(async (event) => {
     loginToForgeId: forgeModel.id,
   });
 
-  return sendRedirect(event, forge.getOauthRedirectUrl({ state: stateId }));
+  const config = useRuntimeConfig();
+  const redirectUri = `${config.public.APP_URL}/api/auth/callback`;
+  return sendRedirect(event, forge.getOauthRedirectUrl({ state: stateId, redirectUri }));
 });

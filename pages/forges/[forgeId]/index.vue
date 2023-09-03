@@ -17,13 +17,11 @@
         <UInput v-model="forge.type" disabled />
       </UFormGroup>
 
-      <UFormGroup label="Client ID" name="clientId">
-        <UInput v-model="forge.clientId" />
-      </UFormGroup>
-
-      <UFormGroup label="Client Secret" name="clientSecret">
-        <UInput v-model="forge.clientSecret" />
-      </UFormGroup>
+      <ForgeOAuthConfig
+        :forge-type="forge.type"
+        v-model:forge-client-id="forge.clientId"
+        v-model:forge-client-secret="forge.clientSecret"
+      />
 
       <div class="flex mt-4 gap-2 justify-center">
         <UButton label="Delete forge" icon="i-heroicons-trash" color="red" @click="deleteForge" />

@@ -48,7 +48,7 @@ export type Issue = {
 };
 
 export interface Forge {
-  getOauthRedirectUrl(o: { state: string }): string;
+  getOauthRedirectUrl(o: { state: string; redirectUri: string }): string;
   refreshToken(refreshToken: string): Promise<Tokens>;
   oauthCallback(event: H3Event): Promise<Tokens>;
   getUserInfo(token: string): Promise<ForgeUser>;

@@ -157,7 +157,6 @@ export class Github implements Forge {
       repoId,
     });
 
-    // TODO: think about adding repo.data.default_branch:
     return {
       id: repo.data.id,
       name: repo.data.full_name,

@@ -10,6 +10,9 @@ export default defineNuxtConfig({
       password: process.env.NUXT_AUTH_PASSWORD ?? 'my-super-secret-password-is-minimum-32-characters-long',
     },
     data_path: process.env.DATA_PATH ?? 'data',
+    public: {
+      APP_URL: process.env.NUXT_APP_URL ?? 'http://localhost:3000',
+    },
   },
   imports: {
     dirs: ['stores'],

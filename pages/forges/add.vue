@@ -17,13 +17,13 @@
         <USelectMenu v-model="newForge.type" :options="forgeTypes" />
       </UFormGroup>
 
-      <UFormGroup label="Client ID" name="clientId">
-        <UInput v-model="newForge.clientId" />
-      </UFormGroup>
-
-      <UFormGroup label="Client Secret" name="clientSecret">
-        <UInput v-model="newForge.clientSecret" />
-      </UFormGroup>
+      <template v-if="newForge.type">
+        <ForgeOAuthConfig
+          :forge-type="newForge.type"
+          v-model:forge-client-id="newForge.clientId"
+          v-model:forge-client-secret="newForge.clientSecret"
+        />
+      </template>
 
       <UButton type="submit" label="Add forge" icon="i-heroicons-plus" class="mt-2 mx-auto" />
     </UForm>
@@ -45,9 +45,9 @@ const schema = z.object({
   clientSecret: z.string().nonempty(),
 });
 
-const newForge = ref({
+const newForge = ref<Partial<z.infer<typeof schema>>>({
   host: undefined,
-  type: forgeTypes[0],
+  type: forgeTypes[0] as 'gitlab',
   clientId: undefined,
   clientSecret: undefined,
 });

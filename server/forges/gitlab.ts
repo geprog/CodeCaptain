@@ -7,7 +7,6 @@ export class Gitlab implements Forge {
   private host: string;
   private clientId: string;
   private clientSecret: string;
-  private redirectUrl = 'http://localhost:3000/api/auth/callback'; // TODO: allow to configure this redirect url
   private forgeId: number;
 
   constructor(forge: DBForge) {
@@ -31,11 +30,11 @@ export class Gitlab implements Forge {
     });
   }
 
-  public getOauthRedirectUrl({ state }: { state: string }): string {
+  public getOauthRedirectUrl({ state, redirectUri }: { state: string; redirectUri: string }): string {
     const scopes = ['read_user', 'read_repository', 'read_api', 'email', 'profile', 'api'];
-    return `https://${this.host}/oauth/authorize?client_id=${this.clientId}&response_type=code&redirect_uri=${
-      this.redirectUrl
-    }&state=${state}&scope=${scopes.join('%20')}`;
+    return `https://${this.host}/oauth/authorize?client_id=${
+      this.clientId
+    }&response_type=code&redirect_uri=${redirectUri}&state=${state}&scope=${scopes.join('%20')}`;
   }
 
   public async getUserInfo(token: string): Promise<ForgeUser> {
@@ -55,6 +54,8 @@ export class Gitlab implements Forge {
       throw new Error('No code provided');
     }
 
+    const redirectUri = event.context.request.url;
+
     const response: any = await $fetch(`https://${this.host}/oauth/token`, {
       method: 'POST',
       body: {
@@ -62,7 +63,7 @@ export class Gitlab implements Forge {
         client_secret: this.clientSecret,
         code,
         grant_type: 'authorization_code',
-        redirect_uri: this.redirectUrl,
+        redirect_uri: redirectUri,
       },
       ignoreResponseError: true,
     });
