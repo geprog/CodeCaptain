@@ -67,8 +67,6 @@ def ask(repo_id: int, chat_id: str, question: str):
     print(f"Sources: {[x.metadata['source'] for x in result['source_documents']]}")
     end = time.time()
 
-    # TODO: return source_documents
-
     return result["answer"], [x.metadata["source"] for x in result["source_documents"]]
 
 
