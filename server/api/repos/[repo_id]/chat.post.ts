@@ -22,25 +22,14 @@ export default defineEventHandler(async (event) => {
   }
 
   const config = useRuntimeConfig();
-  const chatResponse = await $fetch<{ error?: string; answer: string; source_documents: string[] }>(
-    `${config.ai.url}/ask`,
-    {
-      method: 'POST',
-      body: {
-        repo_id: repo.id,
-        chat_id: `${user.id}-${chatId}`,
-        question: message,
-      },
+  const chatResponse = await $fetch<{ answer: string; source_documents: string[] }>(`${config.ai.url}/ask`, {
+    method: 'POST',
+    body: {
+      repo_id: repo.id,
+      chat_id: `${user.id}-${chatId}`,
+      question: message,
     },
-  );
-
-  if (chatResponse.error) {
-    console.error(chatResponse.error);
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'chatbot error',
-    });
-  }
+  });
 
   return chatResponse;
 });
