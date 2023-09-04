@@ -15,15 +15,29 @@ data_path = os.getenv("DATA_PATH")
 chatMemories = {}
 
 
-def _get_chat(chat_id: int):
+def _cleanup_chats():
+    for chat_id in chatMemories.keys():
+        # drop chats that are older than 5 minutes
+        if time.time() - chatMemories[chat_id].lastQuestion > 5 * 60:
+            del chatMemories[chat_id]
+
+
+def _get_chat(chat_id: str):
+    _cleanup_chats()
+
     if chat_id not in chatMemories:
-        chatMemories[chat_id] = ConversationBufferMemory(
-            memory_key="chat_history", return_messages=True, output_key="answer"
-        )
+        chatMemories[chat_id] = {
+            memory: ConversationBufferMemory(
+                memory_key="chat_history", return_messages=True, output_key="answer"
+            ),
+        }
+
+    chatMemories[chat_id].lastQuestion = time.time()
+
     return chatMemories[chat_id]
 
 
-def ask(repo_id: int, chat_id: int, question: str):
+def ask(repo_id: int, chat_id: str, question: str):
     embeddings = OpenAIEmbeddings(disallowed_special=())
 
     repo_path = os.path.join(data_path, str(repo_id))
@@ -49,14 +63,13 @@ def ask(repo_id: int, chat_id: int, question: str):
     end = time.time()
 
     result = qa(question)
-    return result["answer"]
-
+    print(f"Answer: {result['answer']}")
+    print(f"Sources: {[x.metadata['source'] for x in result['source_documents']]}")
     end = time.time()
 
+    # TODO: return source_documents
 
-def close_chat(chat_id: int):
-    if chat_id in chatMemories:
-        del chatMemories[chat_id]
+    return result["answer"], [x.metadata["source"] for x in result["source_documents"]]
 
 
 if __name__ == "__main__":
