@@ -25,7 +25,7 @@
       >
         <template v-if="message.sender === 'user'">
           <div class="w-10 flex-shrink-0" />
-          <UAlert color="primary" variant="subtle">
+          <UAlert title="" color="primary" variant="subtle">
             <template #title>
               <vue-markdown :source="message.text" />
             </template>
@@ -38,7 +38,7 @@
           <div class="flex items-center justify-center w-10 h-10 p-2 flex-shrink-0">
             <span class="text-2xl">❌</span>
           </div>
-          <UAlert color="red" variant="subtle">
+          <UAlert title="" color="red" variant="subtle">
             <template #title>
               <vue-markdown :source="message.text" />
             </template>
@@ -49,7 +49,7 @@
           <div class="flex items-center justify-center rounded w-10 h-10 p-2 flex-shrink-0">
             <span class="text-2xl">🤖</span>
           </div>
-          <UAlert color="violet" variant="subtle">
+          <UAlert title="" color="violet" variant="subtle">
             <template #title>
               <vue-markdown :source="message.text" />
             </template>
@@ -112,6 +112,19 @@ const repoId = route.params.repo_id;
 
 const { data: repo } = await useFetch(`/api/repos/${repoId}`);
 
+function makeId(length: number) {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
+  return result;
+}
+const chatId = makeId(10);
+
 async function askQuestion(message: string) {
   inputText.value = message;
   await sendMessage();
@@ -136,27 +149,28 @@ async function sendMessage() {
 
   thinking.value = true;
 
-  const res = await $fetch(`/api/repos/${repoId}/chat`, {
-    method: 'POST',
-    body: JSON.stringify({
-      message,
-    }),
-    ignoreResponseError: true,
-  });
+  try {
+    const res = await $fetch(`/api/repos/${repoId}/chat`, {
+      method: 'POST',
+      body: JSON.stringify({
+        message,
+        chat_id: chatId,
+      }),
+    });
 
-  if (res.error) {
+    if (res.answer) {
+      chatHistory.value.push({
+        id: Date.now(),
+        sender: 'assistant',
+        text: res.answer,
+      });
+    }
+  } catch (e) {
+    const error = e as Error;
     chatHistory.value.push({
       id: Date.now(),
       sender: 'error',
-      text: res.error,
-    });
-  }
-
-  if (res.answer) {
-    chatHistory.value.push({
-      id: Date.now(),
-      sender: 'assistant',
-      text: res.answer,
+      text: error.message,
     });
   }
 
@@ -175,11 +189,11 @@ async function reIndex() {
       description: 'Repo synced successfully',
       color: 'green',
     });
-  } catch (error) {
-    console.error(error);
+  } catch (e) {
+    const error = e as Error;
     toast.add({
       title: 'Error',
-      description: 'An error occurred while syncing the repo',
+      description: error.message,
       color: 'red',
     });
   }
