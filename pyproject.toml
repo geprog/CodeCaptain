@@ -9,12 +9,12 @@ readme = "README.md"
 python = "^3.11"
 pydantic = "^2.3.0"
 fastapi = "^0.103.0"
-langchain = "^0.0.275"
 uvicorn = "^0.23.2"
 python-dotenv = "^1.0.0"
 openai = "^0.27.9"
 tiktoken = "^0.4.0"
 faiss-cpu = "^1.7.4"
+langchain = "^0.0.281"
 
 
 [build-system]
