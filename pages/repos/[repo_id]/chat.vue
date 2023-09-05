@@ -97,6 +97,8 @@
         <UButton icon="i-mdi-send" size="lg" :ui="{ rounded: 'rounded-full' }" @click="sendMessage" />
       </label>
     </div>
+
+    <FileTree :load-path="loadPath" />
   </div>
 </template>
 
@@ -198,6 +200,10 @@ async function reIndex() {
     });
   }
   loading.value = false;
+}
+
+async function loadPath(path: string) {
+  return await $fetch(`/api/repos/${repoId}/files/tree?path=${path}`);
 }
 </script>
 
