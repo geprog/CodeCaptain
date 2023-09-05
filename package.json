@@ -15,7 +15,9 @@
     "clean": "rm -rf dist/ node_modules/ .eslintcache",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:watch": "vitest --watch --ui"
   },
   "devDependencies": {
     "@iconify/json": "^2.2.106",
@@ -25,6 +27,7 @@
     "@types/better-sqlite3": "^7.6.4",
     "@types/jsonwebtoken": "^9.0.2",
     "@types/node": "^18",
+    "@vitest/ui": "^0.34.3",
     "better-sqlite3": "^8.5.0",
     "dotenv": "^16.3.1",
     "drizzle-kit": "^0.19.12",
@@ -33,7 +36,8 @@
     "nuxt": "^3.6.5",
     "prettier": "^3.0.1",
     "tsx": "^3.12.7",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "vitest": "^0.34.3"
   },
   "dependencies": {
     "@gitbeaker/core": "^39.10.3",
