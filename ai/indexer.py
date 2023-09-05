@@ -1,4 +1,3 @@
-import logging
 import os
 import time
 import sys
@@ -19,47 +18,43 @@ def generate_index(repo_id: int):
     repo_path = os.path.join(data_path, str(repo_id))
 
     docs = []
-    
-    print('starting repo embedding...')
+
+    print("indexing repo ...")
     # index repo
+    code_splitter = text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000, chunk_overlap=0, separators=[";", "/n", "}"]
+    )
     for dirpath, _, filenames in os.walk(os.path.join(repo_path, "repo")):
         for file in filenames:
             try:
                 loader = TextLoader(os.path.join(dirpath, file), encoding="utf-8")
-                docs.extend(loader.load_and_split())
+                docs.extend(loader.load_and_split(code_splitter))
             except Exception as e:
                 pass
-            
-    print('finished repo embedding')
 
     # index file structure
-    print('started generating meta information: file structure described as text')
-    
+    print("indexing file structure ...")
     meta_information.generate_file_structure_description(repo_path)
     docs.extend(
         TextLoader(
             os.path.join(repo_path, "file-structure.txt"), encoding="utf-8"
         ).load_and_split()
     )
-    print('generating meta information: file structure described as text')
-   
-    print('started embedding issues')
+
+    print("indexing issues ...")
+    md_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000, chunk_overlap=0, separators=["\n", " "]
+    )
     for dirpath, _, filenames in os.walk(os.path.join(repo_path, "issues")):
         for file in filenames:
             try:
                 loader = TextLoader(os.path.join(dirpath, file), encoding="utf-8")
-                docs.extend(loader.load_and_split())
-                time.sleep(5)
+                docs.extend(loader.load_and_split(md_splitter))
             except Exception as e:
                 pass
-            
-    print('finished embedding issues')
-    
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0, separators=[';', '/n','}'])
-    docs = text_splitter.split_documents(docs)
-    embeddingApi = OpenAIEmbeddings(chunk_size=1000)
 
-    db = FAISS.from_documents(docs, embeddingApi,wait_time=30, batch_size=10)
+    embeddingApi = OpenAIEmbeddings(chunk_size=1000)
+    db = FAISS.from_documents(docs, embeddingApi, wait_time=30, batch_size=10)
     db.save_local(os.path.join(repo_path, "vector_store"))
 
     print("done")
