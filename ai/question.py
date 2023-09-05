@@ -34,7 +34,7 @@ def _get_chat(chat_id: str):
 
     chatMemories[chat_id].lastQuestion = time.time()
 
-    return chatMemories[chat_id]
+    return chatMemories[chat_id].memory
 
 
 def ask(repo_id: int, chat_id: str, question: str):
