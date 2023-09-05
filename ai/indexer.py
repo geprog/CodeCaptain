@@ -5,7 +5,7 @@ import meta_information
 from langchain.document_loaders import TextLoader
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter, Language
 from dotenv import load_dotenv
 
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
@@ -42,8 +42,10 @@ def generate_index(repo_id: int):
     )
 
     print("indexing issues ...")
-    md_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000, chunk_overlap=0, separators=["\n", " "]
+    md_splitter = RecursiveCharacterTextSplitter.from_language(
+        language=Language.MARKDOWN,
+        chunk_size=1000,
+        chunk_overlap=0,
     )
     for dirpath, _, filenames in os.walk(os.path.join(repo_path, "issues")):
         for file in filenames:
