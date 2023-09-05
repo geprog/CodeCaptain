@@ -24,9 +24,11 @@ def perform_index(indexInfo: IndexInfo):
 
 @app.post("/ask")
 def conversation(conversationInput: Conversation):
-    conversationInput.answer = ask(
+    answer, source_documents = ask(
         conversationInput.repo_id,
         conversationInput.chat_id,
         conversationInput.question,
     )
+    conversationInput.answer = answer
+    conversationInput.source_documents = source_documents
     return conversationInput

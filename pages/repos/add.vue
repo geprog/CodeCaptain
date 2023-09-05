@@ -42,7 +42,8 @@
       </div>
 
       <div v-if="selectedForge" class="w-full rounded-md border border-zinc-400">
-        <div v-if="!repositories || repositories.length === 0" class="p-4">No repository found</div>
+        <div v-if="search.length < 3" class="p-4">Start typing to search for a repository</div>
+        <div v-else-if="!repositories || repositories.length === 0" class="p-4">No repository found</div>
 
         <div
           v-for="repo in repositories"
@@ -65,32 +66,39 @@ const loading = ref(false);
 const { data: forges } = await useFetch('/api/user/forges');
 const selectedForgeId = ref(forges.value?.[0]?.id);
 const selectedForge = computed(() => forges.value?.find((f) => f.id === selectedForgeId.value));
-const searchUrl = computed(()=> `/api/forges/${selectedForge.value?.id}/repos/search`)
+const searchUrl = computed(() => `/api/forges/${selectedForge.value?.id}/repos/search`);
 
 const search = ref('');
-const { data: repositories } = await useFetch(searchUrl, {
-  query: {
-    search: search.value,
-  },
-  watch: [search, selectedForgeId],
-  credentials: 'include', // TODO why unauthorized?
-});
+const { data: repositories } = await useAsyncData(
+  () => {
+    if (!selectedForge.value || search.value.length < 1) {
+      return Promise.resolve([]);
+    }
 
-function debounce<T extends Function>(cb: T, wait = 20) {
-  let h = 0;
-  let callable = (...args: any) => {
-    clearTimeout(h);
-    h = setTimeout(() => cb(...args), wait) as unknown as number;
+    return $fetch(`/api/forges/${selectedForge.value.id}/repos/search`, {
+      method: 'GET',
+      query: {
+        search: search.value,
+      },
+      credentials: 'include', // TODO why unauthorized?
+    });
+  },
+  {
+    watch: [search, selectedForge],
+  },
+);
+
+function debounce<T extends Function>(fn: T, ms = 300) {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  return (...args: any[]) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), ms);
   };
-  return <T>(<any>callable);
 }
 
 const updateSearch = debounce((_search: string) => {
-  if (search.value.length < 3) {
-    return;
-  }
   search.value = _search;
-}, 1000);
+}, 500);
 
 async function cloneRepo(remoteRepoId: string) {
   loading.value = true;
