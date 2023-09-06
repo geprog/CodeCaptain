@@ -6,11 +6,14 @@
     <div class="flex w-full p-2 items-center">
       <span class="mx-auto text-2xl">{{ repo.name }}</span>
 
-      <NuxtLink :to="repo.url" target="_blank">
-        <UButton icon="i-ion-git-pull-request" variant="outline" label="Open repo" />
-      </NuxtLink>
+      <div class="flex gap-2">
+        <NuxtLink :to="repo.url" target="_blank">
+          <UButton icon="i-ion-git-pull-request" variant="outline" label="Open repo" />
+        </NuxtLink>
 
-      <UButton icon="i-ion-cloud-download-outline" label="Sync repo" variant="outline" class="ml-2" @click="reIndex" />
+        <UButton icon="i-ion-cloud-download-outline" label="Sync repo" variant="outline" @click="reIndex" />
+        <UButton label="Delete repo" icon="i-heroicons-trash" color="red" @click="deleteRepo" />
+      </div>
     </div>
 
     <div class="flex-1 flex w-full max-w-4xl flex-col p-4 gap-4 items-center overflow-y-auto">
@@ -198,6 +201,28 @@ async function reIndex() {
     });
   }
   loading.value = false;
+}
+
+async function deleteRepo() {
+  if (!repo.value) {
+    return;
+  }
+
+  if (!confirm(`Do you want to remove the repo ${repo.value.name}`)) {
+    return;
+  }
+
+  await $fetch(`/api/repos/${repoId}`, {
+    method: 'DELETE',
+  });
+
+  toast.add({
+    title: 'Repo removed',
+    description: `Repo ${repo.value!.name} removed successfully`,
+    color: 'green',
+  });
+
+  await navigateTo('/');
 }
 </script>
 

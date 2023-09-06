@@ -44,8 +44,7 @@ export default defineEventHandler(async (event) => {
     await simpleGit(path.join(folder, 'repo')).removeRemote('origin');
     await simpleGit(path.join(folder, 'repo')).addRemote('origin', cloneUrl);
 
-    // TODO: use default branch instead of main
-    let log = await simpleGit(path.join(folder, 'repo')).pull('origin', 'main');
+    let log = await simpleGit(path.join(folder, 'repo')).pull('origin', repo.defaultBranch);
     console.log('pulled', log);
   }
 

@@ -1,0 +1,1 @@
+ALTER TABLE repos ADD `defaultBranch` text NOT NULL DEFAULT 'main';

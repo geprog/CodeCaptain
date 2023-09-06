@@ -39,6 +39,7 @@ export const repoSchema = sqliteTable(
     name: text('name').notNull(),
     url: text('url').notNull(),
     cloneUrl: text('cloneUrl').notNull(),
+    defaultBranch: text('defaultBranch').notNull(),
     lastFetch: integer('lastIndex', { mode: 'timestamp' }),
   },
   (table) => ({
