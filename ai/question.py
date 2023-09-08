@@ -30,10 +30,8 @@ def _get_chat(chat_id: str)->str:
                 memory_key="chat_history", return_messages=True, output_key="answer"
             ),
             "lastQuestionTime": time.time(),
-        })   
-
-    chatMemories[chat_id]["lastQuestion"] = time.time()
-
+        }).set('lastQuestionTime',time.time())   
+   
     return chatMemories.get(chat_id,{}).get("memory")
 
 
