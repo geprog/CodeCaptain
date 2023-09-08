@@ -24,14 +24,13 @@ def _cleanup_chats():
 
 def _get_chat(chat_id: str)->str:
     _cleanup_chats()
-
-    if chat_id not in chatMemories:
-        chatMemories.setdefault(chat_id,  {
+    
+    chatMemories.setdefault(chat_id,  {
             "memory": ConversationBufferMemory(
                 memory_key="chat_history", return_messages=True, output_key="answer"
             ),
             "lastQuestionTime": time.time(),
-        })
+        })   
 
     chatMemories[chat_id]["lastQuestion"] = time.time()
 
