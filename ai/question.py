@@ -22,7 +22,7 @@ def _cleanup_chats():
             chatMemories.pop(chat_id)
 
 
-def _get_chat(chat_id: str)->ConversationBufferMemory:
+def _get_chat_memory(chat_id: str)->ConversationBufferMemory:
     _cleanup_chats()
     
     chatMemories.setdefault(chat_id,  {
@@ -50,7 +50,7 @@ def ask(repo_id: int, chat_id: str, question: str):
     retriever.search_kwargs["maximal_marginal_relevance"] = True
     retriever.search_kwargs["k"] = 20
 
-    memory = _get_chat(chat_id)
+    memory = _get_chat_memory(chat_id)
 
     qa = ConversationalRetrievalChain.from_llm(
         llm=ChatOpenAI(temperature=0),
