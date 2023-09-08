@@ -43,7 +43,6 @@ def ask(repo_id: int, chat_id: str, question: str):
     db = FAISS.load_local(os.path.join(repo_path, "vector_store"), embeddings)
 
     retriever = db.as_retriever()
-    end = time.time()
 
     retriever.search_kwargs["distance_metric"] = "cos"
     retriever.search_kwargs["fetch_k"] = 100
@@ -58,12 +57,10 @@ def ask(repo_id: int, chat_id: str, question: str):
         retriever=retriever,
         return_source_documents=True,
     )
-    end = time.time()
 
     result = qa(question)
     print(f"Answer: {result['answer']}")
     print(f"Sources: {[x.metadata['source'] for x in result['source_documents']]}")
-    end = time.time()
 
     return result["answer"], [x.metadata["source"] for x in result["source_documents"]]
 
