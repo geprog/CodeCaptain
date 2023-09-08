@@ -1,0 +1,94 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`file-tree > should add a sub-sub-folder while not having the sub-folder yet 1`] = `
+{
+  "children": [
+    {
+      "name": "file1.txt",
+      "path": "/file1.txt",
+      "type": "file",
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "name": "file4.txt",
+                  "path": "/folder1/folder2/folder3/file4.txt",
+                  "type": "file",
+                },
+              ],
+              "name": "folder3",
+              "path": "/folder1/folder2/folder3",
+              "type": "directory",
+            },
+          ],
+          "name": "folder2",
+          "path": "/folder1/folder2",
+          "type": "directory",
+        },
+      ],
+      "name": "folder1",
+      "path": "/folder1",
+      "type": "directory",
+    },
+  ],
+  "name": "root",
+  "path": "/",
+  "type": "directory",
+}
+`;
+
+exports[`file-tree > should replace a sub-folder 1`] = `
+{
+  "children": [
+    {
+      "name": "file1.txt",
+      "path": "/file1.txt",
+      "type": "file",
+    },
+    {
+      "children": [
+        {
+          "name": "file1.txt",
+          "path": "/folder1/subfile1.txt",
+          "type": "file",
+        },
+        {
+          "name": "folder2",
+          "path": "/folder1/folder2",
+          "type": "directory",
+        },
+      ],
+      "name": "folder1",
+      "path": "/folder1",
+      "type": "directory",
+    },
+  ],
+  "name": "root",
+  "path": "/",
+  "type": "directory",
+}
+`;
+
+exports[`file-tree > should replace root folder 1`] = `
+{
+  "children": [
+    {
+      "name": "file1.txt",
+      "path": "/file1.txt",
+      "type": "file",
+    },
+    {
+      "name": "folder1",
+      "path": "/folder1",
+      "type": "directory",
+    },
+  ],
+  "name": "root",
+  "path": "/",
+  "type": "directory",
+}
+`;

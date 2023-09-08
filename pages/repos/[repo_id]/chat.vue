@@ -6,7 +6,9 @@
     <div class="flex w-full p-2 items-center">
       <span class="mx-auto text-2xl">{{ repo.name }}</span>
 
-      <NuxtLink :to="repo.url" target="_blank">
+      <UButton label="Show code" variant="outline" @click="isCodePanelOpen = true" />
+
+      <NuxtLink :to="repo.url" target="_blank" class="ml-2">
         <UButton icon="i-ion-git-pull-request" variant="outline" label="Open repo" />
       </NuxtLink>
 
@@ -97,6 +99,19 @@
         <UButton icon="i-mdi-send" size="lg" :ui="{ rounded: 'rounded-full' }" @click="sendMessage" />
       </label>
     </div>
+
+    <USlideover v-model="isCodePanelOpen" side="left" :overlay="false" :ui="{ width: 'w-screen max-w-4xl' }">
+      <UCard
+        class="flex flex-col flex-1"
+        :ui="{ body: { base: 'flex-1' }, ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }"
+      >
+        <template #header>
+          <p>Source code</p>
+        </template>
+
+        <RepoExplorer :repo-id="repoId" />
+      </UCard>
+    </USlideover>
   </div>
 </template>
 
@@ -111,6 +126,8 @@ const toast = useToast();
 const repoId = route.params.repo_id;
 
 const { data: repo } = await useFetch(`/api/repos/${repoId}`);
+
+const isCodePanelOpen = ref(false);
 
 function makeId(length: number) {
   let result = '';
