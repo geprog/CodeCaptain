@@ -22,7 +22,7 @@ def _cleanup_chats():
             chatMemories.pop(chat_id)
 
 
-def _get_chat(chat_id: str)->str:
+def _get_chat(chat_id: str)->ConversationBufferMemory:
     _cleanup_chats()
     
     chatMemories.setdefault(chat_id,  {
