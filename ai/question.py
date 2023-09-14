@@ -12,27 +12,34 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 data_path = os.getenv("DATA_PATH")
 
-chatMemories = {}
+chat_memories = {}
 
 
 def _cleanup_chats():
-    for chat_id in chatMemories.keys():
+    for chat_id in chat_memories.keys():
         # drop chats that are older than 5 minutes
-        if time.time() - chatMemories.get(chat_id,{}).get("lastQuestionTime") > 5 * 60:
-            chatMemories.pop(chat_id)
+        if (
+            time.time() - chat_memories.get(chat_id, {}).get("lastQuestionTime")
+            > 5 * 60
+        ):
+            chat_memories.pop(chat_id)
 
 
-def _get_chat_memory(chat_id: str)->ConversationBufferMemory:
+def _get_chat_memory(chat_id: str) -> ConversationBufferMemory:
     _cleanup_chats()
-    
-    chatMemories.setdefault(chat_id,  {
+
+    chat_memories.setdefault(
+        chat_id,
+        {
             "memory": ConversationBufferMemory(
                 memory_key="chat_history", return_messages=True, output_key="answer"
             ),
             "lastQuestionTime": time.time(),
-        }).set('lastQuestionTime',time.time())   
-   
-    return chatMemories.get(chat_id,{}).get("memory")
+        },
+    )
+    chat_memories.set("lastQuestionTime", time.time())
+
+    return chat_memories.get(chat_id).get("memory")
 
 
 def ask(repo_id: int, chat_id: str, question: str):
