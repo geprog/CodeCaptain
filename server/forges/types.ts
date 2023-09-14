@@ -26,6 +26,7 @@ export type PaginatedList<T> = {
 export type Repo = {
   name: string;
   cloneUrl: string;
+  defaultBranch: string;
   forgeId: number;
   id: number;
   url: string;
