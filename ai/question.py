@@ -34,10 +34,9 @@ def _get_chat_memory(chat_id: str) -> ConversationBufferMemory:
             "memory": ConversationBufferMemory(
                 memory_key="chat_history", return_messages=True, output_key="answer"
             ),
-            "lastQuestionTime": time.time(),
         },
     )
-    chat_memories.set("lastQuestionTime", time.time())
+    chat_memories[chat_id]["lastQuestionTime"] = time.time()
 
     return chat_memories.get(chat_id).get("memory")
 
