@@ -64,7 +64,7 @@ def ask(repo_id: int, chat_id: str, question: str):
         return_source_documents=True,
     )
 
-    result = agent({'question': question, 'chat_history':[]})
+    result = agent({'question': question})
     print(f"Answer: {result['answer']}")
     print(f"Sources: {[x.metadata['source'] for x in result['source_documents']]}")
     
