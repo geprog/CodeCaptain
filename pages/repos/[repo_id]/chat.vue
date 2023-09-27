@@ -30,7 +30,7 @@
           <div class="w-10 flex-shrink-0" />
           <UAlert title="" color="primary" variant="subtle">
             <template #title>
-              <vue-markdown :source="message.text" />
+              <Markdown :source="message.text" />
             </template>
           </UAlert>
           <div class="flex items-center justify-center rounded w-10 h-10 p-2 flex-shrink-0">
@@ -43,7 +43,7 @@
           </div>
           <UAlert title="" color="red" variant="subtle">
             <template #title>
-              <vue-markdown :source="message.text" />
+              <Markdown :source="message.text" />
             </template>
           </UAlert>
           <div class="w-10 flex-shrink-0" />
@@ -54,7 +54,7 @@
           </div>
           <UAlert title="" color="violet" variant="subtle">
             <template #title>
-              <vue-markdown :source="message.text" />
+              <Markdown :source="message.text" />
             </template>
           </UAlert>
           <div class="w-10 flex-shrink-0" />
@@ -104,7 +104,7 @@
 </template>
 
 <script lang="ts" setup>
-import VueMarkdown from 'vue-markdown-render';
+import Markdown from '~/components/Markdown.vue';
 
 const chatHistory = ref([{ id: 2, sender: 'assistant', text: 'Hi there! How can I assist you?' }]);
 const inputText = ref('');
