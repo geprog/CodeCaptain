@@ -17,31 +17,20 @@
         <h2 class="px-2 mb-2 text-lg font-semibold tracking-tight">Workspace</h2>
         <div class="space-y-1">
           <MenuItem to="/" title="Repos" icon="i-ion-ios-chatboxes" />
-          <MenuItem to="/" title="Settings" icon="i-ion-ios-settings" />
+          <MenuItem to="/settings" title="Settings" icon="i-ion-ios-settings" />
           <MenuItem to="https://geprog.com" title="Geprog" icon="i-ion-android-favorite-outline" target="_blank" />
         </div>
       </div>
       <div class="py-2">
-        <h2 class="relative px-8 text-lg font-semibold tracking-tight">Forges</h2>
+        <h2 class="relative px-8 text-lg font-semibold tracking-tight">Repos</h2>
         <div dir="ltr" class="relative overflow-hidden px-4">
           <div data-radix-scroll-area-viewport="" class="h-full w-full rounded-[inherit]">
             <div class="p-2 space-y-1">
-              <div v-for="forge in forges" :key="forge.id" class="flex">
-                <MenuItem
-                  :key="forge.id"
-                  to="/"
-                  :title="forge.host"
-                  :icon="forge.isConnected ? 'i-ion-code' : 'i-ion-ios-repeat'"
-                  @click="!forge.isConnected && login(forge.id)"
-                />
-                <MenuItem
-                  v-if="forge.owner === user?.id"
-                  :to="`/forges/${forge.id}`"
-                  icon="i-ion-ios-settings"
-                  class="!w-auto"
-                />
+              <div v-for="repo in repos" :key="repo.id">
+                <MenuItem :to="`/repos/${repo.id}/chat`" :title="repo.name" icon="i-ion-ios-repeat" />
               </div>
-              <MenuItem to="/forges/add" title="Add forge" icon="i-heroicons-plus" />
+
+              <MenuItem to="/repos/add" title="Add repo" icon="i-heroicons-plus" />
             </div>
           </div>
         </div>
@@ -78,9 +67,9 @@
 </template>
 
 <script setup lang="ts">
-const { user, login, logout } = await useAuth();
+const { user, logout } = await useAuth();
 
-const { forges } = await useForgesStore();
+const { data: repos } = await useFetch('/api/repos');
 
 const colorMode = useColorMode();
 const isDark = computed({

@@ -4,41 +4,36 @@
       <span class="m-auto text-2xl">Cloning and indexing your repository ...</span>
     </div>
 
+    <div v-else-if="!selectedForge">
+      <h1 class="text-2xl mb-4">Select a forge</h1>
+
+      <div class="flex flex-col flex-wrap gap-4 mt-2">
+        <Card v-for="forge in forges" :key="forge.id" class="flex items-center px-2 py-4 gap-2">
+          <UIcon name="i-ion-git-branch" class="!w-16" />
+          <span class="font-bold flex-wrap truncate overflow-ellipsis">{{ forge.host }}</span>
+
+          <div class="flex-grow" />
+
+          <UButton v-if="forge.isConnected" label="Select" @click="selectedForgeId = forge.id" />
+          <UButton v-else label="Connect to forge" @click="login(forge.id)" />
+        </Card>
+      </div>
+    </div>
+
     <div v-else class="mx-auto flex flex-col items-center max-w-2xl w-full">
-      <h1 class="text-2xl mb-4">Add a new repository</h1>
+      <h1 class="text-2xl mb-4">Add a new repository from {{ selectedForge.host }}</h1>
 
-      <div class="flex gap-1 mb-4 w-full">
-        <div class="flex-grow">
-          <USelectMenu
-            searchable
-            searchable-placeholder="Search a forge ..."
-            :search-attributes="['host']"
-            option-attribute="host"
-            value-attribute="id"
-            placeholder="Select a forge ..."
-            size="lg"
-            v-model="selectedForgeId"
-            :options="forges?.filter((f) => f.isConnected)"
-          >
-            <template #label>
-              <UIcon name="i-ion-code" class="w-4 h-4" />
-              {{ selectedForge?.host }}
-            </template>
-          </USelectMenu>
-        </div>
-
-        <div class="flex-grow">
-          <UInput
-            color="primary"
-            variant="outline"
-            :model-value="search"
-            placeholder="Search for a repository ..."
-            :disabled="!selectedForge"
-            size="lg"
-            icon="i-heroicons-magnifying-glass-20-solid"
-            @update:model-value="updateSearch"
-          />
-        </div>
+      <div class="mb-4 w-full">
+        <UInput
+          color="primary"
+          variant="outline"
+          :model-value="search"
+          placeholder="Search for a repository ..."
+          :disabled="!selectedForge"
+          size="lg"
+          icon="i-heroicons-magnifying-glass-20-solid"
+          @update:model-value="updateSearch"
+        />
       </div>
 
       <div v-if="selectedForge" class="w-full rounded-md border border-zinc-400">
@@ -62,9 +57,10 @@
 </template>
 
 <script setup lang="ts">
+const { login } = await useAuth();
 const loading = ref(false);
 const { data: forges } = await useFetch('/api/user/forges');
-const selectedForgeId = ref(forges.value?.[0]?.id);
+const selectedForgeId = ref();
 const selectedForge = computed(() => forges.value?.find((f) => f.id === selectedForgeId.value));
 
 const search = ref('');
