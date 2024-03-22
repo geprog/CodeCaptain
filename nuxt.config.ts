@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['nuxt-icon', '@nuxthq/ui'],
+  modules: ['nuxt-icon', '@nuxt/ui'],
   runtimeConfig: {
     ai: {
       url: 'http://localhost:8000',
@@ -29,5 +29,8 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
       ],
     },
+  },
+  typescript: {
+    strict: true,
   },
 });
