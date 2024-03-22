@@ -35,9 +35,8 @@ jobs:
           version: 8
           run_install: true
 
-      # TODO: enable again
-      # - name: Typecheck
-      #   run: pnpm run typecheck
+      - name: Typecheck
+        run: pnpm run typecheck
 
   check-format:
     name: Check format
