@@ -128,7 +128,6 @@ export class Github implements Forge {
     const client = this.getClient(token);
 
     const perPage = pagination?.perPage || 10;
-    console.log(`is:public fork:false archived:false ${search}`.trim());
     const repos = await client.request('GET /search/repositories', {
       q: `is:public fork:false archived:false ${search}`.trim(), // TODO: filter by owned repos
       per_page: perPage,
