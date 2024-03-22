@@ -16,6 +16,7 @@
 
 <script setup lang="ts">
 const toast = useToast();
+
 // eslint-disable-next-line promise/prefer-await-to-callbacks
 onErrorCaptured((err) => {
   // eslint-disable-next-line no-console

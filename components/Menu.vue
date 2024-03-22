@@ -68,10 +68,9 @@
 
 <script setup lang="ts">
 const { user, logout } = await useAuth();
-
-const { data: repos } = await useFetch('/api/repos');
-
 const colorMode = useColorMode();
+const { repos } = await useRepositoriesStore();
+
 const isDark = computed({
   get() {
     return colorMode.value === 'dark';

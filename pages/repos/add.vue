@@ -1,10 +1,6 @@
 <template>
   <div class="flex w-full">
-    <div v-if="loading" class="flex w-full">
-      <span class="m-auto text-2xl">Cloning and indexing your repository ...</span>
-    </div>
-
-    <div v-else-if="!selectedForge">
+    <div v-if="!selectedForge">
       <h1 class="text-2xl mb-4">Select a forge</h1>
 
       <div class="flex flex-col flex-wrap gap-4 mt-2">
@@ -49,7 +45,7 @@
           <span class="font-bold flex-wrap truncate overflow-ellipsis">{{ repo.name }}</span>
           <div class="flex-grow" />
           <UButton v-if="repo.active" :href="`/repos/${repo.id}/chat`" label="Open" />
-          <UButton v-else @click="cloneRepo(repo.id)" label="Import" />
+          <UButton v-else @click="addRepo(repo.id)" label="Add" />
         </div>
       </div>
     </div>
@@ -58,7 +54,9 @@
 
 <script setup lang="ts">
 const { login } = await useAuth();
-const loading = ref(false);
+const reposStore = await useRepositoriesStore();
+const toast = useToast();
+
 const { data: forges } = await useFetch('/api/user/forges');
 const selectedForgeId = ref();
 const selectedForge = computed(() => forges.value?.find((f) => f.id === selectedForgeId.value));
@@ -75,7 +73,6 @@ const { data: repositories } = await useAsyncData(
       query: {
         search: search.value,
       },
-      credentials: 'include', // TODO why unauthorized?
     });
   },
   {
@@ -95,8 +92,7 @@ const updateSearch = debounce((_search: string) => {
   search.value = _search;
 }, 500);
 
-async function cloneRepo(remoteRepoId: string) {
-  loading.value = true;
+async function addRepo(remoteRepoId: string) {
   const forgeId = selectedForge.value?.id;
   if (!forgeId) {
     throw new Error('No forge selected');
@@ -109,11 +105,14 @@ async function cloneRepo(remoteRepoId: string) {
         remoteRepoId,
       },
     });
+    await reposStore.refresh();
     await navigateTo(`/repos/${repo.id}/chat`);
   } catch (error) {
-    console.error(error);
+    toast.add({
+      title: 'Error',
+      description: (error as Error).message,
+      color: 'red',
+    });
   }
-
-  loading.value = false;
 }
 </script>

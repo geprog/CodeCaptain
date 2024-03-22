@@ -42,7 +42,7 @@ const schema = z.object({
 });
 
 const route = useRoute();
-const { reloadForges } = await useForgesStore();
+const forgesStore = await useForgesStore();
 const forgeId = route.params.forgeId;
 const { data: forge } = await useFetch(`/api/forges/${forgeId}`);
 
@@ -58,7 +58,7 @@ async function submit() {
     body: forge.value,
   });
 
-  await reloadForges();
+  await forgesStore.refresh();
 
   toast.add({
     title: 'Forge updated',
@@ -80,7 +80,7 @@ async function deleteForge() {
     method: 'DELETE',
   });
 
-  await reloadForges();
+  await forgesStore.refresh();
 
   toast.add({
     title: 'Forge removed',

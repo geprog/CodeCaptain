@@ -1,8 +1,5 @@
 <template>
-  <div v-if="loading || !repo" class="flex w-full items-center justify-center">
-    <span class="text-2xl">loading ...</span>
-  </div>
-  <div v-else class="flex items-center flex-col w-full flex-grow">
+  <div v-if="repo" class="flex items-center flex-col w-full flex-grow">
     <div class="flex w-full p-2 items-center">
       <span class="mx-auto text-2xl">{{ repo.name }}</span>
 
@@ -16,95 +13,115 @@
       </div>
     </div>
 
-    <div class="flex-1 flex w-full max-w-4xl flex-col p-4 gap-4 items-center overflow-y-auto">
-      <!-- Chat history section -->
-      <div
-        v-for="message in chatHistory"
-        :key="message.id"
-        class="flex w-full gap-2"
-        :class="{
-          'justify-end': message.sender === 'user',
-        }"
-      >
-        <template v-if="message.sender === 'user'">
-          <div class="w-10 flex-shrink-0" />
-          <UAlert title="" color="primary" variant="subtle">
-            <template #title>
-              <Markdown :source="message.text" />
-            </template>
-          </UAlert>
-          <div class="flex items-center justify-center rounded w-10 h-10 p-2 flex-shrink-0">
-            <span class="text-2xl">💁</span>
-          </div>
-        </template>
-        <template v-else-if="message.sender === 'error'">
-          <div class="flex items-center justify-center w-10 h-10 p-2 flex-shrink-0">
-            <span class="text-2xl">❌</span>
-          </div>
-          <UAlert title="" color="red" variant="subtle">
-            <template #title>
-              <Markdown :source="message.text" />
-            </template>
-          </UAlert>
-          <div class="w-10 flex-shrink-0" />
-        </template>
-        <template v-else>
-          <div class="flex items-center justify-center rounded w-10 h-10 p-2 flex-shrink-0">
-            <span class="text-2xl">🤖</span>
-          </div>
-          <UAlert title="" color="violet" variant="subtle">
-            <template #title>
-              <Markdown :source="message.text" />
-            </template>
-          </UAlert>
-          <div class="w-10 flex-shrink-0" />
-        </template>
-      </div>
-
-      <div v-if="thinking" class="flex w-full p-2 gap-2">
-        <div class="w-10" />
-        <span class="text-2xl">🤔</span>
-        <p>Thinking ...</p>
-      </div>
+    <div v-if="indexing" class="m-auto flex flex-col gap-4">
+      <img src="~/assets/loading.gif" alt="loading" />
+      <span class="text-2xl mx-auto">indexing ...</span>
     </div>
 
-    <div v-if="chatHistory.length < 2" class="flex gap-4">
-      <UButton size="lg" label="What is this project about?" @click="askQuestion('What is this project about?')" />
+    <div v-else-if="!repo.lastFetch" class="flex flex-col m-auto gap-4">
+      <p class="text-2xl mx-auto">Should we start indexing your repo?</p>
       <UButton
-        size="lg"
-        label="Which programming languages are used in this project?"
-        @click="askQuestion('Which programming languages are used in this project?')"
-      />
-      <UButton
-        size="lg"
-        label="Could you explain the technical project structure to me?"
-        @click="askQuestion('Could you explain the technical project structure to me?')"
+        class="mx-auto"
+        icon="i-ion-cloud-download-outline"
+        label="Index repo"
+        variant="outline"
+        @click="reIndex"
       />
     </div>
 
-    <div class="flex my-4 mx-12 w-full max-w-4xl justify-center gap-2">
-      <div class="flex-grow">
-        <UInput
-          v-model="inputText"
-          color="primary"
-          variant="outline"
+    <template v-else>
+      <div class="flex-1 flex w-full max-w-4xl flex-col p-4 gap-4 items-center overflow-y-auto">
+        <!-- Chat history section -->
+        <div
+          v-for="message in chatHistory"
+          :key="message.id"
+          class="flex w-full gap-2"
+          :class="{
+            'justify-end': message.sender === 'user',
+          }"
+        >
+          <template v-if="message.sender === 'user'">
+            <div class="w-10 flex-shrink-0" />
+            <UAlert title="" color="primary" variant="subtle">
+              <template #title>
+                <Markdown :source="message.text" />
+              </template>
+            </UAlert>
+            <div class="flex items-center justify-center rounded w-10 h-10 p-2 flex-shrink-0">
+              <span class="text-2xl">💁</span>
+            </div>
+          </template>
+          <template v-else-if="message.sender === 'error'">
+            <div class="flex items-center justify-center w-10 h-10 p-2 flex-shrink-0">
+              <span class="text-2xl">❌</span>
+            </div>
+            <UAlert title="" color="red" variant="subtle">
+              <template #title>
+                <Markdown :source="message.text" />
+              </template>
+            </UAlert>
+            <div class="w-10 flex-shrink-0" />
+          </template>
+          <template v-else>
+            <div class="flex items-center justify-center rounded w-10 h-10 p-2 flex-shrink-0">
+              <span class="text-2xl">🤖</span>
+            </div>
+            <UAlert title="" color="violet" variant="subtle">
+              <template #title>
+                <Markdown :source="message.text" />
+              </template>
+            </UAlert>
+            <div class="w-10 flex-shrink-0" />
+          </template>
+        </div>
+
+        <div v-if="thinking" class="flex w-full p-2 gap-2">
+          <div class="w-10" />
+          <span class="text-2xl">🤔</span>
+          <p>Thinking ...</p>
+        </div>
+      </div>
+
+      <div v-if="chatHistory.length < 2" class="flex gap-4">
+        <UButton size="lg" label="What is this project about?" @click="askQuestion('What is this project about?')" />
+        <UButton
           size="lg"
-          placeholder="Type a message..."
-          @keydown.enter="sendMessage"
+          label="Which programming languages are used in this project?"
+          @click="askQuestion('Which programming languages are used in this project?')"
+        />
+        <UButton
+          size="lg"
+          label="Could you explain the technical project structure to me?"
+          @click="askQuestion('Could you explain the technical project structure to me?')"
         />
       </div>
 
-      <input type="checkbox" id="inputCheck" hidden />
+      <div class="flex my-4 mx-12 w-full max-w-4xl justify-center gap-2">
+        <div class="flex-grow">
+          <UInput
+            v-model="inputText"
+            color="primary"
+            variant="outline"
+            size="lg"
+            placeholder="Type a message ..."
+            @keydown.enter="sendMessage"
+          />
+        </div>
 
-      <label for="inputCheck" class="fab-btn flex items-center justify-center cursor-pointer" @click="sendMessage">
-        <UButton icon="i-mdi-send" size="lg" :ui="{ rounded: 'rounded-full' }" @click="sendMessage" />
-      </label>
-    </div>
+        <input type="checkbox" id="inputCheck" hidden />
+
+        <label for="inputCheck" class="fab-btn flex items-center justify-center cursor-pointer" @click="sendMessage">
+          <UButton icon="i-mdi-send" size="lg" :ui="{ rounded: 'rounded-full' }" @click="sendMessage" />
+        </label>
+      </div>
+    </template>
   </div>
 </template>
 
 <script lang="ts" setup>
 import Markdown from '~/components/Markdown.vue';
+
+const reposStore = await useRepositoriesStore();
 
 const chatHistory = ref([{ id: 2, sender: 'assistant', text: 'Hi there! How can I assist you?' }]);
 const inputText = ref('');
@@ -180,9 +197,9 @@ async function sendMessage() {
   thinking.value = false;
 }
 
-const loading = ref(false);
+const indexing = ref(false);
 async function reIndex() {
-  loading.value = true;
+  indexing.value = true;
   try {
     await $fetch(`/api/repos/${repoId}/clone`, {
       method: 'POST',
@@ -200,7 +217,7 @@ async function reIndex() {
       color: 'red',
     });
   }
-  loading.value = false;
+  indexing.value = false;
 }
 
 async function deleteRepo() {
@@ -221,6 +238,8 @@ async function deleteRepo() {
     description: `Repo ${repo.value!.name} removed successfully`,
     color: 'green',
   });
+
+  await reposStore.refresh();
 
   await navigateTo('/');
 }
