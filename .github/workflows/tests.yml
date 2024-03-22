@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Cache pnpm modules
         uses: actions/cache@v3
@@ -35,9 +35,8 @@ jobs:
           version: 8
           run_install: true
 
-      # TODO: enable again
-      # - name: Typecheck
-      #   run: pnpm run typecheck
+      - name: Typecheck
+        run: pnpm run typecheck
 
   check-format:
     name: Check format
@@ -51,7 +50,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Cache pnpm modules
         uses: actions/cache@v3

@@ -8,7 +8,7 @@
       <NuxtLink v-for="forge in forges" :key="forge.id" :to="`/forges/${forge.id}`" :title="forge.host">
         <Card>
           <div class="flex flex-col items-center justify-between p-2 h-full gap-2 w-64">
-            <span class="font-bold font-semibold text-2xl mt-2 w-full truncate text-center">{{ forge.host }}</span>
+            <span class="font-semibold text-2xl mt-2 w-full truncate text-center">{{ forge.host }}</span>
             <UButton size="md" icon="i-heroicons-pencil-square" variant="outline" class="mt-8" label="Edit" />
           </div>
         </Card>

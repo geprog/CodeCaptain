@@ -9,5 +9,4 @@ export default {
     url: 'data/code_captain.db',
   },
   driver: 'better-sqlite',
-  breakpoints: true,
 } satisfies Config;
