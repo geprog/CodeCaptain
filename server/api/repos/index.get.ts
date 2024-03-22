@@ -1,4 +1,4 @@
-import { repoSchema, userReposSchema } from '../../schemas';
+import { repoSchema, userReposSchema } from '~/server/schemas';
 import { eq, inArray } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {

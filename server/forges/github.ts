@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3';
 import { Forge, Credentials, Tokens, ForgeUser, Repo, PaginatedList, Pagination, Issue } from './types';
-import { Forge as DBForge } from '../schemas';
+import { Forge as DBForge } from '~/server/schemas';
 import { Octokit } from 'octokit';
 import type { ResponseHeaders } from '@octokit/types';
 
@@ -128,6 +128,7 @@ export class Github implements Forge {
     const client = this.getClient(token);
 
     const perPage = pagination?.perPage || 10;
+    console.log(`is:public fork:false archived:false ${search}`.trim());
     const repos = await client.request('GET /search/repositories', {
       q: `is:public fork:false archived:false ${search}`.trim(), // TODO: filter by owned repos
       per_page: perPage,

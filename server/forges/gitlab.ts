@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3';
 import { Forge, Tokens, Credentials, ForgeUser, Repo, Pagination, PaginatedList, Issue } from './types';
-import { Forge as DBForge } from '../schemas';
+import { Forge as DBForge } from '~/server/schemas';
 import { Gitlab as GitlabApi } from '@gitbeaker/rest';
 
 export class Gitlab implements Forge {

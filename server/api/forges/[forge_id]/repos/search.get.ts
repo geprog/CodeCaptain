@@ -1,4 +1,4 @@
-import { RepoFromDB, repoSchema, userReposSchema } from '../../../../schemas';
+import { RepoFromDB, repoSchema, userReposSchema } from '~/server/schemas';
 import { and, eq, inArray } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
   const forge = await getUserForgeAPI(user, parseInt(forgeId, 10));
 
-  const search = ((getQuery(event)?.search as string | undefined) || '').trim();
+  const search = (getQuery<{ search?: string }>(event)?.search || '').trim();
 
   // TODO: use caching along with the db query
   let activeRepos: RepoFromDB[] = [];
