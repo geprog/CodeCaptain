@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     ai: {
       url: 'http://localhost:8000',
+      token: '',
     },
     auth: {
       name: 'nuxt-session',

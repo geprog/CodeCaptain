@@ -13,9 +13,12 @@
       </div>
     </div>
 
-    <div v-if="indexing" class="m-auto flex flex-col gap-4">
+    <div v-if="indexing" class="mx-auto flex flex-col gap-4 pt-8">
+      <span class="text-2xl mx-auto">Whoho lets go and do some indexing.</span>
       <img src="~/assets/loading.gif" alt="loading" />
-      <span class="text-2xl mx-auto">indexing ...</span>
+      <div class="flex flex-col gap-0">
+        <span v-for="log in indexingLogs">{{ log }}</span>
+      </div>
     </div>
 
     <div v-else-if="!repo.lastFetch" class="flex flex-col m-auto gap-4">
@@ -23,7 +26,7 @@
       <UButton
         class="mx-auto"
         icon="i-ion-cloud-download-outline"
-        label="Index repo"
+        label="Start indexing repo"
         variant="outline"
         @click="reIndex"
       />
@@ -198,12 +201,27 @@ async function sendMessage() {
 }
 
 const indexing = ref(false);
+const indexingLogs = ref<string[]>([]);
 async function reIndex() {
   indexing.value = true;
+  indexingLogs.value = [];
   try {
-    await $fetch(`/api/repos/${repoId}/clone`, {
+    const stream = await $fetch<ReadableStream>(`/api/repos/${repoId}/clone`, {
       method: 'POST',
+      responseType: 'stream',
     });
+
+    const reader = stream.getReader();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+
+      const text = new TextDecoder().decode(value);
+      indexingLogs.value.push(text);
+    }
+
     toast.add({
       title: 'Success',
       description: 'Repo synced successfully',

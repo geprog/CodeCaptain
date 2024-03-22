@@ -50,6 +50,13 @@
       "when": 1711118981936,
       "tag": "0006_groovy_tyger_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1711125132515,
+      "tag": "0007_stale_ego",
+      "breakpoints": true
     }
   ]
 }

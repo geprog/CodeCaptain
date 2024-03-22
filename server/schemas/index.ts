@@ -20,15 +20,21 @@ export const forgeSchema = sqliteTable('forges', {
 });
 export type Forge = InferSelectModel<typeof forgeSchema>;
 
-export const userForgesSchema = sqliteTable('userForges', {
-  id: integer('id').primaryKey(),
-  userId: integer('userId').notNull(),
-  forgeId: integer('forgeId').notNull(),
-  remoteUserId: text('remoteUserId').notNull(),
-  accessToken: text('accessToken').notNull(),
-  accessTokenExpiresIn: integer('accessTokenExpiresIn').notNull(),
-  refreshToken: text('refreshToken'),
-});
+export const userForgesSchema = sqliteTable(
+  'userForges',
+  {
+    id: integer('id').primaryKey(),
+    userId: integer('userId').notNull(),
+    forgeId: integer('forgeId').notNull(),
+    remoteUserId: text('remoteUserId').notNull(),
+    accessToken: text('accessToken').notNull(),
+    accessTokenExpiresIn: integer('accessTokenExpiresIn').notNull(),
+    refreshToken: text('refreshToken'),
+  },
+  (t) => ({
+    userIdForgeId: unique('uniqueUserIdForgeId').on(t.userId, t.forgeId),
+  }),
+);
 
 export const repoSchema = sqliteTable(
   'repos',

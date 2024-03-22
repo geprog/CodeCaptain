@@ -107,6 +107,7 @@ export default defineEventHandler(async (event) => {
         accessTokenExpiresIn: tokens.accessTokenExpiresIn,
         refreshToken: tokens.refreshToken,
       })
+      .where(eq(userForgesSchema.id, userForge.id))
       .run();
 
     return loginUser(event, user);
