@@ -14,9 +14,6 @@ export default defineNuxtConfig({
       APP_URL: 'http://localhost:3000',
     },
   },
-  imports: {
-    dirs: ['stores'],
-  },
   ignore: ['data/**/*'],
   ui: {
     icons: ['mdi', 'simple-icons', 'heroicons', 'ion'],
