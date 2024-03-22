@@ -1,4 +1,4 @@
-FROM node:18-alpine as builder
+FROM node:20-alpine as builder
 WORKDIR /app
 COPY package.json pnpm-lock.yaml .npmrc ./
 RUN corepack enable
@@ -7,7 +7,7 @@ COPY . .
 RUN pnpm build
 RUN pnpm tsx contrib/build-migrate.ts
 
-FROM node:18-alpine as overmind
+FROM node:20-alpine as overmind
 WORKDIR /app
 RUN apk add --update curl gzip
 RUN curl https://github.com/DarthSim/overmind/releases/download/v2.4.0/overmind-v2.4.0-linux-amd64.gz -L -o overmind.gz
