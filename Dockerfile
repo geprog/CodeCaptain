@@ -17,7 +17,7 @@ RUN chmod +x overmind
 FROM node:20-alpine
 ENV NITRO_HOST=0.0.0.0
 ENV NITRO_PORT=3000
-ENV DATA_PATH=/app/data
+ENV NUXT_DATA_PATH=/app/data
 ENV MIGRATIONS_PATH=/app/contrib/migrations
 EXPOSE 3000
 WORKDIR /app

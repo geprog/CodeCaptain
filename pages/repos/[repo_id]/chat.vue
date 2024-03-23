@@ -14,11 +14,11 @@
         <UButton
           v-if="repo.lastFetch"
           icon="i-ion-cloud-download-outline"
-          label="Sync"
+          label="Synchronize"
           variant="outline"
           @click="reIndex"
         />
-        <UButton label="Delete repo" icon="i-heroicons-trash" color="red" @click="deleteRepo" />
+        <UButton label="Delete" icon="i-heroicons-trash" color="red" @click="deleteRepo" />
       </div>
     </div>
 
@@ -26,16 +26,16 @@
       <span class="text-2xl mx-auto">Whoho lets go and do some indexing.</span>
       <img src="~/assets/loading.gif" alt="loading" />
       <div class="flex flex-col gap-0">
-        <span v-for="log in indexingLogs">{{ log }}</span>
+        <span v-if="indexingLog">{{ indexingLog }}</span>
       </div>
     </div>
 
     <div v-else-if="!repo.lastFetch" class="flex flex-col m-auto gap-4">
-      <p class="text-2xl mx-auto">Should we start indexing your repo?</p>
+      <p class="text-2xl mx-auto">Should we start indexing your repository?</p>
       <UButton
         class="mx-auto"
         icon="i-ion-cloud-download-outline"
-        label="Start indexing repo"
+        label="Index repository"
         variant="outline"
         @click="reIndex"
       />
@@ -210,10 +210,10 @@ async function sendMessage() {
 }
 
 const indexing = ref(false);
-const indexingLogs = ref<string[]>([]);
+const indexingLog = ref<string>();
 async function reIndex() {
   indexing.value = true;
-  indexingLogs.value = [];
+  indexingLog.value = undefined;
   try {
     const stream = await $fetch<ReadableStream>(`/api/repos/${repoId}/clone`, {
       method: 'POST',
@@ -228,7 +228,7 @@ async function reIndex() {
       }
 
       const text = new TextDecoder().decode(value);
-      indexingLogs.value.push(text);
+      indexingLog.value = text;
     }
 
     toast.add({
@@ -252,7 +252,7 @@ async function deleteRepo() {
     return;
   }
 
-  if (!confirm(`Do you want to remove the repo ${repo.value.name}`)) {
+  if (!confirm(`Do you want to remove the repository ${repo.value.name}`)) {
     return;
   }
 
@@ -261,8 +261,8 @@ async function deleteRepo() {
   });
 
   toast.add({
-    title: 'Repo removed',
-    description: `Repo ${repo.value!.name} removed successfully`,
+    title: 'Repository removed',
+    description: `Repository ${repo.value!.name} removed successfully`,
     color: 'green',
   });
 

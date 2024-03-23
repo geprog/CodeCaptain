@@ -1,14 +1,14 @@
 import path from 'node:path';
 import { simpleGit } from 'simple-git';
-import { promises as fs } from 'node:fs';
 import { repoSchema } from '~/server/schemas';
 import { eq } from 'drizzle-orm';
-import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { OpenAIEmbeddings } from '@langchain/openai';
 import weaviate from 'weaviate-ts-client';
 import { WeaviateStore } from '@langchain/weaviate';
+import { Document } from 'langchain/document';
+import { Glob } from 'glob';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
   const stream = new ReadableStream({
     async start(controller) {
       const log = (...d: unknown[]) => {
-        console.log('sync', ...d);
+        console.log(...d);
         controller.enqueue(...d.map((d) => (typeof d === 'string' ? d : JSON.stringify(d))));
       };
 
@@ -41,8 +41,6 @@ export default defineEventHandler(async (event) => {
         const userForgeApi = await getUserForgeAPI(user, repo.forgeId);
 
         const forgeRepo = await userForgeApi.getRepo(repo.remoteId.toString());
-
-        console.log({ forgeRepo });
 
         await db
           .update(repoSchema)
@@ -62,7 +60,10 @@ export default defineEventHandler(async (event) => {
           `https://${cloneCredentials.username}:${cloneCredentials.password}@`,
         );
 
-        if (!(await dirExists(repoPath))) {
+        const e = await dirExists(repoPath);
+        console.log({ cloneUrl, repoPath, dir: e, c: config.data_path });
+
+        if (!e) {
           log('cloning repo ...');
           let cloneLogs = await simpleGit().clone(cloneUrl, repoPath);
           log('cloned repo', cloneLogs);
@@ -74,64 +75,139 @@ export default defineEventHandler(async (event) => {
           log('pulled latest changes');
         }
 
-        // write issues
-        if (!(await dirExists(path.join(folder, 'issues')))) {
-          await fs.mkdir(path.join(folder, 'issues'), { recursive: true });
-        } else {
-          await fs.rm(path.join(folder, 'issues'), { recursive: true });
-          await fs.mkdir(path.join(folder, 'issues'), { recursive: true });
+        log('indexing ...');
+
+        const docs: Document[] = [];
+
+        // index issues
+        let page = 1;
+        const perPage = 50;
+        const since = repo.lastFetch || undefined;
+        log('fetching issues since', since, '...');
+        while (true) {
+          const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), {
+            page,
+            perPage,
+            since,
+          });
+          for await (const issue of issues) {
+            let issueString = `# issue "${issue.title}" (${issue.number})`;
+            if (issue.labels.length !== 0) {
+              issueString += `\n\nLabels: ` + issue.labels.join(', ');
+            }
+            if (issue.description !== '') {
+              issueString += `\n\n${issue.description}`;
+            }
+            if (issue.comments.length !== 0) {
+              issueString +=
+                `\n\n## Comments:\n` +
+                issue.comments.map((comment) => `- ${comment.author.login}: ${comment.body}`).join('\n');
+            }
+            const doc = new Document({
+              pageContent: issueString,
+              metadata: { issueId: issue.number, type: 'issue' },
+            });
+            docs.push(doc);
+          }
+
+          if (issues.length < perPage || page * perPage >= total) {
+            break;
+          }
+          page += 1;
         }
 
-        // let page = 1;
-        // const perPage = 50;
-        // const since = repo.lastFetch || undefined;
-        // log('fetching issues since', since, '...');
-        // while (true) {
-        //   const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), {
-        //     page,
-        //     perPage,
-        //     since,
-        //   });
-        //   for await (const issue of issues) {
-        //     let issueString = `# issue "${issue.title}" (${issue.number})`;
-        //     if (issue.labels.length !== 0) {
-        //       issueString += `\n\nLabels: ` + issue.labels.join(', ');
-        //     }
-        //     if (issue.description !== '') {
-        //       issueString += `\n\n${issue.description}`;
-        //     }
-        //     if (issue.comments.length !== 0) {
-        //       issueString +=
-        //         `\n\n## Comments:\n` +
-        //         issue.comments.map((comment) => `- ${comment.author.login}: ${comment.body}`).join('\n');
-        //     }
-        //     await fs.writeFile(path.join(folder, 'issues', `${issue.number}.md`), issueString);
-        //   }
-
-        //   if (issues.length < perPage || page * perPage >= total) {
-        //     break;
-        //   }
-        //   page += 1;
-        // }
-
-        // log(`wrote ${page * perPage} issues`);
-
-        log('start indexing ...');
-
-        const loader = new DirectoryLoader(repoPath, {
-          '.ts': (path) => new TextLoader(path),
-        });
-        const docs = await loader.load();
-
-        log({ docs: docs.map((doc) => doc.metadata) });
+        log(`indexed ${page * perPage} issues`);
 
         const javascriptSplitter = RecursiveCharacterTextSplitter.fromLanguage('js', {
           chunkSize: 2000,
           chunkOverlap: 200,
         });
-        const texts = await javascriptSplitter.splitDocuments(docs);
 
-        console.log({ texts: texts.map((text) => text.metadata) });
+        // extensions of source code files to index
+        const includeExtensions = [
+          'js',
+          'jsx',
+          'ts',
+          'tsx',
+          'json',
+          'md',
+          'html',
+          'yaml',
+          'yml',
+          'go',
+          'md',
+          'txt',
+          'sh',
+          'java',
+          'py',
+          'rb',
+          'php',
+          'c',
+          'cpp',
+          'h',
+          'hpp',
+          'cs',
+          'swift',
+          'kt',
+          'kts',
+          'ktm',
+          'rs',
+          'vue',
+          'svelte',
+          'graphql',
+          'gql',
+          'gradle',
+          'bat',
+          'properties',
+          'lua',
+          // 'css',
+          // 'scss',
+          // 'less',
+          // 'sass',
+        ];
+
+        // ignore these directories and files
+        const ignore = [
+          '**/node_modules/**',
+          '**/dist/**',
+          '**/build/**',
+          '**/coverage/**',
+          '**/tmp/**',
+          '**/temp/**',
+          '**/vendor/**',
+          '**/out/**',
+          '**/target/**',
+          '**/lib/**',
+          '**/dll/**',
+          '**/bin/**',
+          'pnpm-lock.yaml',
+          'package-lock.json',
+        ];
+        const glob = new Glob(`**/*.{${includeExtensions.join(',')}}`, {
+          cwd: repoPath,
+          nocase: true,
+          ignore,
+        });
+        for await (const file of glob) {
+          const loader = new TextLoader(path.join(repoPath, file));
+          const fileDocs = await loader.load();
+          docs.push(...fileDocs);
+
+          // switch (path.extname(file)) {
+          //   case '.js':
+          //   case '.ts':
+          //   case '.jsx':
+          //   case '.tsx':
+          //     const texts = await javascriptSplitter.splitDocuments(fileDocs);
+          //     docs.push(...texts);
+          //     break;
+          //   default:
+          //     docs.push(...fileDocs);
+          //     break;
+          // }
+        }
+
+        console.log({ docs: docs.length });
 
         const weaviateClient = weaviate.client({
           scheme: process.env.WEAVIATE_SCHEME || 'http',
@@ -140,7 +216,7 @@ export default defineEventHandler(async (event) => {
         });
 
         await WeaviateStore.fromDocuments(
-          texts,
+          docs,
           new OpenAIEmbeddings({
             openAIApiKey: config.ai.token,
           }),
@@ -162,8 +238,9 @@ export default defineEventHandler(async (event) => {
       } catch (e) {
         log('error', e);
         controller.error(e);
+      } finally {
+        controller.close();
       }
-      controller.close();
     },
   });
 
