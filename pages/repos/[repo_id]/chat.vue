@@ -1,14 +1,23 @@
 <template>
   <div v-if="repo" class="flex items-center flex-col w-full flex-grow">
     <div class="flex w-full p-2 items-center">
-      <span class="mx-auto text-2xl">{{ repo.name }}</span>
+      <NuxtLink :to="repo.url" target="_blank" class="flex gap-4 mr-auto items-center text-2xl">
+        <img v-if="repo.avatarUrl" :src="repo.avatarUrl" alt="avatar" class="w-8 h-8 rounded-md" />
+        <span>{{ repo.name }}</span>
+      </NuxtLink>
 
       <div class="flex gap-2">
         <NuxtLink :to="repo.url" target="_blank">
-          <UButton icon="i-ion-git-pull-request" variant="outline" label="Open repo" />
+          <UButton icon="i-ion-git-pull-request" variant="outline" label="Source" />
         </NuxtLink>
 
-        <UButton icon="i-ion-cloud-download-outline" label="Sync repo" variant="outline" @click="reIndex" />
+        <UButton
+          v-if="repo.lastFetch"
+          icon="i-ion-cloud-download-outline"
+          label="Sync"
+          variant="outline"
+          @click="reIndex"
+        />
         <UButton label="Delete repo" icon="i-heroicons-trash" color="red" @click="deleteRepo" />
       </div>
     </div>

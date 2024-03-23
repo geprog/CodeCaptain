@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
       url: forgeRepo.url,
       forgeId: forgeRepo.forgeId,
       defaultBranch: forgeRepo.defaultBranch,
+      avatarUrl: forgeRepo.avatarUrl,
     })
     .onConflictDoUpdate({
       target: [repoSchema.forgeId, repoSchema.remoteId],

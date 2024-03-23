@@ -113,6 +113,7 @@ export class Gitlab implements Forge {
         forgeId: this.forgeId,
         cloneUrl: repo.http_url_to_repo,
         defaultBranch: repo.default_branch,
+        avatarUrl: repo.avatar_url || undefined,
       })),
       total: repos.length,
     };
@@ -129,6 +130,7 @@ export class Gitlab implements Forge {
       forgeId: this.forgeId,
       cloneUrl: repo.http_url_to_repo,
       defaultBranch: repo.default_branch,
+      avatarUrl: repo.avatar_url || undefined,
     };
   }
 

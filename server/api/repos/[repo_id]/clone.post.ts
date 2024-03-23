@@ -1,15 +1,14 @@
-import * as path from 'path';
+import path from 'node:path';
 import { simpleGit } from 'simple-git';
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import { repoSchema } from '~/server/schemas';
 import { eq } from 'drizzle-orm';
 import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { FaissStore } from '@langchain/community/vectorstores/faiss';
 import { OpenAIEmbeddings } from '@langchain/openai';
-
-async function syncAndIndex(stream: Stream) {}
+import weaviate from 'weaviate-ts-client';
+import { WeaviateStore } from '@langchain/weaviate';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
@@ -27,44 +26,52 @@ export default defineEventHandler(async (event) => {
 
   const config = useRuntimeConfig();
   const folder = path.join(config.data_path, repo.id.toString());
-
-  await createDataFolder();
-
-  const userForgeApi = await getUserForgeAPI(user, repo.forgeId);
-
   const repoPath = path.join(folder, 'repo');
 
   const stream = new ReadableStream({
     async start(controller) {
       const log = (...d: unknown[]) => {
         console.log('sync', ...d);
-        controller.enqueue(...d);
+        controller.enqueue(...d.map((d) => (typeof d === 'string' ? d : JSON.stringify(d))));
       };
 
       try {
+        await createDataFolder();
+
+        const userForgeApi = await getUserForgeAPI(user, repo.forgeId);
+
+        const forgeRepo = await userForgeApi.getRepo(repo.remoteId.toString());
+
+        console.log({ forgeRepo });
+
+        await db
+          .update(repoSchema)
+          .set({
+            name: forgeRepo.name,
+            url: forgeRepo.url,
+            cloneUrl: forgeRepo.cloneUrl,
+            defaultBranch: forgeRepo.defaultBranch,
+            avatarUrl: forgeRepo.avatarUrl,
+          })
+          .where(eq(repoSchema.id, repo.id))
+          .run();
+
+        const cloneCredentials = await userForgeApi.getCloneCredentials();
+        const cloneUrl = repo.cloneUrl.replace(
+          'https://',
+          `https://${cloneCredentials.username}:${cloneCredentials.password}@`,
+        );
+
         if (!(await dirExists(repoPath))) {
-          log('cloning ...');
-          const cloneCredentials = await userForgeApi.getCloneCredentials();
-          const cloneUrl = repo.cloneUrl.replace(
-            'https://',
-            `https://${cloneCredentials.username}:${cloneCredentials.password}@`,
-          );
-
+          log('cloning repo ...');
           let cloneLogs = await simpleGit().clone(cloneUrl, repoPath);
-          log('cloned', cloneLogs);
+          log('cloned repo', cloneLogs);
         } else {
-          log('pulling ...');
-          const cloneCredentials = await userForgeApi.getCloneCredentials();
-          const cloneUrl = repo.cloneUrl.replace(
-            'https://',
-            `https://${cloneCredentials.username}:${cloneCredentials.password}@`,
-          );
-
+          log('pulling changes ...');
           await simpleGit(repoPath).removeRemote('origin');
           await simpleGit(repoPath).addRemote('origin', cloneUrl);
-
-          let pullLogs = await simpleGit(repoPath).pull('origin', repo.defaultBranch);
-          log('pulled', pullLogs);
+          await simpleGit(repoPath).pull('origin', repo.defaultBranch);
+          log('pulled latest changes');
         }
 
         // write issues
@@ -124,14 +131,24 @@ export default defineEventHandler(async (event) => {
         });
         const texts = await javascriptSplitter.splitDocuments(docs);
 
-        const vectorStore = await FaissStore.fromDocuments(
+        console.log({ texts: texts.map((text) => text.metadata) });
+
+        const weaviateClient = weaviate.client({
+          scheme: process.env.WEAVIATE_SCHEME || 'http',
+          host: process.env.WEAVIATE_HOST || 'localhost:8080',
+          // apiKey: new ApiKey(process.env.WEAVIATE_API_KEY || 'default'),
+        });
+
+        await WeaviateStore.fromDocuments(
           texts,
           new OpenAIEmbeddings({
             openAIApiKey: config.ai.token,
           }),
+          {
+            client: weaviateClient,
+            indexName: `Repo${repoId}`,
+          },
         );
-
-        vectorStore.save(path.join(folder, 'vectorstore'));
 
         await db
           .update(repoSchema)
@@ -144,6 +161,7 @@ export default defineEventHandler(async (event) => {
         log('done indexing');
       } catch (e) {
         log('error', e);
+        controller.error(e);
       }
       controller.close();
     },

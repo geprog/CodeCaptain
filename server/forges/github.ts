@@ -145,6 +145,7 @@ export class Github implements Forge {
             forgeId: this.forgeId,
             url: repo.url,
             defaultBranch: repo.default_branch,
+            avatarUrl: repo.owner?.avatar_url,
           }) satisfies Repo,
       ),
       total: this.getTotalPagesFromHeaders(repos.headers) * perPage,
@@ -165,6 +166,7 @@ export class Github implements Forge {
       forgeId: this.forgeId,
       url: repo.data.html_url,
       defaultBranch: repo.data.default_branch,
+      avatarUrl: repo.data.owner?.avatar_url,
     };
   }
 

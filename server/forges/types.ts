@@ -30,6 +30,7 @@ export type Repo = {
   forgeId: number;
   id: number;
   url: string;
+  avatarUrl?: string;
 };
 
 export type Comment = {
