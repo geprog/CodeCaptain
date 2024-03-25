@@ -37,6 +37,7 @@ export default defineEventHandler(async (event) => {
       remoteId: repo.id.toString(),
       internalId: internalRepo?.id,
       name: repo.name,
+      avatarUrl: repo.avatarUrl,
     };
   });
 });

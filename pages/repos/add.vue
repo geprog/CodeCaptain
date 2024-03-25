@@ -38,7 +38,8 @@
           :key="repo.remoteId"
           class="flex border-b border-zinc-200 items-center px-2 py-4 gap-2 w-full min-w-0"
         >
-          <UIcon name="i-ion-git-branch" class="w-6 h-6" />
+          <img v-if="repo.avatarUrl" :src="repo.avatarUrl" alt="icon" class="w-6 h-6 rounded-md" />
+          <UIcon v-else name="i-ion-git-branch" class="w-6 h-6" />
           <span class="font-bold flex-wrap truncate overflow-ellipsis">{{ repo.name }}</span>
           <div class="flex-grow" />
           <UButton v-if="repo.internalId" :to="`/repos/${repo.internalId}/chat`" label="Open" />

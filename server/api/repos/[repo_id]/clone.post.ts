@@ -135,7 +135,6 @@ export default defineEventHandler(async (event) => {
           'yaml',
           'yml',
           'go',
-          'md',
           'txt',
           'sh',
           'java',
@@ -191,7 +190,14 @@ export default defineEventHandler(async (event) => {
         for await (const file of glob) {
           const loader = new TextLoader(path.join(repoPath, file));
           const fileDocs = await loader.load();
-          docs.push(...fileDocs);
+          docs.push(
+            ...fileDocs.map((d) => {
+              d.metadata.source = file;
+              return d;
+            }),
+          );
+
+          console.log('indexing', file);
 
           // switch (path.extname(file)) {
           //   case '.js':

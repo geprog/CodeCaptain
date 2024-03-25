@@ -2,13 +2,7 @@
   <div v-if="forge" class="flex flex-col w-full items-center">
     <h1 class="text-2xl mb-8">{{ forge.host }}</h1>
 
-    <UForm
-      ref="form"
-      :schema="schema"
-      :state="forge"
-      @submit.prevent="submit"
-      class="flex flex-col w-full max-w-2xl gap-2"
-    >
+    <UForm ref="form" :schema="schema" :state="forge" @submit="submit" class="flex flex-col w-full max-w-2xl gap-2">
       <UFormGroup label="Host" name="host">
         <UInput v-model="forge.host" disabled />
       </UFormGroup>

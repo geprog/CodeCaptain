@@ -113,7 +113,7 @@ export class Gitlab implements Forge {
         forgeId: this.forgeId,
         cloneUrl: repo.http_url_to_repo,
         defaultBranch: repo.default_branch,
-        avatarUrl: repo.avatar_url || undefined,
+        avatarUrl: this.sanitizeAvatarUrl(repo.avatar_url || repo.namespace.avatar_url),
       })),
       total: repos.length,
     };
@@ -130,7 +130,7 @@ export class Gitlab implements Forge {
       forgeId: this.forgeId,
       cloneUrl: repo.http_url_to_repo,
       defaultBranch: repo.default_branch,
-      avatarUrl: repo.avatar_url || undefined,
+      avatarUrl: this.sanitizeAvatarUrl(repo.avatar_url || repo.namespace.avatar_url),
     };
   }
 
@@ -155,5 +155,17 @@ export class Gitlab implements Forge {
       })),
       total: paginationInfo.total,
     };
+  }
+
+  private sanitizeAvatarUrl(avatarUrl: string | undefined): string | undefined {
+    if (!avatarUrl) {
+      return undefined;
+    }
+
+    if (avatarUrl.startsWith('/')) {
+      return avatarUrl.replace('/', `https://${this.host}/`);
+    }
+
+    return avatarUrl;
   }
 }
