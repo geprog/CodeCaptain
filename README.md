@@ -2,15 +2,30 @@
 
 A dev advisor to ask about your code and project
 
-## How to start the python server
+## Development
 
-Use the command `python uvicorn pyserver:app --reload --app-dir=ai` to start the python server. It takes default port 8000.
+You can start developing on this project by using [![Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/geprog/codecaptain).
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/geprog/codecaptain)
+Or you can run it locally. You will need to have
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+- [pnpm](https://pnpm.io/installation)
+- [Node.js](https://nodejs.org/en/download/)
+installed.
 
-## Database
+Start the project by running the following commands:
 
-Codecaptain is using [Drizzle ORM](https://orm.drizzle.team) and sqlite.
+```bash
+# start vectorstore
+docker-compose up -d
+
+# install dependencies and set up the database
+pnpm install
+pnpm db:up
+
+# start the server
+pnpm start
+```
 
 ### Migrations
 
