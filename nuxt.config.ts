@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: ['nuxt-icon', '@nuxt/ui'],
+  telemetry: true,
   runtimeConfig: {
     ai: {
       vectorDatabaseUrl: 'http://localhost:8000',
