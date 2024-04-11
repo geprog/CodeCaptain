@@ -5,11 +5,10 @@ RUN corepack enable
 RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm build
-RUN pnpm tsx contrib/build-migrate.ts
 
 FROM python:3.11-slim
 ENV NUXT_DATA_PATH=/app/data
-ENV NUXT_MIGRATIONS_PATH=/app/contrib/migrations
+ENV NUXT_MIGRATIONS_PATH=/app/migrations
 ENV NODE_ENV=production
 ENV NITRO_PORT=3000
 EXPOSE 3000
@@ -20,6 +19,6 @@ RUN apt update -y && apt install curl git musl-dev -y && \
   apt-get install -y nodejs && \
   pip install chromadb
 COPY docker/start.sh .
-COPY --from=builder /app/contrib/dist ./contrib
+COPY server/db/migrations /app/migrations
 COPY --from=builder /app/.output .output
-CMD ["overmind", "start"]
+CMD ["./start.sh"]

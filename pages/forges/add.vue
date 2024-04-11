@@ -2,13 +2,7 @@
   <div class="flex flex-col w-full items-center">
     <h1 class="text-2xl mb-8">Add a new forge</h1>
 
-    <UForm
-      ref="form"
-      :schema="schema"
-      :state="newForge"
-      @submit.prevent="submit"
-      class="flex flex-col gap-2 w-full max-w-2xl"
-    >
+    <UForm ref="form" :schema="schema" :state="newForge" @submit="submit" class="flex flex-col gap-2 w-full max-w-2xl">
       <UFormGroup label="Host" name="host">
         <UInput v-model="newForge.host" />
       </UFormGroup>
