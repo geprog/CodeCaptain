@@ -20,14 +20,13 @@
             </div>
 
             <UButton
-              v-if="myForges?.find((f) => f.id === forge.id)"
               size="md"
               icon="i-heroicons-pencil-square"
               variant="outline"
               class="mt-8"
               label="Edit"
+              :disabled="!forge.isOwner"
             />
-            <div v-else class="mt-8" />
           </div>
         </Card>
       </NuxtLink>
@@ -55,8 +54,6 @@
 
 <script setup lang="ts">
 const { forges } = await useForgesStore();
-
-const { data: myForges } = await useFetch('/api/forges');
 
 const { repos } = await useRepositoriesStore();
 </script>

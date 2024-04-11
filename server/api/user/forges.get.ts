@@ -1,4 +1,4 @@
-import { eq, or, inArray } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { forgeSchema, userForgesSchema } from '~/server/schemas';
 
 export default defineEventHandler(async (event) => {
@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
 
   return forges.map((forge) => {
     const isConnected = userForges.some((userForge) => userForge.forgeId === forge.id);
-    return { ...forge, isConnected };
+    const isOwner = forge.owner === user.id;
+    return { ...forge, isConnected, isOwner };
   });
 });
