@@ -7,11 +7,12 @@ A dev advisor to ask about your code and project
 You can start developing on this project by using [![Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/geprog/codecaptain).
 
 Or you can run it locally. You will need to have
+
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [pnpm](https://pnpm.io/installation)
 - [Node.js](https://nodejs.org/en/download/)
-installed.
+  installed.
 
 You need an OpenAI API key to run the project. You can get one by signing up at [OpenAI](https://platform.openai.com/signup).
 
