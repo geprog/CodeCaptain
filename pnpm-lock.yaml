@@ -13,7 +13,7 @@ dependencies:
     version: 40.0.1
   '@langchain/community':
     specifier: ^0.0.41
-    version: 0.0.41(better-sqlite3@9.4.3)(jsonwebtoken@9.0.2)
+    version: 0.0.41(better-sqlite3@9.4.3)(chromadb@1.8.1)(jsonwebtoken@9.0.2)
   '@langchain/openai':
     specifier: ^0.0.23
     version: 0.0.23
@@ -23,6 +23,9 @@ dependencies:
   better-sqlite3:
     specifier: ^9.4.3
     version: 9.4.3
+  chromadb:
+    specifier: ^1.8.1
+    version: 1.8.1
   drizzle-orm:
     specifier: ^0.30.4
     version: 0.30.4(@types/better-sqlite3@7.6.9)(better-sqlite3@9.4.3)
@@ -37,7 +40,7 @@ dependencies:
     version: 4.0.0
   langchain:
     specifier: ^0.1.28
-    version: 0.1.28(better-sqlite3@9.4.3)(jsonwebtoken@9.0.2)
+    version: 0.1.28(better-sqlite3@9.4.3)(chromadb@1.8.1)(jsonwebtoken@9.0.2)
   nuxt-icon:
     specifier: ^0.6.10
     version: 0.6.10(nuxt@3.11.1)(vite@4.4.9)(vue@3.4.21)
@@ -1692,7 +1695,7 @@ packages:
   /@kwsites/promise-deferred@1.1.1:
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
 
-  /@langchain/community@0.0.41(better-sqlite3@9.4.3)(jsonwebtoken@9.0.2):
+  /@langchain/community@0.0.41(better-sqlite3@9.4.3)(chromadb@1.8.1)(jsonwebtoken@9.0.2):
     resolution: {integrity: sha512-8QvA/Gx95ijUxmH3amj1La6Rl9NmMCnif802q/Y2zze+SW2bgeF7brC6n2BIui2GYUQlCDBoga/QZ2lPqPM6vg==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -1968,6 +1971,7 @@ packages:
       '@langchain/core': 0.1.49
       '@langchain/openai': 0.0.23
       better-sqlite3: 9.4.3
+      chromadb: 1.8.1
       expr-eval: 2.0.2
       flat: 5.0.2
       jsonwebtoken: 9.0.2
@@ -4646,6 +4650,27 @@ packages:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
     engines: {node: '>=10'}
 
+  /chromadb@1.8.1:
+    resolution: {integrity: sha512-NpbYydbg4Uqt/9BXKgkZXn0fqpsh2Z1yjhkhKH+rcHMoq0pwI18BFSU2QU7Fk/ZypwGefW2AvqyE/3ZJIgy4QA==}
+    engines: {node: '>=14.17.0'}
+    peerDependencies:
+      '@google/generative-ai': ^0.1.1
+      cohere-ai: ^5.0.0 || ^6.0.0 || ^7.0.0
+      openai: ^3.0.0 || ^4.0.0
+    peerDependenciesMeta:
+      '@google/generative-ai':
+        optional: true
+      cohere-ai:
+        optional: true
+      openai:
+        optional: true
+    dependencies:
+      cliui: 8.0.1
+      isomorphic-fetch: 3.0.0
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
   /ci-info@4.0.0:
     resolution: {integrity: sha512-TdHqgGf9odd8SXNuxtUBVx8Nv+qZOejE6qyqiy5NtbYYQOeFa6zmHkxlPzmaLxWWHsU6nJmB7AETdVPi+2NBUg==}
     engines: {node: '>=8'}
@@ -6580,6 +6605,15 @@ packages:
     resolution: {integrity: sha512-LpB/54B+/2J5hqQ7imZHfdU31OlgQqx7ZicVlkm9kzg9/w8GKLEcFfJl/t7DCEDueOyBAD6zCCwTO6Fzs0NoEQ==}
     engines: {node: '>=16'}
 
+  /isomorphic-fetch@3.0.0:
+    resolution: {integrity: sha512-qvUtwJ3j6qwsF3jLxkZ72qCgjMysPzDfeV240JHiGZsANBYd+EEuu35v7dfrJ9Up0Ak07D7GGSkGhCHTqg/5wA==}
+    dependencies:
+      node-fetch: 2.7.0
+      whatwg-fetch: 3.6.20
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
   /jackspeak@2.3.6:
     resolution: {integrity: sha512-N3yCS/NegsOBokc8GAdM8UcmfsKiSS8cipheD/nivzr700H+nsMOxJjQnvwOcRYVuFkdH0wGUvW2WbXGmrZGbQ==}
     engines: {node: '>=14'}
@@ -6787,7 +6821,7 @@ packages:
   /kolorist@1.8.0:
     resolution: {integrity: sha512-Y+60/zizpJ3HRH8DCss+q95yr6145JXZo46OTpFvDZWLfRCE4qChOyk1b26nMaNpfHHgxagk9dXT5OP0Tfe+dQ==}
 
-  /langchain@0.1.28(better-sqlite3@9.4.3)(jsonwebtoken@9.0.2):
+  /langchain@0.1.28(better-sqlite3@9.4.3)(chromadb@1.8.1)(jsonwebtoken@9.0.2):
     resolution: {integrity: sha512-LNuILtOSFptfOqDwUwQAl7B0dYrBtxzVZ6lDhc5DA8rk+pyTCy12HQO7t8bGqC8oQlEPYPKaom8VRlvfupUBTw==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -6947,10 +6981,11 @@ packages:
         optional: true
     dependencies:
       '@anthropic-ai/sdk': 0.9.1
-      '@langchain/community': 0.0.41(better-sqlite3@9.4.3)(jsonwebtoken@9.0.2)
+      '@langchain/community': 0.0.41(better-sqlite3@9.4.3)(chromadb@1.8.1)(jsonwebtoken@9.0.2)
       '@langchain/core': 0.1.49
       '@langchain/openai': 0.0.23
       binary-extensions: 2.2.0
+      chromadb: 1.8.1
       expr-eval: 2.0.2
       js-tiktoken: 1.0.10
       js-yaml: 4.1.0
@@ -10585,6 +10620,10 @@ packages:
 
   /webpack-virtual-modules@0.6.1:
     resolution: {integrity: sha512-poXpCylU7ExuvZK8z+On3kX+S8o/2dQ/SVYueKA0D4WEMXROXgY8Ez50/bQEUmvoSMMrWcrJqCHuhAbsiwg7Dg==}
+
+  /whatwg-fetch@3.6.20:
+    resolution: {integrity: sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg==}
+    dev: false
 
   /whatwg-url@5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}

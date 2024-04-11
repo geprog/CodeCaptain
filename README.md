@@ -13,6 +13,12 @@ Or you can run it locally. You will need to have
 - [Node.js](https://nodejs.org/en/download/)
 installed.
 
+You need an OpenAI API key to run the project. You can get one by signing up at [OpenAI](https://platform.openai.com/signup).
+
+And you need a Github OAuth app to run the project. You can create one at [Github Developer Settings](https://github.com/settings/applications/new).
+
+Enter the OpenAI API key and Github OAuth app credentials in the `.env` file. You can use the `.env.sample` file as a template.
+
 Start the project by running the following commands:
 
 ```bash

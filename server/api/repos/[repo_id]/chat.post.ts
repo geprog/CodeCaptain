@@ -1,6 +1,5 @@
 import { OpenAIEmbeddings } from '@langchain/openai';
-import weaviate from 'weaviate-ts-client';
-import { WeaviateStore } from '@langchain/weaviate';
+import { Chroma } from '@langchain/community/vectorstores/chroma';
 import { ChatOpenAI } from '@langchain/openai';
 import { BufferMemory } from 'langchain/memory';
 import {
@@ -43,16 +42,18 @@ export default defineEventHandler(async (event) => {
 
   const model = new ChatOpenAI({ modelName: 'gpt-4', openAIApiKey: config.ai.token }).pipe(new StringOutputParser());
 
-  const weaviateClient = weaviate.client({
-    scheme: process.env.WEAVIATE_SCHEME || 'http',
-    host: process.env.WEAVIATE_HOST || 'localhost:8080',
-    // apiKey: new ApiKey(process.env.WEAVIATE_API_KEY || 'default'),
-  });
-
-  const vectorStore = await WeaviateStore.fromExistingIndex(new OpenAIEmbeddings(), {
-    client: weaviateClient,
-    indexName: `Repo${repo.id}`,
-  });
+  const vectorStore = await Chroma.fromExistingCollection(
+    new OpenAIEmbeddings({
+      openAIApiKey: config.ai.token,
+    }),
+    {
+      collectionName: `repo-${repo.id}`,
+      url: config.ai.vectorDatabaseUrl,
+      collectionMetadata: {
+        'hnsw:space': 'cosine',
+      },
+    },
+  );
 
   const retriever = vectorStore.asRetriever({
     searchType: 'mmr', // Use max marginal relevance search

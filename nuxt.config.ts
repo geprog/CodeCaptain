@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   modules: ['nuxt-icon', '@nuxt/ui'],
   runtimeConfig: {
     ai: {
-      url: 'http://localhost:8000',
+      vectorDatabaseUrl: 'http://localhost:8000',
       token: '',
     },
     auth: {

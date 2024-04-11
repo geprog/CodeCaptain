@@ -5,8 +5,7 @@ import { eq } from 'drizzle-orm';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { OpenAIEmbeddings } from '@langchain/openai';
-import weaviate from 'weaviate-ts-client';
-import { WeaviateStore } from '@langchain/weaviate';
+import { Chroma } from '@langchain/community/vectorstores/chroma';
 import { Document } from 'langchain/document';
 import { Glob } from 'glob';
 
@@ -215,20 +214,17 @@ export default defineEventHandler(async (event) => {
 
         console.log({ docs: docs.length });
 
-        const weaviateClient = weaviate.client({
-          scheme: process.env.WEAVIATE_SCHEME || 'http',
-          host: process.env.WEAVIATE_HOST || 'localhost:8080',
-          // apiKey: new ApiKey(process.env.WEAVIATE_API_KEY || 'default'),
-        });
-
-        await WeaviateStore.fromDocuments(
+        await Chroma.fromDocuments(
           docs,
           new OpenAIEmbeddings({
             openAIApiKey: config.ai.token,
           }),
           {
-            client: weaviateClient,
-            indexName: `Repo${repoId}`,
+            collectionName: `repo-${repo.id}`,
+            url: config.ai.vectorDatabaseUrl,
+            collectionMetadata: {
+              'hnsw:space': 'cosine',
+            },
           },
         );
 
