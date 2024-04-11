@@ -15,20 +15,19 @@ RUN gunzip overmind.gz
 RUN chmod +x overmind
 
 FROM python:3.11-slim
-ENV NITRO_HOST=0.0.0.0
+ENV NUXT_DATA_PATH=/app/data
+ENV NUXT_MIGRATIONS_PATH=/app/contrib/migrations
+ENV NODE_ENV=production
 ENV NITRO_PORT=3000
-ENV DATA_PATH=/app/data
-ENV MIGRATIONS_PATH=/app/contrib/migrations
 EXPOSE 3000
 WORKDIR /app
-RUN apt update -y && apt install tmux nodejs git musl-dev -y
-RUN ln -s /usr/lib/x86_64-linux-musl/libc.so /lib/libc.musl-x86_64.so.1
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN apt update -y && apt install curl tmux git musl-dev -y && \
+  ln -s /usr/lib/x86_64-linux-musl/libc.so /lib/libc.musl-x86_64.so.1 && \
+  curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
+  apt-get install -y nodejs && \
+  pip install chromadb
 COPY Procfile .
-COPY docker/start.sh .
 COPY --from=overmind /app/overmind /bin/overmind
 COPY --from=builder /app/contrib/dist ./contrib
 COPY --from=builder /app/.output .output
-COPY ai ai
-CMD ["./start.sh"]
+CMD ["overmind", "start"]

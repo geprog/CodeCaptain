@@ -2,7 +2,7 @@
 *
 
 # Allow files and directories
-!/ai
+!/assets
 !/components
 !/composables
 !/contrib
@@ -10,6 +10,7 @@
 !/layouts
 !/middleware
 !/pages
+!/plugins
 !/public
 !/server
 !/stores

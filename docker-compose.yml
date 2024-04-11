@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+  chroma:
+    image: chromadb/chroma
+    ports:
+      - 8000:8000
+    volumes:
+      - chroma_data:/var/lib/weaviate
+    restart: on-failure:0
+
+volumes:
+  chroma_data:
