@@ -41,6 +41,7 @@
     "@langchain/openai": "^0.0.23",
     "better-sqlite3": "^9.4.3",
     "chromadb": "^1.8.1",
+    "consola": "^3.2.3",
     "drizzle-orm": "^0.30.4",
     "glob": "^10.3.10",
     "jsonwebtoken": "^9.0.2",

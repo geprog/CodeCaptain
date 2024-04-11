@@ -23,6 +23,9 @@ dependencies:
   chromadb:
     specifier: ^1.8.1
     version: 1.8.1
+  consola:
+    specifier: ^3.2.3
+    version: 3.2.3
   drizzle-orm:
     specifier: ^0.30.4
     version: 0.30.4(@types/better-sqlite3@7.6.9)(better-sqlite3@9.4.3)

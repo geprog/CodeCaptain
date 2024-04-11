@@ -10,6 +10,7 @@
 !/layouts
 !/middleware
 !/pages
+!/plugins
 !/public
 !/server
 !/stores

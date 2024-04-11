@@ -11,6 +11,7 @@ export default defineNuxtConfig({
       password: 'my-super-secret-password-is-minimum-32-characters-long',
     },
     data_path: './data',
+    migrations_path: './server/db/migrations',
     public: {
       APP_URL: 'http://localhost:3000',
     },
@@ -30,5 +31,12 @@ export default defineNuxtConfig({
   },
   typescript: {
     strict: true,
+  },
+  $production: {
+    runtimeConfig: {
+      auth: {
+        password: '', // This should be set with an environment variable
+      },
+    },
   },
 });
