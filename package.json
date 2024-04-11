@@ -13,7 +13,8 @@
     "db:up": "tsx contrib/migrate.ts",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
-    "typecheck": "nuxi typecheck"
+    "typecheck": "nuxi typecheck",
+    "start:docker": "docker build -t codecaptain . && docker run --rm -ti -p 3000 --env-file .env codecaptain"
   },
   "devDependencies": {
     "@iconify/json": "^2.2.195",

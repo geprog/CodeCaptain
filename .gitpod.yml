@@ -23,13 +23,11 @@ tasks:
       nvm use default
     command: |
       pnpm start
-
-  - name: Run API
+  - name: Run database
     before: |
       gp sync-await setup
-      pip install -r requirements.txt
     command: |
-      uvicorn pyserver:app --reload --app-dir=ai
+      docker-compose up -d
 
 vscode:
   extensions:
