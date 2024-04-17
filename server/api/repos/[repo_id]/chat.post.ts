@@ -1,5 +1,3 @@
-import { OpenAIEmbeddings } from '@langchain/openai';
-import { Chroma } from '@langchain/community/vectorstores/chroma';
 import { ChatOpenAI } from '@langchain/openai';
 import { BufferMemory } from 'langchain/memory';
 import {
@@ -42,24 +40,11 @@ export default defineEventHandler(async (event) => {
 
   const model = new ChatOpenAI({ modelName: 'gpt-4', openAIApiKey: config.ai.token }).pipe(new StringOutputParser());
 
-  const vectorStore = await Chroma.fromExistingCollection(
-    new OpenAIEmbeddings({
-      openAIApiKey: config.ai.token,
-    }),
-    {
-      collectionName: `repo-${repo.id}`,
-      url: config.ai.vectorDatabaseUrl,
-      collectionMetadata: {
-        'hnsw:space': 'cosine',
-      },
-    },
-  );
+  const vectorStore = await getRepoVectorStore(repo.id);
 
   const retriever = vectorStore.asRetriever({
-    // TODO: use max marginal relevance search
-    // searchType: 'mmr', // Use max marginal relevance search
-    // searchKwargs: { fetchK: 5 },
-    searchType: 'similarity',
+    searchType: 'mmr', // Use max marginal relevance search
+    searchKwargs: { fetchK: 5 },
   });
 
   const memory = new BufferMemory({
@@ -118,15 +103,6 @@ export default defineEventHandler(async (event) => {
   const result = await conversationalQaChain.invoke({
     question: message,
   });
-
-  await memory.saveContext(
-    {
-      input: message,
-    },
-    {
-      output: result,
-    },
-  );
 
   return { answer: result };
 });
