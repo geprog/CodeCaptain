@@ -20,8 +20,6 @@ ENV NITRO_PORT=3000
 EXPOSE 3000
 WORKDIR /app
 RUN apk update && apk add git musl-dev
-
-#ln -s /usr/lib/x86_64-linux-musl/libc.so /lib/libc.musl-x86_64.so.1
 COPY --from=weaviate /app/weaviate /bin/weaviate
 COPY docker/start.sh .
 COPY server/db/migrations /app/migrations
