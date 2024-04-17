@@ -11,27 +11,38 @@ import {
 import { RunnableSequence } from '@langchain/core/runnables';
 import { formatDocumentsAsString } from 'langchain/util/document';
 import { StringOutputParser } from '@langchain/core/output_parsers';
+import { chatMessageSchema, chatSchema } from '~/server/schemas';
+import { and, eq } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
 
-  const repoId = getRouterParam(event, 'repo_id');
-  if (!repoId) {
+  const chatId = getRouterParam(event, 'chat_id');
+  if (!chatId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'repo_id is required',
+      statusMessage: 'chat_id is required',
     });
   }
 
-  const repo = await requireAccessToRepo(user, parseInt(repoId, 10));
+  const chat = await db
+    .select()
+    .from(chatSchema)
+    .where(and(eq(chatSchema.id, parseInt(chatId, 10)), eq(chatSchema.userId, user.id)))
+    .get();
+
+  if (!chat) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Chat not found',
+    });
+  }
 
   const body = await readBody<{
     message: string;
-    chat_id: string;
   }>(event);
   const message = body?.message;
-  const chatId = body?.chat_id;
-  if (!message || !chatId) {
+  if (!message) {
     throw createError({
       statusCode: 400,
       statusMessage: 'message and chat_id are required',
@@ -47,7 +58,7 @@ export default defineEventHandler(async (event) => {
       openAIApiKey: config.ai.token,
     }),
     {
-      collectionName: `repo-${repo.id}`,
+      collectionName: `repo-${chat.repoId}`,
       url: config.ai.vectorDatabaseUrl,
       collectionMetadata: {
         'hnsw:space': 'cosine',
@@ -66,6 +77,15 @@ export default defineEventHandler(async (event) => {
     returnMessages: true, // Return stored messages as instances of `BaseMessage`
     memoryKey: 'chat_history', // This must match up with our prompt template input variable.
   });
+
+  const messages = await db.select().from(chatMessageSchema).where(eq(chatMessageSchema.chatId, chat.id)).all();
+  for (const message of messages) {
+    if (message.from === 'user') {
+      await memory.chatHistory.addAIChatMessage(message.content);
+    } else if (message.from === 'ai') {
+      await memory.chatHistory.addUserMessage(message.content);
+    }
+  }
 
   const questionGeneratorTemplate = ChatPromptTemplate.fromMessages([
     AIMessagePromptTemplate.fromTemplate(
@@ -119,14 +139,23 @@ export default defineEventHandler(async (event) => {
     question: message,
   });
 
-  await memory.saveContext(
-    {
-      input: message,
-    },
-    {
-      output: result,
-    },
-  );
+  await db
+    .insert(chatMessageSchema)
+    .values([
+      {
+        chatId: chat.id,
+        from: 'user',
+        content: message,
+        createdAt: new Date(),
+      },
+      {
+        chatId: chat.id,
+        from: 'ai',
+        content: result,
+        createdAt: new Date(),
+      },
+    ])
+    .run();
 
   return { answer: result };
 });

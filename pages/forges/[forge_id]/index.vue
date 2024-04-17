@@ -37,7 +37,7 @@ const schema = z.object({
 
 const route = useRoute();
 const forgesStore = await useForgesStore();
-const forgeId = route.params.forgeId;
+const forgeId = route.params.forge_id;
 const { data: forge } = await useFetch(`/api/forges/${forgeId}`);
 
 const form = ref<HTMLFormElement>();

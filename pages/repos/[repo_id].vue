@@ -140,22 +140,10 @@ const inputText = ref('');
 const thinking = ref(false);
 const route = useRoute();
 const toast = useToast();
-const repoId = route.params.repo_id;
+const chatId = computed(() => route.params.chat_id);
 
-const { data: repo } = await useFetch(`/api/repos/${repoId}`);
-
-function makeId(length: number) {
-  let result = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  let counter = 0;
-  while (counter < length) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    counter += 1;
-  }
-  return result;
-}
-const chatId = makeId(10);
+const { data: chat, refresh: refreshChat } = await useFetch(() => `/api/chats/${chatId.value}`);
+const { data: repo } = await useFetch(() => `/api/repos/${chat.value?.repoId}`);
 
 async function askQuestion(message: string) {
   inputText.value = message;
@@ -182,7 +170,7 @@ async function sendMessage() {
   thinking.value = true;
 
   try {
-    const res = await $fetch(`/api/repos/${repoId}/chat`, {
+    const res = await $fetch(`/api/repos/${repo.value.id}/chat`, {
       method: 'POST',
       body: JSON.stringify({
         message,
@@ -207,6 +195,7 @@ async function sendMessage() {
   }
 
   thinking.value = false;
+  await refreshChat();
 }
 
 const indexing = ref(false);
@@ -215,7 +204,7 @@ async function reIndex() {
   indexing.value = true;
   indexingLog.value = undefined;
   try {
-    const stream = await $fetch<ReadableStream>(`/api/repos/${repoId}/clone`, {
+    const stream = await $fetch<ReadableStream>(`/api/repos/${repo.value.id}/clone`, {
       method: 'POST',
       responseType: 'stream',
     });
@@ -256,7 +245,7 @@ async function deleteRepo() {
     return;
   }
 
-  await $fetch(`/api/repos/${repoId}`, {
+  await $fetch(`/api/repos/${repo.value.id}`, {
     method: 'DELETE',
   });
 

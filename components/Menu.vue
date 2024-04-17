@@ -22,20 +22,20 @@
         </div>
       </div>
       <div class="py-2">
-        <h2 class="relative px-8 text-lg font-semibold tracking-tight">Repos</h2>
+        <h2 class="relative px-8 text-lg font-semibold tracking-tight">Chats</h2>
         <div dir="ltr" class="relative overflow-hidden px-4">
           <div data-radix-scroll-area-viewport="" class="h-full w-full rounded-[inherit]">
             <div class="p-2 space-y-1">
-              <div v-for="repo in repos" :key="repo.id">
+              <div v-for="chat in chats" :key="chat.id">
                 <MenuItem
-                  :to="`/repos/${repo.id}/chat`"
-                  :title="repo.name"
-                  :img="repo.avatarUrl || undefined"
+                  :to="`/chats/${chat.id}`"
+                  :title="chat.name"
+                  :img="chat.avatarUrl || undefined"
                   icon="i-mdi-source-branch"
                 />
               </div>
 
-              <MenuItem to="/repos/add" title="Add repo" icon="i-heroicons-plus" />
+              <MenuItem to="/" title="New chat" icon="i-heroicons-plus" />
             </div>
           </div>
         </div>
@@ -74,7 +74,7 @@
 <script setup lang="ts">
 const { user, logout } = await useAuth();
 const colorMode = useColorMode();
-const { repos } = await useRepositoriesStore();
+const { chats } = await useChatsStore();
 
 const isDark = computed({
   get() {
