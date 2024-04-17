@@ -56,8 +56,10 @@ export default defineEventHandler(async (event) => {
   );
 
   const retriever = vectorStore.asRetriever({
-    searchType: 'mmr', // Use max marginal relevance search
-    searchKwargs: { fetchK: 5 },
+    // TODO: use max marginal relevance search
+    // searchType: 'mmr', // Use max marginal relevance search
+    // searchKwargs: { fetchK: 5 },
+    searchType: 'similarity',
   });
 
   const memory = new BufferMemory({

@@ -131,7 +131,7 @@ export class Github implements Forge {
     const repos = await client.request('GET /search/repositories', {
       q: `is:public fork:false archived:false ${search}`.trim(), // TODO: filter by owned repos
       per_page: perPage,
-      sort: 'updated',
+      sort: 'stars',
       page: pagination?.page,
     });
 

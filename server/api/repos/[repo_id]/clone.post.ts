@@ -3,7 +3,7 @@ import { simpleGit } from 'simple-git';
 import { repoSchema } from '~/server/schemas';
 import { eq } from 'drizzle-orm';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { CharacterTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { OpenAIEmbeddings } from '@langchain/openai';
 import { Chroma } from '@langchain/community/vectorstores/chroma';
 import { Document } from 'langchain/document';
@@ -78,11 +78,18 @@ export default defineEventHandler(async (event) => {
 
         const docs: Document[] = [];
 
+        const splitter = new CharacterTextSplitter({
+          separator: ' ',
+          chunkSize: 2000,
+          chunkOverlap: 200,
+        });
+
         // index issues
         let page = 1;
         const perPage = 50;
         const since = repo.lastFetch || undefined;
         log('fetching issues since', since, '...');
+        const issueDocs: Document[] = [];
         while (true) {
           const { items: issues, total } = await userForgeApi.getIssues(repo.remoteId.toString(), {
             page,
@@ -106,7 +113,8 @@ export default defineEventHandler(async (event) => {
               pageContent: issueString,
               metadata: { issueId: issue.number, type: 'issue' },
             });
-            docs.push(doc);
+
+            issueDocs.push(doc);
           }
 
           if (issues.length < perPage || page * perPage >= total) {
@@ -114,6 +122,8 @@ export default defineEventHandler(async (event) => {
           }
           page += 1;
         }
+
+        docs.push(...(await splitter.splitDocuments(issueDocs)));
 
         log(`indexed ${page * perPage} issues`);
 
@@ -188,7 +198,8 @@ export default defineEventHandler(async (event) => {
         });
         for await (const file of glob) {
           const loader = new TextLoader(path.join(repoPath, file));
-          const fileDocs = await loader.load();
+          const fileDocs = await splitter.splitDocuments(await loader.load());
+
           docs.push(
             ...fileDocs.map((d) => {
               d.metadata.source = file;
@@ -198,6 +209,7 @@ export default defineEventHandler(async (event) => {
 
           console.log('indexing', file);
 
+          // TODO: split documents based on language
           // switch (path.extname(file)) {
           //   case '.js':
           //   case '.ts':
