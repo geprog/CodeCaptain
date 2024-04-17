@@ -4,8 +4,6 @@ import { repoSchema } from '~/server/schemas';
 import { eq } from 'drizzle-orm';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { CharacterTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { OpenAIEmbeddings } from '@langchain/openai';
-import { Chroma } from '@langchain/community/vectorstores/chroma';
 import { Document } from 'langchain/document';
 import { Glob } from 'glob';
 
@@ -125,7 +123,7 @@ export default defineEventHandler(async (event) => {
 
         docs.push(...(await splitter.splitDocuments(issueDocs)));
 
-        log(`indexed ${page * perPage} issues`);
+        log(`indexed ${issueDocs.length} issues`);
 
         const javascriptSplitter = RecursiveCharacterTextSplitter.fromLanguage('js', {
           chunkSize: 2000,
@@ -224,21 +222,11 @@ export default defineEventHandler(async (event) => {
           // }
         }
 
-        console.log({ docs: docs.length });
+        log({ docs: docs.length });
 
-        await Chroma.fromDocuments(
-          docs,
-          new OpenAIEmbeddings({
-            openAIApiKey: config.ai.token,
-          }),
-          {
-            collectionName: `repo-${repo.id}`,
-            url: config.ai.vectorDatabaseUrl,
-            collectionMetadata: {
-              'hnsw:space': 'cosine',
-            },
-          },
-        );
+        const vectorStore = await getRepoVectorStore(repo.id);
+
+        await vectorStore.addDocuments(docs);
 
         await db
           .update(repoSchema)

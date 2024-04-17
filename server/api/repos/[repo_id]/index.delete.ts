@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { promises as fs } from 'fs';
-import { repoSchema, userReposSchema } from '~/server/schemas';
-import { eq } from 'drizzle-orm';
+import { chatMessageSchema, chatSchema, repoSchema, userReposSchema } from '~/server/schemas';
+import { eq, inArray } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
@@ -30,6 +30,17 @@ export default defineEventHandler(async (event) => {
 
   await db.delete(userReposSchema).where(eq(userReposSchema.repoId, repoId)).run();
   await db.delete(repoSchema).where(eq(repoSchema.id, repoId)).run();
+  const chats = await db.select().from(chatSchema).where(eq(chatSchema.repoId, repoId)).all();
+  await db.delete(chatSchema).where(eq(chatSchema.repoId, repoId)).run();
+  await db
+    .delete(chatMessageSchema)
+    .where(
+      inArray(
+        chatMessageSchema.chatId,
+        chats.map((c) => c.id),
+      ),
+    )
+    .run();
 
   return 'ok';
 });
