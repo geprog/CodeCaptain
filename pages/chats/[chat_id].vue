@@ -147,22 +147,15 @@ async function sendMessage() {
   thinking.value = true;
 
   try {
-    const res = await $fetch(`/api/chats/${chat.value.id}/chat`, {
+    await $fetch(`/api/chats/${chat.value.id}/chat`, {
       method: 'POST',
       body: JSON.stringify({
         message,
       }),
     });
 
-    if (res.answer) {
-      chat.value.messages.push({
-        id: Date.now(),
-        chatId: chat.value.id,
-        from: 'ai',
-        content: res.answer,
-        createdAt: new Date().toISOString(),
-      });
-    }
+    await refreshChat();
+    await chatsStore.refresh();
   } catch (e) {
     const error = e as Error;
     chat.value.messages.push({

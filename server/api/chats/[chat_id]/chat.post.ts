@@ -11,7 +11,7 @@ import {
 import { RunnableSequence } from '@langchain/core/runnables';
 import { formatDocumentsAsString } from 'langchain/util/document';
 import { StringOutputParser } from '@langchain/core/output_parsers';
-import { chatMessageSchema, chatSchema } from '~/server/schemas';
+import { chatMessageSchema, chatSchema, repoSchema } from '~/server/schemas';
 import { and, eq } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
@@ -140,6 +140,20 @@ export default defineEventHandler(async (event) => {
   const result = await conversationalQaChain.invoke({
     question: message,
   });
+
+  if (messages.length === 2) {
+    const repo = await db.select().from(repoSchema).where(eq(repoSchema.id, chat.repoId)).get();
+    if (!repo) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Repo not found',
+      });
+    }
+    const context = [`Repo: ${repo.name}`, `AI: ${messages[0].content}`, `User: ${message}`, `AI: ${result}`];
+    const summarize = (text: string) => 'Summary: ' + text; // TODO: Implement summarization using llm
+    const chatSummary = summarize(context.join('\n'));
+    await db.update(chatSchema).set({ name: chatSummary }).where(eq(chatSchema.id, chat.id)).run();
+  }
 
   await db
     .insert(chatMessageSchema)
