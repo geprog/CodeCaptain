@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     .values({
       repoId: repo.id,
       userId: user.id,
-      name: 'New Chat',
+      name: `Chat with ${repo.name}`,
       createdAt: new Date(),
     })
     .returning()

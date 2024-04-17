@@ -16,4 +16,10 @@ defineProps<{
 .prose :deep(p) {
   @apply m-0;
 }
+
+.prose :deep(h1),
+.prose :deep(h2),
+.prose :deep(h3) {
+  @apply dark:text-white mb-4 text-2xl;
+}
 </style>

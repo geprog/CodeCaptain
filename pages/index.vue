@@ -1,46 +1,34 @@
 <template>
   <div class="flex flex-col w-full">
-    <div class="flex w-full">
-      <h1 class="text-2xl font-bold">Hey 👋, I will help you understanding your own code 😜</h1>
-      <NuxtLink to="/repos/add" class="ml-auto">
-        <UButton size="md" icon="i-heroicons-plus" variant="outline" color="green" label="Add repo" />
-      </NuxtLink>
-    </div>
-
-    <div class="flex flex-wrap gap-4 mt-4">
-      <Card v-for="repo in repos" :key="repo.id">
-        <div class="flex flex-col items-center justify-between p-2 h-full gap-2 w-64">
-          <div class="flex items-center gap-2 mt-2 mx-auto">
-            <img v-if="repo.avatarUrl" :src="repo.avatarUrl" alt="icon" class="w-6 h-6 rounded-md" />
-            <UIcon v-else name="i-ion-git-branch" class="w-6 h-6" />
-            <span class="font-semibold text-lg truncate">{{ repo.name }}</span>
-          </div>
-          <UButton
-            size="md"
-            icon="i-heroicons-pencil-square"
-            variant="outline"
-            class="mt-8"
-            label="New chat"
-            @click="newChat(repo.id)"
-          />
-        </div>
-      </Card>
-    </div>
+    <Markdown :source="news" />
   </div>
 </template>
 
 <script setup lang="ts">
-const { refresh: refreshChats } = await useChatsStore();
-const { repos } = await useRepositoriesStore();
+import Markdown from '~/components/Markdown.vue';
 
-async function newChat(repoId: number) {
-  const chat = await $fetch('/api/chats', {
-    method: 'POST',
-    body: JSON.stringify({ repoId }),
-  });
+const news = `
+# Welcome to CodeCaptain 🚀
 
-  await refreshChats();
+CodeCaptain is a code analysis tool that helps you understand your codebase better.
 
-  await navigateTo(`/chats/${chat.id}`);
-}
+## Getting started
+
+1. Login with a forge like GitHub or GitLab
+2. Add your repositories and index it
+3. Once indexed, you can ask questions about your codebase. For example:
+   - What is this project about?
+   - Which programming languages are used in this project?
+   - Could you explain the technical project structure to me?
+
+## How does it work?
+
+CodeCaptain clones your repository and indexes the source code and issues using llm embeddings into a vector database.
+This allows it to search for similar code snippets and provide you with insights into your codebase when you ask
+it a question.
+
+## Changelog
+
+- Added chats
+`;
 </script>

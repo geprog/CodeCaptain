@@ -1,5 +1,5 @@
 <template>
-  <div v-if="repo" class="flex items-center flex-col w-full flex-grow">
+  <div v-if="repo" class="flex flex-col w-full flex-grow">
     <div class="flex w-full p-2 items-center">
       <NuxtLink :to="repo.url" target="_blank" class="flex gap-4 mr-auto items-center text-2xl">
         <img v-if="repo.avatarUrl" :src="repo.avatarUrl" alt="avatar" class="w-8 h-8 rounded-md" />
@@ -41,166 +41,43 @@
       />
     </div>
 
-    <template v-else>
-      <div class="flex-1 flex w-full max-w-4xl flex-col p-4 gap-4 items-center overflow-y-auto">
-        <!-- Chat history section -->
-        <div
-          v-for="message in chatHistory"
-          :key="message.id"
-          class="flex w-full gap-2"
-          :class="{
-            'justify-end': message.sender === 'user',
-          }"
-        >
-          <template v-if="message.sender === 'user'">
-            <div class="w-10 flex-shrink-0" />
-            <UAlert title="" color="primary" variant="subtle">
-              <template #title>
-                <Markdown :source="message.text" />
-              </template>
-            </UAlert>
-            <div class="flex items-center justify-center rounded w-10 h-10 p-2 flex-shrink-0">
-              <span class="text-2xl">💁</span>
+    <div v-else>
+      <h2 class="text-xl">Chats</h2>
+
+      <div class="flex flex-wrap gap-4">
+        <Card v-for="chat in repoChats" :key="chat.id">
+          <div class="flex flex-col items-center justify-between p-2 h-full gap-2 w-64">
+            <div class="flex items-center gap-2 mt-2 mx-auto">
+              <img v-if="chat.avatarUrl" :src="chat.avatarUrl" alt="icon" class="w-6 h-6 rounded-md" />
+              <UIcon v-else name="i-ion-chatbox-ellipses" class="w-6 h-6" />
+              <span class="font-semibold text-lg truncate">{{ chat.name }}</span>
             </div>
-          </template>
-          <template v-else-if="message.sender === 'error'">
-            <div class="flex items-center justify-center w-10 h-10 p-2 flex-shrink-0">
-              <span class="text-2xl">❌</span>
-            </div>
-            <UAlert title="" color="red" variant="subtle">
-              <template #title>
-                <Markdown :source="message.text" />
-              </template>
-            </UAlert>
-            <div class="w-10 flex-shrink-0" />
-          </template>
-          <template v-else>
-            <div class="flex items-center justify-center rounded w-10 h-10 p-2 flex-shrink-0">
-              <span class="text-2xl">🤖</span>
-            </div>
-            <UAlert title="" color="violet" variant="subtle">
-              <template #title>
-                <Markdown :source="message.text" />
-              </template>
-            </UAlert>
-            <div class="w-10 flex-shrink-0" />
-          </template>
-        </div>
-
-        <div v-if="thinking" class="flex w-full p-2 gap-2">
-          <div class="w-10" />
-          <span class="text-2xl">🤔</span>
-          <p>Thinking ...</p>
-        </div>
+            <UButton size="md" variant="outline" class="mt-8" label="Open" :to="`/chats/${chat.id}`" />
+          </div>
+        </Card>
       </div>
-
-      <div v-if="chatHistory.length < 2" class="flex gap-4">
-        <UButton size="lg" label="What is this project about?" @click="askQuestion('What is this project about?')" />
-        <UButton
-          size="lg"
-          label="Which programming languages are used in this project?"
-          @click="askQuestion('Which programming languages are used in this project?')"
-        />
-        <UButton
-          size="lg"
-          label="Could you explain the technical project structure to me?"
-          @click="askQuestion('Could you explain the technical project structure to me?')"
-        />
-      </div>
-
-      <div class="flex my-4 mx-12 w-full max-w-4xl justify-center gap-2">
-        <div class="flex-grow">
-          <UInput
-            v-model="inputText"
-            color="primary"
-            variant="outline"
-            size="lg"
-            placeholder="Type a message ..."
-            @keydown.enter="sendMessage"
-          />
-        </div>
-
-        <input type="checkbox" id="inputCheck" hidden />
-
-        <label for="inputCheck" class="fab-btn flex items-center justify-center cursor-pointer" @click="sendMessage">
-          <UButton icon="i-mdi-send" size="lg" :ui="{ rounded: 'rounded-full' }" @click="sendMessage" />
-        </label>
-      </div>
-    </template>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import Markdown from '~/components/Markdown.vue';
+const { refresh: refreshRepos } = await useRepositoriesStore();
+const { chats } = await useChatsStore();
 
-const reposStore = await useRepositoriesStore();
-
-const chatHistory = ref([{ id: 2, sender: 'assistant', text: 'Hi there! How can I assist you?' }]);
-const inputText = ref('');
-const thinking = ref(false);
 const route = useRoute();
 const toast = useToast();
-const chatId = computed(() => route.params.chat_id);
+const repoId = computed(() => route.params.repo_id);
 
-const { data: chat, refresh: refreshChat } = await useFetch(() => `/api/chats/${chatId.value}`);
-const { data: repo } = await useFetch(() => `/api/repos/${chat.value?.repoId}`);
-
-async function askQuestion(message: string) {
-  inputText.value = message;
-  await sendMessage();
-}
-
-async function sendMessage() {
-  if (thinking.value) {
-    return;
-  }
-
-  const message = inputText.value;
-  if (message === '') {
-    return;
-  }
-
-  chatHistory.value.push({
-    id: Date.now(),
-    sender: 'user',
-    text: message,
-  });
-  inputText.value = '';
-
-  thinking.value = true;
-
-  try {
-    const res = await $fetch(`/api/repos/${repo.value.id}/chat`, {
-      method: 'POST',
-      body: JSON.stringify({
-        message,
-        chat_id: chatId,
-      }),
-    });
-
-    if (res.answer) {
-      chatHistory.value.push({
-        id: Date.now(),
-        sender: 'assistant',
-        text: res.answer,
-      });
-    }
-  } catch (e) {
-    const error = e as Error;
-    chatHistory.value.push({
-      id: Date.now(),
-      sender: 'error',
-      text: error.message,
-    });
-  }
-
-  thinking.value = false;
-  await refreshChat();
-}
+const { data: repo } = await useFetch(() => `/api/repos/${repoId.value}`);
+const repoChats = computed(() => chats.value.filter((chat) => chat.repoId === repo.value?.id));
 
 const indexing = ref(false);
 const indexingLog = ref<string>();
 async function reIndex() {
+  if (!repo.value) {
+    throw new Error('Unexpected: Repo not loaded');
+  }
+
   indexing.value = true;
   indexingLog.value = undefined;
   try {
@@ -255,7 +132,7 @@ async function deleteRepo() {
     color: 'green',
   });
 
-  await reposStore.refresh();
+  await refreshRepos();
 
   await navigateTo('/');
 }
