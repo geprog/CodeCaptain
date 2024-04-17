@@ -131,7 +131,7 @@ async function addRepo(remoteRepoId: string) {
       },
     });
     await reposStore.refresh();
-    await navigateTo(`/repos/${repo.id}/chat`);
+    await navigateTo(`/repos/${repo.id}`);
   } catch (error) {
     toast.add({
       title: 'Error',
