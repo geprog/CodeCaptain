@@ -45,14 +45,13 @@
       <h2 class="text-xl">Chats</h2>
 
       <div class="flex flex-wrap gap-4">
-        <Card v-for="chat in repoChats" :key="chat.id">
-          <div class="flex flex-col items-center justify-between p-2 h-full gap-2 w-64">
-            <div class="flex items-center gap-2 mt-2 mx-auto">
-              <img v-if="chat.avatarUrl" :src="chat.avatarUrl" alt="icon" class="w-6 h-6 rounded-md" />
-              <UIcon v-else name="i-ion-chatbox-ellipses" class="w-6 h-6" />
+        <Card v-for="chat in repoChats" :key="chat.id" clickable>
+          <div class="flex flex-col items-center justify-between p-2 gap-2 w-64">
+            <div class="flex items-center gap-2 mt-2 mx-auto w-full">
+              <UIcon name="i-ion-chatbox-ellipses" class="w-6 h-6 flex-shrink-0" />
               <span class="font-semibold text-lg truncate">{{ chat.name }}</span>
             </div>
-            <UButton size="md" variant="outline" class="mt-8" label="Open" :to="`/chats/${chat.id}`" />
+            <UButton class="mt-8" label="Open" :to="`/chats/${chat.id}`" />
           </div>
         </Card>
       </div>
