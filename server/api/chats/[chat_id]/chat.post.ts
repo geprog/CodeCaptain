@@ -1,5 +1,3 @@
-import { OpenAIEmbeddings } from '@langchain/openai';
-import { Chroma } from '@langchain/community/vectorstores/chroma';
 import { ChatOpenAI } from '@langchain/openai';
 import { BufferMemory } from 'langchain/memory';
 import {
@@ -49,30 +47,25 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const repo = await db.select().from(repoSchema).where(eq(repoSchema.id, chat.repoId)).get();
+  if (!repo) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Repo not found',
+    });
+  }
+
   const config = useRuntimeConfig();
 
   const model = new ChatOpenAI({ modelName: config.ai.model, openAIApiKey: config.ai.token }).pipe(
     new StringOutputParser(),
   );
 
-  const vectorStore = await Chroma.fromExistingCollection(
-    new OpenAIEmbeddings({
-      openAIApiKey: config.ai.token,
-    }),
-    {
-      collectionName: `repo-${chat.repoId}`,
-      url: config.ai.vectorDatabaseUrl,
-      collectionMetadata: {
-        'hnsw:space': 'cosine',
-      },
-    },
-  );
+  const vectorStore = await getRepoVectorStore(repo.id);
 
   const retriever = vectorStore.asRetriever({
-    // TODO: use max marginal relevance search
-    // searchType: 'mmr', // Use max marginal relevance search
-    // searchKwargs: { fetchK: 5 },
-    searchType: 'similarity',
+    searchType: 'mmr', // Use max marginal relevance search
+    searchKwargs: { fetchK: 5 },
   });
 
   const memory = new BufferMemory({
@@ -142,13 +135,6 @@ export default defineEventHandler(async (event) => {
   });
 
   if (messages.length === 2) {
-    const repo = await db.select().from(repoSchema).where(eq(repoSchema.id, chat.repoId)).get();
-    if (!repo) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Repo not found',
-      });
-    }
     const context = [`Repo: ${repo.name}`, `AI: ${messages[0].content}`, `User: ${message}`, `AI: ${result}`];
     const summarize = (text: string) => 'Summary: ' + text; // TODO: Implement summarization using llm
     const chatSummary = summarize(context.join('\n'));

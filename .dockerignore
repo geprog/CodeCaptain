@@ -21,6 +21,7 @@
 !/.npmrc
 !/tsconfig.json
 !/requirements.txt
+!/.nuxt
 
 # Ignore unnecessary files inside allowed directories
 # This should go after the allowed directories

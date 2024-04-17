@@ -1,4 +1,4 @@
-import { forgeSchema, userForgesSchema } from '~/server/schemas';
+import { forgeSchema, repoSchema, userForgesSchema } from '~/server/schemas';
 import { eq, and } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
@@ -15,11 +15,16 @@ export default defineEventHandler(async (event) => {
 
   await db.delete(userForgesSchema).where(eq(userForgesSchema.forgeId, forgeId)).run();
 
-  const forge = await db
+  await db
     .delete(forgeSchema)
     .where(and(eq(forgeSchema.owner, user.id), eq(forgeSchema.id, forgeId)))
     .returning()
     .get();
 
-  return forge;
+  const repos = await db.select().from(repoSchema).where(eq(repoSchema.forgeId, forgeId)).all();
+  for await (const repo of repos) {
+    await deleteRepo(repo.id);
+  }
+
+  return 'ok';
 });
