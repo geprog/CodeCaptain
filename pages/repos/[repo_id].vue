@@ -45,15 +45,17 @@
       <h2 class="text-xl">Chats</h2>
 
       <div class="flex flex-wrap gap-4">
-        <Card v-for="chat in repoChats" :key="chat.id" clickable>
-          <div class="flex flex-col items-center justify-between p-2 gap-2 w-64">
-            <div class="flex items-center gap-2 mt-2 mx-auto w-full">
-              <UIcon name="i-ion-chatbox-ellipses" class="w-6 h-6 flex-shrink-0" />
-              <span class="font-semibold text-lg truncate">{{ chat.name }}</span>
+        <NuxtLink v-for="chat in repoChats" :key="chat.id" :to="`/chats/${chat.id}`">
+          <Card clickable>
+            <div class="flex flex-col items-center justify-between p-2 gap-2 w-64">
+              <div class="flex items-center gap-2 mt-2 mx-auto w-full">
+                <UIcon name="i-ion-chatbox-ellipses" class="w-6 h-6 flex-shrink-0" />
+                <span class="font-semibold text-lg truncate">{{ chat.name }}</span>
+              </div>
+              <UButton class="mt-8" label="Open" />
             </div>
-            <UButton class="mt-8" label="Open" :to="`/chats/${chat.id}`" />
-          </div>
-        </Card>
+          </Card>
+        </NuxtLink>
       </div>
     </div>
   </div>

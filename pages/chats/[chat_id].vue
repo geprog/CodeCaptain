@@ -20,7 +20,7 @@
       <div
         v-for="message in chat.messages"
         :key="message.id"
-        class="flex w-full gap-2"
+        class="flex w-full gap-2 items-center"
         :class="{
           'justify-end': message.from === 'user',
         }"
@@ -51,7 +51,7 @@
           <div class="flex items-center justify-center rounded w-10 h-10 p-2 flex-shrink-0">
             <span class="text-2xl">🤖</span>
           </div>
-          <UAlert title="" color="violet" variant="subtle">
+          <UAlert title="" color="primary" variant="subtle">
             <template #title>
               <Markdown :source="message.content" />
             </template>
@@ -107,7 +107,6 @@ import Markdown from '~/components/Markdown.vue';
 
 const chatsStore = await useChatsStore();
 
-const chatHistory = ref([{ id: 2, sender: 'assistant', text: 'Hi there! How can I assist you?' }]);
 const inputText = ref('');
 const thinking = ref(false);
 const route = useRoute();
@@ -136,10 +135,12 @@ async function sendMessage() {
     return;
   }
 
-  chatHistory.value.push({
+  chat.value.messages.push({
     id: Date.now(),
-    sender: 'user',
-    text: message,
+    chatId: chat.value.id,
+    from: 'user',
+    content: message,
+    createdAt: new Date().toISOString(),
   });
   inputText.value = '';
 
@@ -154,22 +155,28 @@ async function sendMessage() {
     });
 
     if (res.answer) {
-      chatHistory.value.push({
+      chat.value.messages.push({
         id: Date.now(),
-        sender: 'assistant',
-        text: res.answer,
+        chatId: chat.value.id,
+        from: 'ai',
+        content: res.answer,
+        createdAt: new Date().toISOString(),
       });
     }
   } catch (e) {
     const error = e as Error;
-    chatHistory.value.push({
+    chat.value.messages.push({
       id: Date.now(),
-      sender: 'error',
-      text: error.message,
+      chatId: chat.value.id,
+      from: 'error',
+      content: error.message,
+      createdAt: new Date().toISOString(),
     });
+    return;
+  } finally {
+    thinking.value = false;
   }
 
-  thinking.value = false;
   await refreshChat();
 }
 
