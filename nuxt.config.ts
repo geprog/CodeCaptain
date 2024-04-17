@@ -6,6 +6,8 @@ export default defineNuxtConfig({
     ai: {
       vectorDatabaseUrl: 'http://localhost:8000',
       token: '',
+      model: 'gpt-3.5-turbo',
+      // model: 'gpt-4',
     },
     auth: {
       name: 'nuxt-session',

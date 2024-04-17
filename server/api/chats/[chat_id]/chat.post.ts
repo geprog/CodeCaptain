@@ -51,7 +51,9 @@ export default defineEventHandler(async (event) => {
 
   const config = useRuntimeConfig();
 
-  const model = new ChatOpenAI({ modelName: 'gpt-4', openAIApiKey: config.ai.token }).pipe(new StringOutputParser());
+  const model = new ChatOpenAI({ modelName: config.ai.model, openAIApiKey: config.ai.token }).pipe(
+    new StringOutputParser(),
+  );
 
   const vectorStore = await Chroma.fromExistingCollection(
     new OpenAIEmbeddings({

@@ -22,11 +22,14 @@
       </div>
     </div>
 
-    <div v-if="indexing" class="mx-auto flex flex-col gap-4 pt-8">
-      <span class="text-2xl mx-auto">Whoho lets go and do some indexing.</span>
+    <div v-if="indexing" class="mx-auto flex flex-col items-center gap-4 pt-8 w-full">
+      <span class="text-2xl">Whoho lets go and do some indexing.</span>
       <img src="~/assets/loading.gif" alt="loading" />
-      <div class="flex flex-col gap-0">
-        <span v-if="indexingLog">{{ indexingLog }}</span>
+      <div
+        v-if="indexingLog"
+        class="flex flex-col w-full min-h-0 overflow-auto rounded p-2 ring-1 ring-stone-200 dark:ring-neutral-800"
+      >
+        <span class="whitespace-pre-wrap">{{ indexingLog.join('') }}</span>
       </div>
     </div>
 
@@ -73,14 +76,14 @@ const { data: repo } = await useFetch(() => `/api/repos/${repoId.value}`);
 const repoChats = computed(() => chats.value.filter((chat) => chat.repoId === repo.value?.id));
 
 const indexing = ref(false);
-const indexingLog = ref<string>();
+const indexingLog = ref<string[]>([]);
 async function reIndex() {
   if (!repo.value) {
     throw new Error('Unexpected: Repo not loaded');
   }
 
   indexing.value = true;
-  indexingLog.value = undefined;
+  indexingLog.value = [];
   try {
     const stream = await $fetch<ReadableStream>(`/api/repos/${repo.value.id}/clone`, {
       method: 'POST',
@@ -95,7 +98,7 @@ async function reIndex() {
       }
 
       const text = new TextDecoder().decode(value);
-      indexingLog.value = text;
+      indexingLog.value.push(text);
     }
 
     toast.add({
