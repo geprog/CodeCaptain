@@ -9,36 +9,57 @@ import {
 import { RunnableSequence } from '@langchain/core/runnables';
 import { formatDocumentsAsString } from 'langchain/util/document';
 import { StringOutputParser } from '@langchain/core/output_parsers';
+import { chatMessageSchema, chatSchema, repoSchema } from '~/server/schemas';
+import { and, eq } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
 
-  const repoId = getRouterParam(event, 'repo_id');
-  if (!repoId) {
+  const chatId = getRouterParam(event, 'chat_id');
+  if (!chatId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'repo_id is required',
+      statusMessage: 'chat_id is required',
     });
   }
 
-  const repo = await requireAccessToRepo(user, parseInt(repoId, 10));
+  const chat = await db
+    .select()
+    .from(chatSchema)
+    .where(and(eq(chatSchema.id, parseInt(chatId, 10)), eq(chatSchema.userId, user.id)))
+    .get();
+
+  if (!chat) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Chat not found',
+    });
+  }
 
   const body = await readBody<{
     message: string;
-    chat_id: string;
   }>(event);
   const message = body?.message;
-  const chatId = body?.chat_id;
-  if (!message || !chatId) {
+  if (!message) {
     throw createError({
       statusCode: 400,
       statusMessage: 'message and chat_id are required',
     });
   }
 
+  const repo = await db.select().from(repoSchema).where(eq(repoSchema.id, chat.repoId)).get();
+  if (!repo) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Repo not found',
+    });
+  }
+
   const config = useRuntimeConfig();
 
-  const model = new ChatOpenAI({ modelName: 'gpt-4', openAIApiKey: config.ai.token }).pipe(new StringOutputParser());
+  const model = new ChatOpenAI({ modelName: config.ai.model, openAIApiKey: config.ai.token }).pipe(
+    new StringOutputParser(),
+  );
 
   const vectorStore = await getRepoVectorStore(repo.id);
 
@@ -51,6 +72,15 @@ export default defineEventHandler(async (event) => {
     returnMessages: true, // Return stored messages as instances of `BaseMessage`
     memoryKey: 'chat_history', // This must match up with our prompt template input variable.
   });
+
+  const messages = await db.select().from(chatMessageSchema).where(eq(chatMessageSchema.chatId, chat.id)).all();
+  for (const message of messages) {
+    if (message.from === 'user') {
+      await memory.chatHistory.addAIChatMessage(message.content);
+    } else if (message.from === 'ai') {
+      await memory.chatHistory.addUserMessage(message.content);
+    }
+  }
 
   const questionGeneratorTemplate = ChatPromptTemplate.fromMessages([
     AIMessagePromptTemplate.fromTemplate(
@@ -103,6 +133,31 @@ export default defineEventHandler(async (event) => {
   const result = await conversationalQaChain.invoke({
     question: message,
   });
+
+  if (messages.length === 2) {
+    const context = [`Repo: ${repo.name}`, `AI: ${messages[0].content}`, `User: ${message}`, `AI: ${result}`];
+    const summarize = (text: string) => 'Summary: ' + text; // TODO: Implement summarization using llm
+    const chatSummary = summarize(context.join('\n'));
+    await db.update(chatSchema).set({ name: chatSummary }).where(eq(chatSchema.id, chat.id)).run();
+  }
+
+  await db
+    .insert(chatMessageSchema)
+    .values([
+      {
+        chatId: chat.id,
+        from: 'user',
+        content: message,
+        createdAt: new Date(),
+      },
+      {
+        chatId: chat.id,
+        from: 'ai',
+        content: result,
+        createdAt: new Date(),
+      },
+    ])
+    .run();
 
   return { answer: result };
 });

@@ -36,7 +36,7 @@ pnpm start
 
 ### Migrations
 
-- To generate new migrations run: `pnpm db:generate-migration`
+- To generate new migrations run: `pnpm db:generate`
 - To migrate the database and seed it run: `pnpm db:up`
 - To open the database explorer run: `pnpm db:explorer`
 

@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     async start(controller) {
       const log = (...d: unknown[]) => {
         console.log(...d);
-        controller.enqueue(...d.map((d) => (typeof d === 'string' ? d : JSON.stringify(d))));
+        controller.enqueue(d.map((d) => (typeof d === 'string' ? d : JSON.stringify(d, null, 2))).join(' ') + '\n');
       };
 
       try {
@@ -244,7 +244,7 @@ export default defineEventHandler(async (event) => {
 
         log('done indexing');
       } catch (e) {
-        log('error', e);
+        log('error', (e as Error).message);
         controller.error(e);
       } finally {
         controller.close();

@@ -30,14 +30,14 @@
 import { z } from 'zod';
 
 const schema = z.object({
-  host: z.string().nonempty(),
-  clientId: z.string().nonempty(),
-  clientSecret: z.string().nonempty(),
+  host: z.string().min(1),
+  clientId: z.string().min(1),
+  clientSecret: z.string().min(1),
 });
 
 const route = useRoute();
 const forgesStore = await useForgesStore();
-const forgeId = route.params.forgeId;
+const forgeId = route.params.forge_id;
 const { data: forge } = await useFetch(`/api/forges/${forgeId}`);
 
 const form = ref<HTMLFormElement>();

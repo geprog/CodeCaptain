@@ -61,3 +61,19 @@ export const userReposSchema = sqliteTable('userRepos', {
   userId: integer('userId').notNull(),
   repoId: integer('repoId').notNull(),
 });
+
+export const chatSchema = sqliteTable('chats', {
+  id: integer('id').primaryKey(),
+  userId: integer('userId').notNull(),
+  repoId: integer('repoId').notNull(),
+  name: text('name').notNull(),
+  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
+});
+
+export const chatMessageSchema = sqliteTable('chatMessages', {
+  id: integer('id').primaryKey(),
+  chatId: integer('chatId').notNull(),
+  from: text('from').$type<'user' | 'ai' | 'error'>().notNull(),
+  content: text('content').notNull(),
+  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
+});

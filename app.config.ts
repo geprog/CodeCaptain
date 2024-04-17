@@ -1,6 +1,7 @@
 export default defineAppConfig({
   ui: {
-    primary: 'zinc',
+    primary: 'neutral',
+    gray: 'zinc',
     input: {
       default: {
         size: 'lg',

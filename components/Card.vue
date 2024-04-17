@@ -1,6 +1,9 @@
 <template>
   <div
-    class="rounded-lg border bg-transparent border-stone-300 dark:border-stone-800 dark:hover:border-stone-500 relative overflow-hidden duration-500 hover:border-primary/10 group hover:drop-shadow-md"
+    class="rounded-lg shadow ring-1 ring-stone-200 dark:ring-neutral-800 bg-stone-100 dark:bg-neutral-900"
+    :class="{
+      'cursor-pointer dark:hover:ring-stone-500 hover:ring-stone-300 hover:drop-shadow-md': clickable,
+    }"
   >
     <slot />
   </div>
@@ -11,5 +14,6 @@ defineProps<{
   href?: string;
   title?: string;
   subtitle?: string;
+  clickable?: boolean;
 }>();
 </script>
