@@ -1,5 +1,3 @@
-import { OpenAIEmbeddings } from '@langchain/openai';
-import { Chroma } from '@langchain/community/vectorstores/chroma';
 import { ChatOpenAI } from '@langchain/openai';
 import { BufferMemory } from 'langchain/memory';
 import {
@@ -45,10 +43,8 @@ export default defineEventHandler(async (event) => {
   const vectorStore = await getRepoVectorStore(repo.id);
 
   const retriever = vectorStore.asRetriever({
-    // TODO: use max marginal relevance search
-    // searchType: 'mmr', // Use max marginal relevance search
-    // searchKwargs: { fetchK: 5 },
-    searchType: 'similarity',
+    searchType: 'mmr', // Use max marginal relevance search
+    searchKwargs: { fetchK: 5 },
   });
 
   const memory = new BufferMemory({

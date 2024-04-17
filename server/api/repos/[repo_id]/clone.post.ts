@@ -194,6 +194,9 @@ export default defineEventHandler(async (event) => {
           nocase: true,
           ignore,
         });
+
+        // TODO: index only the files that were updated since the last fetch
+
         for await (const file of glob) {
           const loader = new TextLoader(path.join(repoPath, file));
           const fileDocs = await splitter.splitDocuments(await loader.load());
@@ -205,7 +208,7 @@ export default defineEventHandler(async (event) => {
             }),
           );
 
-          console.log('indexing', file);
+          log('indexing', file);
 
           // TODO: split documents based on language
           // switch (path.extname(file)) {
@@ -224,7 +227,10 @@ export default defineEventHandler(async (event) => {
 
         log({ docs: docs.length });
 
+        await deleteRepoVectorStore(repo.id);
         const vectorStore = await getRepoVectorStore(repo.id);
+
+        log('deleted old documents');
 
         await vectorStore.addDocuments(docs);
 

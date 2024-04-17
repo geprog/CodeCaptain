@@ -4,7 +4,6 @@ export default defineNuxtConfig({
   telemetry: true,
   runtimeConfig: {
     ai: {
-      vectorDatabaseUrl: 'http://localhost:8000',
       token: '',
     },
     auth: {
