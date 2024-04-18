@@ -18,19 +18,28 @@ export default defineEventHandler(async (event) => {
 
   const { state } = getQuery(event);
   if (!state) {
-    throw new Error('State is undefined');
+    throw createError({
+      status: 400,
+      message: 'Missing state query parameter',
+    });
   }
 
   const session = await useStorage().getItem<{ loginToForgeId: number }>(`oauth:${state}`);
   if (!session) {
-    throw new Error('Session not found');
+    throw createError({
+      status: 400,
+      message: 'Session not found',
+    });
   }
 
   const forgeId = session.loginToForgeId;
 
   const forgeModel = await db.select().from(forgeSchema).where(eq(forgeSchema.id, forgeId)).get();
   if (!forgeModel) {
-    throw new Error(`Forge with id ${forgeId} not found`);
+    throw createError({
+      status: 404,
+      message: `Forge with id ${forgeId} not found`,
+    });
   }
 
   const forge = getForgeFromDB(forgeModel);
@@ -77,7 +86,10 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!forgeModel.allowLogin) {
-    throw new Error('Login not allowed for this forge');
+    throw createError({
+      status: 400,
+      message: 'Login not allowed for this forge',
+    });
   }
 
   // try to find user by its remoteUserId
