@@ -15,15 +15,17 @@
 
           <div class="flex gap-2">
             <UButton
+              v-if="forge.isOwner"
               icon="i-heroicons-pencil-square"
               class="mt-8"
               label="Edit"
-              :disabled="!forge.isOwner"
               :to="`/forges/${forge.id}`"
             />
 
-            <a :href="`/api/auth/login?forgeId=${forge.id}`">
-              <UButton icon="i-heroicons-pencil-square" class="mt-8" label="Login" />
+            <a
+              :href="`/api/auth/login?forgeId=${forge.id}&redirectUrl=${urlEncoded(`/settings?successful=true&forgeId=${forge.id}`)}`"
+            >
+              <UButton icon="i-ion-log-in-outline" class="mt-8" label="Login" />
             </a>
           </div>
         </div>
@@ -71,7 +73,21 @@
 </template>
 
 <script setup lang="ts">
+const route = useRoute();
+const toast = useToast();
 const { forges } = await useForgesStore();
-
 const { repos } = await useRepositoriesStore();
+
+const urlEncoded = encodeURIComponent;
+
+onMounted(() => {
+  if (route.query.successful) {
+    const forge = forges.value.find((forge) => forge.id.toString() === route.query.forgeId);
+    if (!forge) return;
+    toast.add({
+      title: `Successfully logged in to ${forge.host}`,
+      color: 'green',
+    });
+  }
+});
 </script>

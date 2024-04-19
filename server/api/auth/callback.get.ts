@@ -3,14 +3,14 @@ import { User, forgeSchema, userForgesSchema, userSchema } from '~/server/schema
 import { and, eq } from 'drizzle-orm';
 import { getForgeFromDB } from '~/server/forges';
 
-async function loginUser(event: H3Event, user: User) {
+async function loginUser(event: H3Event, user: User, redirectUrl: string | undefined = undefined) {
   const session = await useAuthSession(event);
 
   await session.update({
     userId: user.id,
   });
 
-  return sendRedirect(event, '/');
+  return sendRedirect(event, redirectUrl ?? '/');
 }
 
 export default defineEventHandler(async (event) => {
@@ -24,13 +24,15 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const session = await useStorage().getItem<{ loginToForgeId: number }>(`oauth:${state}`);
+  const session = await useStorage().getItem<{ loginToForgeId: number; redirectUrl?: string }>(`oauth:${state}`);
   if (!session) {
     throw createError({
       status: 400,
       message: 'Session not found',
     });
   }
+
+  console.log('session', session);
 
   const forgeId = session.loginToForgeId;
 
@@ -82,7 +84,7 @@ export default defineEventHandler(async (event) => {
       })
       .run();
 
-    return loginUser(event, user);
+    return loginUser(event, user, session.redirectUrl);
   }
 
   if (!forgeModel.allowLogin) {
@@ -122,7 +124,7 @@ export default defineEventHandler(async (event) => {
       .where(eq(userForgesSchema.id, userForge.id))
       .run();
 
-    return loginUser(event, user);
+    return loginUser(event, user, session.redirectUrl);
   }
 
   // completely new user => create user and userForge and login
@@ -148,5 +150,5 @@ export default defineEventHandler(async (event) => {
     })
     .run();
 
-  return loginUser(event, user);
+  return loginUser(event, user, session.redirectUrl);
 });
