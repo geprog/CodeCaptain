@@ -158,9 +158,8 @@ async function newChat() {
     body: JSON.stringify({ repoId: repo.value.id }),
   });
 
-  await refreshChats();
-
   await navigateTo(`/chats/${chat.id}`);
+  await refreshChats();
 }
 </script>
 
