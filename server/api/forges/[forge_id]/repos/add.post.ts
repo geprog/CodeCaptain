@@ -27,11 +27,11 @@ export default defineEventHandler(async (event) => {
   const repo = await db
     .insert(repoSchema)
     .values({
+      remoteId: forgeRepo.id.toString(),
+      forgeId: forgeRepo.forgeId,
       name: forgeRepo.name,
       cloneUrl: forgeRepo.cloneUrl,
-      remoteId: forgeRepo.id.toString(),
       url: forgeRepo.url,
-      forgeId: forgeRepo.forgeId,
       defaultBranch: forgeRepo.defaultBranch,
       avatarUrl: forgeRepo.avatarUrl,
     })
@@ -41,6 +41,8 @@ export default defineEventHandler(async (event) => {
         name: forgeRepo.name,
         cloneUrl: forgeRepo.cloneUrl,
         url: forgeRepo.url,
+        defaultBranch: forgeRepo.defaultBranch,
+        avatarUrl: forgeRepo.avatarUrl,
       },
     })
     .returning()
