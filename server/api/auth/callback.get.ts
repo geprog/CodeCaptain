@@ -3,14 +3,14 @@ import { User, forgeSchema, userForgesSchema, userSchema } from '~/server/schema
 import { and, eq } from 'drizzle-orm';
 import { getForgeFromDB } from '~/server/forges';
 
-async function loginUser(event: H3Event, user: User) {
+async function loginUser(event: H3Event, user: User, redirectUrl: string | undefined = undefined) {
   const session = await useAuthSession(event);
 
   await session.update({
     userId: user.id,
   });
 
-  return sendRedirect(event, '/');
+  return sendRedirect(event, redirectUrl ?? '/');
 }
 
 export default defineEventHandler(async (event) => {
@@ -18,19 +18,30 @@ export default defineEventHandler(async (event) => {
 
   const { state } = getQuery(event);
   if (!state) {
-    throw new Error('State is undefined');
+    throw createError({
+      status: 400,
+      message: 'Missing state query parameter',
+    });
   }
 
-  const session = await useStorage().getItem<{ loginToForgeId: number }>(`oauth:${state}`);
+  const session = await useStorage().getItem<{ loginToForgeId: number; redirectUrl?: string }>(`oauth:${state}`);
   if (!session) {
-    throw new Error('Session not found');
+    throw createError({
+      status: 400,
+      message: 'Session not found',
+    });
   }
+
+  console.log('session', session);
 
   const forgeId = session.loginToForgeId;
 
   const forgeModel = await db.select().from(forgeSchema).where(eq(forgeSchema.id, forgeId)).get();
   if (!forgeModel) {
-    throw new Error(`Forge with id ${forgeId} not found`);
+    throw createError({
+      status: 404,
+      message: `Forge with id ${forgeId} not found`,
+    });
   }
 
   const forge = getForgeFromDB(forgeModel);
@@ -73,11 +84,14 @@ export default defineEventHandler(async (event) => {
       })
       .run();
 
-    return loginUser(event, user);
+    return loginUser(event, user, session.redirectUrl);
   }
 
   if (!forgeModel.allowLogin) {
-    throw new Error('Login not allowed for this forge');
+    throw createError({
+      status: 400,
+      message: 'Login not allowed for this forge',
+    });
   }
 
   // try to find user by its remoteUserId
@@ -110,7 +124,7 @@ export default defineEventHandler(async (event) => {
       .where(eq(userForgesSchema.id, userForge.id))
       .run();
 
-    return loginUser(event, user);
+    return loginUser(event, user, session.redirectUrl);
   }
 
   // completely new user => create user and userForge and login
@@ -136,5 +150,5 @@ export default defineEventHandler(async (event) => {
     })
     .run();
 
-  return loginUser(event, user);
+  return loginUser(event, user, session.redirectUrl);
 });

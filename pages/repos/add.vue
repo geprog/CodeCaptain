@@ -30,11 +30,15 @@
       <div class="w-full rounded-md border border-zinc-400">
         <div v-if="loading" class="p-4">Loading ...</div>
 
+        <div v-else-if="!selectedForge" class="p-4">Select a forge first.</div>
+
+        <div v-else-if="search.length < 1" class="p-4">Start typing to search for a repository</div>
+
         <div v-else-if="!repositories || repositories.length === 0" class="p-4">No repository found</div>
 
         <div
           v-else
-          v-for="repo in repositories?.slice(0, 5) || []"
+          v-for="repo in repositories?.slice(0, 5).toSorted((r) => (r.internalId ? 1 : -1)) || []"
           :key="repo.remoteId"
           class="flex border-b border-zinc-200 items-center px-2 py-4 gap-2 w-full min-w-0"
         >
@@ -42,7 +46,7 @@
           <UIcon v-else name="i-ion-git-branch" class="w-6 h-6" />
           <span class="font-bold flex-wrap truncate overflow-ellipsis">{{ repo.name }}</span>
           <div class="flex-grow" />
-          <UButton v-if="repo.internalId" :to="`/repos/${repo.internalId}/chat`" label="Open" />
+          <UButton v-if="repo.internalId" :to="`/repos/${repo.internalId}`" label="Open" />
           <UButton v-else @click="addRepo(repo.remoteId)" label="Add" />
         </div>
       </div>
@@ -61,21 +65,11 @@ const { data: forges } = await useFetch<Forge[]>('/api/user/forges', {
 });
 const selectedForge = ref<Forge>();
 
-watch(
-  forges,
-  () => {
-    if (!selectedForge.value && forges.value?.length) {
-      selectedForge.value = forges.value[0];
-    }
-  },
-  { immediate: true },
-);
-
 const search = ref('');
 const loading = ref(false);
 const { data: repositories } = await useAsyncData(
   async () => {
-    if (!selectedForge.value) {
+    if (!selectedForge.value || search.value.length < 1) {
       return Promise.resolve([]);
     }
 

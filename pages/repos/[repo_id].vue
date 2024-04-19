@@ -59,6 +59,13 @@
             </div>
           </Card>
         </NuxtLink>
+
+        <Card clickable @click="newChat">
+          <div class="flex flex-col items-center justify-between p-2 gap-2 w-64">
+            <h2 class="text-xl font-bold">Add new chat</h2>
+            <UButton icon="i-heroicons-plus" class="mt-8" label="Create" />
+          </div>
+        </Card>
       </div>
     </div>
   </div>
@@ -66,13 +73,13 @@
 
 <script lang="ts" setup>
 const { refresh: refreshRepos } = await useRepositoriesStore();
-const { chats } = await useChatsStore();
+const { chats, refresh: refreshChats } = await useChatsStore();
 
 const route = useRoute();
 const toast = useToast();
 const repoId = computed(() => route.params.repo_id);
 
-const { data: repo } = await useFetch(() => `/api/repos/${repoId.value}`);
+const { data: repo, refresh: refreshRepo } = await useFetch(() => `/api/repos/${repoId.value}`);
 const repoChats = computed(() => chats.value.filter((chat) => chat.repoId === repo.value?.id));
 
 const indexing = ref(false);
@@ -115,6 +122,7 @@ async function reIndex() {
     });
   }
   indexing.value = false;
+  await refreshRepo();
 }
 
 async function deleteRepo() {
@@ -137,8 +145,21 @@ async function deleteRepo() {
   });
 
   await refreshRepos();
-
   await navigateTo('/');
+}
+
+async function newChat() {
+  if (!repo.value) {
+    throw new Error('Unexpected: Repo not loaded');
+  }
+
+  const chat = await $fetch('/api/chats', {
+    method: 'POST',
+    body: JSON.stringify({ repoId: repo.value.id }),
+  });
+
+  await navigateTo(`/chats/${chat.id}`);
+  await refreshChats();
 }
 </script>
 
