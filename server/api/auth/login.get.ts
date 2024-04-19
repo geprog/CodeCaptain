@@ -4,9 +4,12 @@ import { getForgeFromDB } from '~/server/forges';
 import { randomBytes } from 'crypto';
 
 export default defineEventHandler(async (event) => {
-  const forgeId = getQuery<{ forgeId: string }>(event).forgeId;
+  const { forgeId, redirectUrl } = getQuery<{ forgeId: string; redirectUrl?: string }>(event);
   if (!forgeId) {
-    throw new Error('Forge id is undefined');
+    throw createError({
+      status: 400,
+      message: 'Missing forgeId query parameter',
+    });
   }
 
   const forgeModel = await db
@@ -16,15 +19,26 @@ export default defineEventHandler(async (event) => {
     .get();
 
   if (!forgeModel) {
-    throw new Error(`Forge with id ${forgeId} not found`);
+    throw createError({
+      status: 404,
+      message: `Forge with id ${forgeId} not found`,
+    });
   }
 
   const forge = getForgeFromDB(forgeModel);
 
   const stateId = randomBytes(64).toString('hex');
 
+  if (redirectUrl && !redirectUrl.startsWith('/')) {
+    throw createError({
+      status: 400,
+      message: 'Invalid redirectUrl parameter',
+    });
+  }
+
   await useStorage().setItem(`oauth:${stateId}`, {
     loginToForgeId: forgeModel.id,
+    redirectUrl,
   });
 
   const config = useRuntimeConfig();
