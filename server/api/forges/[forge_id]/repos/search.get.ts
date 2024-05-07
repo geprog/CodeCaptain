@@ -4,7 +4,7 @@ import { and, eq } from 'drizzle-orm';
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
 
-  const forgeId = event.context.params?.forge_id;
+  const forgeId = getRouterParam(event, 'forge_id');
   if (!forgeId) {
     throw createError({
       statusCode: 400,

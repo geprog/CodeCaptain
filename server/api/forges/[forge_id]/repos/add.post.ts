@@ -3,7 +3,7 @@ import { repoSchema, userReposSchema } from '~/server/schemas';
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
 
-  const forgeIdFromParams = event.context.params?.forge_id;
+  const forgeIdFromParams = getRouterParam(event, 'forge_id');
   if (!forgeIdFromParams) {
     throw createError({
       statusCode: 400,

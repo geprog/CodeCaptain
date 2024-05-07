@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3';
-import { User, forgeSchema, userForgesSchema, userSchema } from '~/server/schemas';
+import { User, forgeSchema, orgMemberSchema, orgSchema, userForgesSchema, userSchema } from '~/server/schemas';
 import { and, eq } from 'drizzle-orm';
 import { getForgeFromDB } from '~/server/forges';
 
@@ -149,6 +149,16 @@ export default defineEventHandler(async (event) => {
       refreshToken: tokens.refreshToken,
     })
     .run();
+
+  const org = await db
+    .insert(orgSchema)
+    .values({
+      name: oauthUser.name!,
+    })
+    .returning()
+    .get();
+
+  await db.insert(orgMemberSchema).values({ orgId: org.id, userId: user.id, role: 'admin' }).run();
 
   return loginUser(event, user, session.redirectUrl);
 });

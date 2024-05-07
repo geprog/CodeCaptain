@@ -10,7 +10,7 @@ import { Glob } from 'glob';
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
 
-  const _repoId = event.context.params?.repo_id;
+  const _repoId = getRouterParam(event, 'repo_id');
   if (!_repoId) {
     throw createError({
       statusCode: 400,
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   }
   const repoId = parseInt(_repoId, 10);
 
-  const repo = await requireAccessToRepo(user, repoId);
+  const repo = await requireAccessToRepo(user, repoId, 'admin');
 
   const config = useRuntimeConfig();
   const folder = path.join(config.data_path, repo.id.toString());
