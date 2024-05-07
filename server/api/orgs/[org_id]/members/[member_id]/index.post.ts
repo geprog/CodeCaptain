@@ -30,14 +30,6 @@ export default defineEventHandler(async (event) => {
     .where(and(eq(orgMemberSchema.orgId, org.id), eq(orgMemberSchema.role, 'admin')))
     .all();
 
-  // check at least one admin is remains
-  if (admins.filter((m) => m.id !== memberId).length < 1) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'At least one admin is required',
-    });
-  }
-
   const memberData = await readValidatedBody(
     event,
     z.object({
@@ -49,6 +41,18 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 400,
       statusMessage: 'role is required',
+    });
+  }
+
+  const remainingAdmins = admins
+    .map((m) => (m.id === memberId ? { ...m, role: memberData.role } : m))
+    .filter((m) => m.role === 'admin');
+
+  // check at least one admin remains when switching roles
+  if (remainingAdmins.length < 1) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'At least one admin is required',
     });
   }
 

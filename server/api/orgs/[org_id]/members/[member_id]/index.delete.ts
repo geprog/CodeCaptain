@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     .where(and(eq(orgMemberSchema.orgId, org.id), eq(orgMemberSchema.role, 'admin')))
     .all();
 
-  // check at least one admin is remains
+  // check at least one admin remains
   if (admins.filter((m) => m.id !== memberId).length < 1) {
     throw createError({
       statusCode: 400,
