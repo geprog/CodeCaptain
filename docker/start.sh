@@ -9,7 +9,7 @@ export CLUSTER_HOSTNAME='node1'
 
 echo "Starting app and vectorstore ..."
 node .output/server/index.mjs --port 3000 --host 0.0.0.0 &
-weaviate --port 8000 --host 0.0.0.0 --scheme http &
+weaviate --port 8080 --host 0.0.0.0 --scheme http &
 
 wait %1
 wait %2

@@ -125,10 +125,10 @@ export default defineEventHandler(async (event) => {
 
         log(`indexed ${issueDocs.length} issues`);
 
-        const javascriptSplitter = RecursiveCharacterTextSplitter.fromLanguage('js', {
-          chunkSize: 2000,
-          chunkOverlap: 200,
-        });
+        // const javascriptSplitter = RecursiveCharacterTextSplitter.fromLanguage('js', {
+        //   chunkSize: 2000,
+        //   chunkOverlap: 200,
+        // });
 
         // extensions of source code files to index
         const includeExtensions = [
