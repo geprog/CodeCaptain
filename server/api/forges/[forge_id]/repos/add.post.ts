@@ -1,26 +1,34 @@
-import { repoSchema, userReposSchema } from '~/server/schemas';
+import { z } from 'zod';
+import { orgReposSchema, repoSchema } from '~/server/schemas';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
 
-  const forgeIdFromParams = getRouterParam(event, 'forge_id');
-  if (!forgeIdFromParams) {
+  const _forgeId = getRouterParam(event, 'forge_id');
+  if (!_forgeId) {
     throw createError({
       statusCode: 400,
       statusMessage: 'repo_id is required',
     });
   }
-
-  const forgeId = parseInt(forgeIdFromParams, 10);
+  const forgeId = parseInt(_forgeId, 10);
   const forge = await getUserForgeAPI(user, forgeId);
 
-  const { remoteRepoId } = (await readBody(event)) as { remoteRepoId?: string };
-  if (!remoteRepoId) {
+  const { remoteRepoId, orgId } = await readValidatedBody(
+    event,
+    z.object({
+      remoteRepoId: z.string(),
+      orgId: z.string(),
+    }).parseAsync,
+  );
+  if (!remoteRepoId || !orgId) {
     throw createError({
       statusCode: 400,
       statusMessage: 'remoteRepoId is required',
     });
   }
+
+  const org = await requireAccessToOrg(user, parseInt(orgId, 10), 'admin');
 
   const forgeRepo = await forge.getRepo(remoteRepoId);
 
@@ -49,9 +57,9 @@ export default defineEventHandler(async (event) => {
     .get();
 
   await db
-    .insert(userReposSchema)
+    .insert(orgReposSchema)
     .values({
-      userId: user.id,
+      orgId: org.id,
       repoId: repo.id,
     })
     .run();
