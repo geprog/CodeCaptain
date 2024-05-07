@@ -9,7 +9,7 @@ import {
 import { RunnableSequence } from '@langchain/core/runnables';
 import { formatDocumentsAsString } from 'langchain/util/document';
 import { StringOutputParser } from '@langchain/core/output_parsers';
-import { chatMessageSchema, chatSchema, repoSchema } from '~/server/schemas';
+import { chatMessageSchema, chatSchema, orgReposSchema, orgSchema, repoSchema } from '~/server/schemas';
 import { and, eq } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
@@ -55,13 +55,22 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const _org = await db.select().from(orgSchema).innerJoin(orgReposSchema, eq(orgReposSchema.repoId, repo.id)).get();
+  const openAIToken = _org?.orgs.openAIToken;
+  if (!openAIToken) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'OpenAI token is required',
+    });
+  }
+
   const config = useRuntimeConfig();
 
-  const model = new ChatOpenAI({ modelName: config.ai.model, openAIApiKey: config.ai.token }).pipe(
+  const model = new ChatOpenAI({ modelName: config.ai.model, openAIApiKey: openAIToken }).pipe(
     new StringOutputParser(),
   );
 
-  const vectorStore = await getRepoVectorStore(repo.id);
+  const vectorStore = await getRepoVectorStore(repo.id, openAIToken);
 
   const retriever = vectorStore.asRetriever({
     searchType: 'mmr', // Use max marginal relevance search

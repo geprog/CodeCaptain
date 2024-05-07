@@ -6,22 +6,20 @@ const indexName = 'Repos';
 
 export async function getRepoVectorStoreFromDocs(repoId: number) {}
 
-export async function getVectorStoreClient() {
-  const config = useRuntimeConfig();
-
+export async function getVectorStoreClient(aiToken: string) {
   return weaviate.client({
     scheme: 'http',
     host: 'localhost:8080',
     headers: {
-      'X-OpenAI-Api-Key': config.ai.token,
+      'X-OpenAI-Api-Key': aiToken,
     },
   });
 }
 
-export async function getRepoVectorStore(repoId: number) {
+export async function getRepoVectorStore(repoId: number, aiToken: string) {
   const config = useRuntimeConfig();
 
-  const client = await getVectorStoreClient();
+  const client = await getVectorStoreClient(aiToken);
 
   const exists = await client.schema.exists(indexName);
   if (!exists) {
@@ -52,7 +50,8 @@ export async function getRepoVectorStore(repoId: number) {
 }
 
 export async function deleteRepoVectorStore(repoId: number) {
-  const client = await getVectorStoreClient();
+  const aiToken = ''; // token is not needed for deletion
+  const client = await getVectorStoreClient(aiToken);
 
   const exists = await client.schema.exists(indexName);
   if (!exists) {

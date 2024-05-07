@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { simpleGit } from 'simple-git';
-import { repoSchema } from '~/server/schemas';
+import { orgMemberSchema, orgReposSchema, orgSchema, repoSchema } from '~/server/schemas';
 import { eq } from 'drizzle-orm';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { CharacterTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
@@ -20,6 +20,15 @@ export default defineEventHandler(async (event) => {
   const repoId = parseInt(_repoId, 10);
 
   const repo = await requireAccessToRepo(user, repoId, 'admin');
+
+  const _org = await db.select().from(orgSchema).innerJoin(orgReposSchema, eq(orgReposSchema.repoId, repo.id)).get();
+  const openAIToken = _org?.orgs.openAIToken;
+  if (!openAIToken) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'OpenAI token is required',
+    });
+  }
 
   const config = useRuntimeConfig();
   const folder = path.join(config.data_path, repo.id.toString());
@@ -228,7 +237,7 @@ export default defineEventHandler(async (event) => {
         log({ docs: docs.length });
 
         await deleteRepoVectorStore(repo.id);
-        const vectorStore = await getRepoVectorStore(repo.id);
+        const vectorStore = await getRepoVectorStore(repo.id, openAIToken);
 
         log('deleted old documents');
 
