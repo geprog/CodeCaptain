@@ -20,5 +20,7 @@ export async function deleteRepo(repoId: number) {
 
   await deleteRepoVectorStore(repoId);
 
+  // TODO: delete chats
+
   return 'ok';
 }

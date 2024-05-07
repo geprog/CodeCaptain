@@ -1,3 +1,6 @@
+import { eq } from 'drizzle-orm';
+import { orgMemberSchema, orgSchema } from '~/server/schemas';
+
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
 
@@ -10,13 +13,15 @@ export default defineEventHandler(async (event) => {
   }
   const orgId = parseInt(_orgId, 10);
 
-  const org = await requireAccessToOrg(user, orgId);
+  const org = await requireAccessToOrg(user, orgId, 'admin');
 
-  // TODO: delete org
-  // TODO: delete org members
-  // TODO: delete org repos, chats, etc
+  const repos = await db.select().from(orgMemberSchema).where(eq(orgMemberSchema.orgId, org.id)).all();
+  for await (const repo of repos) {
+    await deleteRepo(repo.id);
+  }
 
-  // await deleteRepo(repo.id);
+  await db.delete(orgSchema).where(eq(orgSchema.id, org.id)).run();
+  await db.delete(orgMemberSchema).where(eq(orgMemberSchema.orgId, org.id)).run();
 
   return 'ok';
 });
