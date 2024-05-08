@@ -4,29 +4,22 @@ import { orgReposSchema, repoSchema } from '~/server/schemas';
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
 
-  const _forgeId = getRouterParam(event, 'forge_id');
-  if (!_forgeId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'repo_id is required',
-    });
-  }
-  const forgeId = parseInt(_forgeId, 10);
-  const forge = await getUserForgeAPI(user, forgeId);
-
-  const { remoteRepoId, orgId } = await readValidatedBody(
+  const { remoteRepoId, orgId, forgeId } = await readValidatedBody(
     event,
     z.object({
+      forgeId: z.number(),
       remoteRepoId: z.string(),
       orgId: z.string(),
     }).parseAsync,
   );
-  if (!remoteRepoId || !orgId) {
+  if (!remoteRepoId || !orgId || !forgeId) {
     throw createError({
       statusCode: 400,
       statusMessage: 'remoteRepoId is required',
     });
   }
+
+  const forge = await getUserForgeAPI(user, forgeId);
 
   const org = await requireAccessToOrg(user, parseInt(orgId, 10), 'admin');
 
