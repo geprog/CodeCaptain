@@ -139,13 +139,12 @@ export default defineEventHandler(async (event) => {
   // summarize the dialog when we got the second question from the user
   if (messages.length >= 2 && chat.name.startsWith('Chat with')) {
     const context = [
-      'Provide keywords or a short summary with maximal six words for the following dialog.\n',
+      'Provide keywords or a short summary with maximal six words for the following dialog:\n',
       ...messages.map((m) => `${m.from}: ${m.content}`),
       `user: ${message}`,
       `ai: ${result}`,
     ];
     const chatSummary = await model.invoke(context.join('\n'));
-    console.log('summary: ', context.join('\n'), '---', chatSummary);
     await db.update(chatSchema).set({ name: chatSummary }).where(eq(chatSchema.id, chat.id)).run();
   }
 
