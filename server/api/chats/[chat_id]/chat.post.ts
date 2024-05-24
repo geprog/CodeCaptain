@@ -11,6 +11,8 @@ import { formatDocumentsAsString } from 'langchain/util/document';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { chatMessageSchema, chatSchema, repoSchema } from '~/server/schemas';
 import { and, eq } from 'drizzle-orm';
+import { TokenTextSplitter } from 'langchain/text_splitter';
+import { HumanMessage, SystemMessage } from 'langchain/schema';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
@@ -134,10 +136,15 @@ export default defineEventHandler(async (event) => {
     question: message,
   });
 
-  if (messages.length === 2) {
-    const context = [`Repo: ${repo.name}`, `AI: ${messages[0].content}`, `User: ${message}`, `AI: ${result}`];
-    const summarize = (text: string) => 'Summary: ' + text; // TODO: Implement summarization using llm
-    const chatSummary = summarize(context.join('\n'));
+  // summarize the dialog when we got the second question from the user
+  if (messages.length >= 2 && chat.name.startsWith('Chat with')) {
+    const context = [
+      'Provide keywords or a short summary with maximal six words for the following dialog:\n',
+      ...messages.map((m) => `${m.from}: ${m.content}`),
+      `user: ${message}`,
+      `ai: ${result}`,
+    ];
+    const chatSummary = await model.invoke(context.join('\n'));
     await db.update(chatSchema).set({ name: chatSummary }).where(eq(chatSchema.id, chat.id)).run();
   }
 
