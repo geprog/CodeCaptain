@@ -6,11 +6,11 @@ settings:
 
 dependencies:
   '@gitbeaker/core':
-    specifier: ^40.0.1
-    version: 40.0.1
+    specifier: ^40.0.3
+    version: 40.0.3
   '@gitbeaker/rest':
-    specifier: ^40.0.1
-    version: 40.0.1
+    specifier: ^40.0.3
+    version: 40.0.3
   '@langchain/community':
     specifier: ^0.0.41
     version: 0.0.41(better-sqlite3@9.4.3)(jsonwebtoken@9.0.2)
@@ -1506,17 +1506,17 @@ packages:
   /@floating-ui/utils@0.2.1:
     resolution: {integrity: sha512-9TANp6GPoMtYzQdt54kfAyMmz1+osLlXdg2ENroU7zzrtflTLrrC/lgrIfaSe+Wu0b89GKccT7vxXA0MoAIO+Q==}
 
-  /@gitbeaker/core@40.0.1:
-    resolution: {integrity: sha512-Zh2eVUgy2kYVnp7Db4gWoFqFbjgsnm2FvBEERbH3UM3cOA/iMqM+tw/of+Qk4yO+gv6tGZ9f4nF7+vK0tQFmDA==}
+  /@gitbeaker/core@40.0.3:
+    resolution: {integrity: sha512-MzeY4oCtoa9zmPIkQIdC2KU8cGmHIXwnAi0L6jjjouqjy6kcA4BydZf8W5Xsj27Rw5iiyhfj8YC1/O3CgrzvCQ==}
     engines: {node: '>=18.0.0'}
     dependencies:
-      '@gitbeaker/requester-utils': 40.0.1
+      '@gitbeaker/requester-utils': 40.0.3
       qs: 6.11.2
       xcase: 2.0.1
     dev: false
 
-  /@gitbeaker/requester-utils@40.0.1:
-    resolution: {integrity: sha512-cn6fltKuQ3TbthoMTg+JsKQfozqGcRcz1jT9Nqzr4gpHWgjdQ/nr5JpjwzKABQNVL2JH3UJWr6Eji60CFZDZ6Q==}
+  /@gitbeaker/requester-utils@40.0.3:
+    resolution: {integrity: sha512-L8JpuMIsvXTHfu/2wXzkc5QyfQJSWg4XyEPStHq1ig5SAcbxxqbBoe8ed27eUXLah+PcGrPInMK4cCMxhQm41g==}
     engines: {node: '>=18.0.0'}
     dependencies:
       picomatch-browser: 2.2.6
@@ -1525,12 +1525,12 @@ packages:
       xcase: 2.0.1
     dev: false
 
-  /@gitbeaker/rest@40.0.1:
-    resolution: {integrity: sha512-JEd9WNuzgur7gLiJPMWPYKaWe5uX1ic8CGKR1fMtBityFZ2xyZkTZ+LG0nqWTV1MyiowYnJ1swTh8Yff+kLsKA==}
+  /@gitbeaker/rest@40.0.3:
+    resolution: {integrity: sha512-ihaA0GX3yCo4oUWbISkcjFMIw+WxDAC9L+bEYq2irz4wpv/0EpAU/0jKjggPzY4cGWL9VAyPhew77VeACv4YWw==}
     engines: {node: '>=18.0.0'}
     dependencies:
-      '@gitbeaker/core': 40.0.1
-      '@gitbeaker/requester-utils': 40.0.1
+      '@gitbeaker/core': 40.0.3
+      '@gitbeaker/requester-utils': 40.0.3
     dev: false
 
   /@graphql-typed-document-node/core@3.2.0(graphql@16.8.1):

@@ -14,8 +14,9 @@ export default defineEventHandler(async (event) => {
 
   const forge = await getUserForgeAPI(user, parseInt(forgeId, 10));
 
-  const query = getQuery<{ search?: string }>(event);
+  const query = getQuery<{ search?: string; perPage?: string }>(event);
   const search = query?.search?.trim() || '';
+  const perPage = parseInt(query?.perPage || '10');
 
   // TODO: use caching along with the db query
   const activeRepos = (
@@ -27,9 +28,7 @@ export default defineEventHandler(async (event) => {
       .all()
   ).map((r) => r.repos);
 
-  console.log('activeRepos', activeRepos);
-
-  const forgeRepos = await forge.getRepos(search);
+  const forgeRepos = await forge.getRepos(search, { perPage });
 
   return forgeRepos.items.map((repo) => {
     const internalRepo = activeRepos.find((r) => r.remoteId === repo.id.toString());
