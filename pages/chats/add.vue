@@ -8,7 +8,12 @@
       <Card v-for="repo in repos.filter((r) => !!r.lastFetch)" :key="repo.id" clickable>
         <div class="flex flex-col items-center justify-between p-2 gap-2 w-64">
           <div class="flex justify-center gap-2 mt-2 w-full">
-            <img v-if="repo.avatarUrl" :src="repo.avatarUrl" alt="icon" class="w-6 h-6 flex-shrink-0 rounded-md" />
+            <img
+              v-if="repo.avatarUrl"
+              :src="repo.avatarUrl"
+              alt="icon"
+              class="w-6 h-6 flex-shrink-0 rounded-md dark:bg-white"
+            />
             <UIcon v-else name="i-ion-git-branch" class="w-6 h-6 flex-shrink-0" />
             <span class="font-semibold text-lg truncate">{{ repo.name }}</span>
           </div>

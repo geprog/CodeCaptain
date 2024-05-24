@@ -127,16 +127,48 @@ export class Github implements Forge {
   public async getRepos(token: string, search?: string, pagination?: Pagination): Promise<PaginatedList<Repo>> {
     const client = this.getClient(token);
 
+    if (!search || search?.length < 1) {
+      return this.getRecentRepos(token, pagination);
+    }
+
     const perPage = pagination?.perPage || 10;
     const repos = await client.request('GET /search/repositories', {
       q: `is:public fork:false archived:false ${search}`.trim(), // TODO: filter by owned repos
       per_page: perPage,
-      sort: 'stars',
+      sort: 'updated',
       page: pagination?.page,
     });
 
     return {
       items: repos.data.items.map(
+        (repo) =>
+          ({
+            name: repo.full_name,
+            cloneUrl: repo.clone_url,
+            id: repo.id,
+            forgeId: this.forgeId,
+            url: repo.url,
+            defaultBranch: repo.default_branch,
+            avatarUrl: repo.owner?.avatar_url,
+          }) satisfies Repo,
+      ),
+      total: this.getTotalPagesFromHeaders(repos.headers) * perPage,
+    };
+  }
+
+  private async getRecentRepos(token: string, pagination?: Pagination): Promise<PaginatedList<Repo>> {
+    const client = this.getClient(token);
+
+    const perPage = pagination?.perPage || 10;
+    const repos = await client.request('GET /user/repos', {
+      per_page: perPage,
+      sort: 'pushed',
+      direction: 'desc',
+      page: pagination?.page,
+    });
+
+    return {
+      items: repos.data.map(
         (repo) =>
           ({
             name: repo.full_name,

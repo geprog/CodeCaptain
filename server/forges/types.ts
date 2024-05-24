@@ -13,8 +13,8 @@ export type UserWithTokens = User & { tokens: Tokens };
 export type ForgeUser = Omit<User, 'id'> & { remoteUserId: string };
 
 export type Pagination = {
-  page: number;
-  perPage: number;
+  page?: number;
+  perPage?: number;
   since?: Date;
 };
 
