@@ -139,7 +139,7 @@ export default defineEventHandler(async (event) => {
   // summarize the dialog when we got the second question from the user
   if (messages.length >= 2 && chat.name.startsWith('Chat with')) {
     const context = [
-      'Please summarize the following discussion in less than 10 words:\n',
+      'Provide keywords or a short summary with maximal six words for the following dialog.\n',
       ...messages.map((m) => `${m.from}: ${m.content}`),
       `user: ${message}`,
       `ai: ${result}`,
