@@ -104,17 +104,26 @@ export class Gitlab implements Forge {
 
   public async getRepos(token: string, search?: string, pagination?: Pagination): Promise<PaginatedList<Repo>> {
     const client = this.getClient(token);
-    const repos = await client.Projects.all({ search, membership: true, perPage: 10 });
+    const repos = await client.Projects.all({
+      search,
+      membership: true,
+      perPage: pagination?.perPage || 10,
+      archived: false,
+      orderBy: 'last_activity_at',
+      sort: 'desc',
+    });
     return {
-      items: repos.map((repo) => ({
-        id: repo.id,
-        name: repo.name_with_namespace,
-        url: repo.web_url,
-        forgeId: this.forgeId,
-        cloneUrl: repo.http_url_to_repo,
-        defaultBranch: repo.default_branch,
-        avatarUrl: this.sanitizeAvatarUrl(repo.avatar_url || repo.namespace.avatar_url),
-      })),
+      items: repos
+        .map((repo) => ({
+          id: repo.id,
+          name: repo.name_with_namespace,
+          url: repo.web_url,
+          forgeId: this.forgeId,
+          cloneUrl: repo.http_url_to_repo,
+          defaultBranch: repo.default_branch,
+          avatarUrl: this.sanitizeAvatarUrl(repo.avatar_url || repo.namespace.avatar_url),
+        }))
+        .slice(0, pagination?.perPage || 10), // TODO: fix as perPage seems to be broken
       total: repos.length,
     };
   }

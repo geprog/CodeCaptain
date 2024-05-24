@@ -35,8 +35,8 @@
     "vue-tsc": "^1.8.27"
   },
   "dependencies": {
-    "@gitbeaker/core": "^40.0.1",
-    "@gitbeaker/rest": "^40.0.1",
+    "@gitbeaker/core": "^40.0.3",
+    "@gitbeaker/rest": "^40.0.3",
     "@langchain/community": "^0.0.41",
     "@langchain/openai": "^0.0.23",
     "@langchain/weaviate": "^0.0.1",

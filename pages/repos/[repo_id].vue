@@ -2,7 +2,7 @@
   <div v-if="repo" class="flex flex-col w-full flex-grow">
     <div class="flex w-full p-2 items-center">
       <NuxtLink :to="repo.url" target="_blank" class="flex gap-4 mr-auto items-center text-2xl">
-        <img v-if="repo.avatarUrl" :src="repo.avatarUrl" alt="avatar" class="w-8 h-8 rounded-md" />
+        <img v-if="repo.avatarUrl" :src="repo.avatarUrl" alt="avatar" class="w-8 h-8 rounded-md dark:bg-white" />
         <span>{{ repo.name }}</span>
       </NuxtLink>
 
