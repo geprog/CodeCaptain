@@ -2,10 +2,10 @@ import path from 'node:path';
 import { simpleGit } from 'simple-git';
 import { repoSchema } from '~/server/schemas';
 import { eq } from 'drizzle-orm';
-import { TextLoader } from 'langchain/document_loaders/fs/text';
-import { CharacterTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { Document } from 'langchain/document';
 import { Glob } from 'glob';
+import { CharacterTextSplitter } from 'langchain/text_splitter';
+import { Document } from 'langchain/document';
+import { TextLoader } from 'langchain/document_loaders/fs/text';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);

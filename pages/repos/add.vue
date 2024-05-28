@@ -60,7 +60,7 @@
 
             <div class="flex flex-col w-full rounded-md">
               <div v-if="!selectedForge" class="mx-auto mt-8">Select a forge first.</div>
-
+              <div v-else-if="loadingRepos" class="mx-auto mt-8">Loading repositories ...</div>
               <div v-else-if="!repositories || repositories.length === 0" class="mx-auto mt-8">No repository found</div>
 
               <div
@@ -126,6 +126,7 @@ const { data: repositories, pending: loadingRepos } = await useAsyncData(
           search: search.value,
           perPage: 5,
         },
+        credentials: 'include',
       });
 
       return repos;
@@ -139,6 +140,7 @@ const { data: repositories, pending: loadingRepos } = await useAsyncData(
   },
   {
     watch: [search, selectedForge],
+    server: false,
   },
 );
 
