@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3';
-import { User, forgeSchema, userForgesSchema, userSchema } from '~/server/schemas';
+import { type User, forgeSchema, userForgesSchema, userSchema } from '~/server/schemas';
 import { and, eq } from 'drizzle-orm';
 import { getForgeFromDB } from '~/server/forges';
 

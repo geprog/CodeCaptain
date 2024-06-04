@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3';
-import { Forge, Credentials, Tokens, ForgeUser, Repo, PaginatedList, Pagination, Issue } from './types';
-import { Forge as DBForge } from '~/server/schemas';
+import type { Forge, Credentials, Tokens, ForgeUser, Repo, PaginatedList, Pagination, Issue } from './types';
+import { type Forge as DBForge } from '~/server/schemas';
 import { Octokit } from 'octokit';
 import type { ResponseHeaders } from '@octokit/types';
 

@@ -1,5 +1,5 @@
 import { H3Event } from 'h3';
-import { User } from '~/server/schemas';
+import { type User } from '~/server/schemas';
 
 export type Tokens = { accessToken: string; accessTokenExpiresIn: number; refreshToken: string | null };
 
