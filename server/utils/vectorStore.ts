@@ -47,6 +47,8 @@ export async function getRepoVectorStore(repoId: number) {
       client,
       indexName,
       tenant: `repo-${repoId}`,
+      textKey: 'text',
+      metadataKeys: ['source'],
     },
   );
 }

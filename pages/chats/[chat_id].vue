@@ -104,6 +104,7 @@
 
 <script lang="ts" setup>
 import Markdown from '~/components/Markdown.vue';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 const chatsStore = await useChatsStore();
 
@@ -147,15 +148,71 @@ async function sendMessage() {
   thinking.value = true;
 
   try {
-    await $fetch(`/api/chats/${chat.value.id}/chat`, {
+    let aiMessageIndex: number;
+    let currentRunId: string | null = null;
+    const _chatId = chat.value.id;
+    await fetchEventSource(`/api/chats/${chat.value.id}/chat`, {
       method: 'POST',
       body: JSON.stringify({
         message,
       }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      openWhenHidden: true,
+      onopen: async (response: Response) => {
+        currentRunId = response.headers.get('x-langsmith-run-id');
+        chat.value!.messages.push({
+          id: Date.now(),
+          chatId: _chatId,
+          from: 'ai',
+          content: '',
+          createdAt: new Date().toISOString(),
+        });
+        aiMessageIndex = chat.value!.messages.length - 1;
+      },
+      onclose: async () => {
+        // const runId = currentRunId.value;
+        // if (runId) {
+        //   await shareRun(runId);
+        // }
+        console.log('done', currentRunId);
+        thinking.value = false;
+        // await refreshChat();
+        await chatsStore.refresh();
+      },
+      onerror: (error: Error) => {
+        chat.value!.messages.push({
+          id: Date.now(),
+          chatId: _chatId,
+          from: 'error',
+          content: error.message,
+          createdAt: new Date().toISOString(),
+        });
+        thinking.value = false;
+        throw error;
+      },
+      onmessage: async (msg: any) => {
+        if (msg.event === 'end') {
+          thinking.value = false;
+        } else if (msg.event === 'data' && msg.data) {
+          const _chat = chat.value!;
+          _chat.messages[aiMessageIndex].content += msg.data;
+          chat.value = _chat;
+        }
+      },
     });
 
-    await refreshChat();
-    await chatsStore.refresh();
+    // await $fetch(`/api/chats/${chat.value.id}/chat`, {
+    //   method: 'POST',
+    //   body: JSON.stringify({
+    //     message,
+    //   }),
+    // });
+
+    // await refreshChat();
+    // await chatsStore.refresh();
+    // thinking.value = false;
   } catch (e) {
     const error = e as Error;
     chat.value.messages.push({
@@ -165,12 +222,8 @@ async function sendMessage() {
       content: error.message,
       createdAt: new Date().toISOString(),
     });
-    return;
-  } finally {
     thinking.value = false;
   }
-
-  await refreshChat();
 }
 
 async function deleteChat() {

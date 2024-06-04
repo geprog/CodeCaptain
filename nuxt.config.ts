@@ -5,20 +5,19 @@ export default defineNuxtConfig({
   runtimeConfig: {
     ai: {
       token: '',
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-3.5-turbo-1106',
       // model: 'gpt-4',
     },
     auth: {
       name: 'nuxt-session',
       password: 'my-super-secret-password-is-minimum-32-characters-long',
     },
-    data_path: './data',
+    data_path: './.data',
     migrations_path: './server/db/migrations',
     public: {
       APP_URL: 'http://localhost:3000',
     },
   },
-  ignore: ['data/**/*'],
   ui: {
     icons: ['mdi', 'simple-icons', 'heroicons', 'ion'],
   },

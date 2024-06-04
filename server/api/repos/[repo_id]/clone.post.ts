@@ -3,7 +3,7 @@ import { simpleGit } from 'simple-git';
 import { repoSchema } from '~/server/schemas';
 import { eq } from 'drizzle-orm';
 import { Glob } from 'glob';
-import { CharacterTextSplitter } from 'langchain/text_splitter';
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { Document } from 'langchain/document';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 
@@ -76,10 +76,9 @@ export default defineEventHandler(async (event) => {
 
         const docs: Document[] = [];
 
-        const splitter = new CharacterTextSplitter({
-          separator: ' ',
-          chunkSize: 2000,
+        const splitter = new RecursiveCharacterTextSplitter({
           chunkOverlap: 200,
+          chunkSize: 4000,
         });
 
         // index issues
@@ -227,6 +226,7 @@ export default defineEventHandler(async (event) => {
 
         log({ docs: docs.length });
 
+        // TODO: support incremental indexing
         await deleteRepoVectorStore(repo.id);
         const vectorStore = await getRepoVectorStore(repo.id);
 
