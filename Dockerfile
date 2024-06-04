@@ -23,5 +23,6 @@ RUN apk update && apk add git musl-dev
 COPY --from=weaviate /app/weaviate /bin/weaviate
 COPY docker/start.sh .
 COPY server/db/migrations /app/migrations
+RUN mkdir /app/data
 COPY --from=builder /app/.output .output
 CMD ["./start.sh"]
