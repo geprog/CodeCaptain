@@ -1,9 +1,14 @@
 <template>
   <div v-if="repo && chat" class="flex items-center flex-col w-full flex-grow">
     <div class="flex w-full p-2 items-center">
-      <NuxtLink :to="`/repos/${repo.id}`" class="flex gap-4 mr-auto items-center text-2xl">
-        <img v-if="repo.avatarUrl" :src="repo.avatarUrl" alt="avatar" class="w-8 h-8 rounded-md dark:bg-white" />
-        <span>{{ chat.name }}</span>
+      <NuxtLink :to="`/repos/${repo.id}`" class="flex min-w-0 gap-4 mr-auto items-center text-2xl">
+        <img
+          v-if="repo.avatarUrl"
+          :src="repo.avatarUrl"
+          alt="avatar"
+          class="w-8 h-8 flex-shrink-0 rounded-md dark:bg-white"
+        />
+        <span class="truncate">{{ chat.name }}</span>
       </NuxtLink>
 
       <div class="flex gap-2">
@@ -104,7 +109,6 @@
 
 <script lang="ts" setup>
 import Markdown from '~/components/Markdown.vue';
-import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 const chatsStore = await useChatsStore();
 
@@ -153,17 +157,9 @@ async function sendMessage() {
   thinking.value = true;
 
   try {
-    let aiMessageIndex: number;
-    let currentRunId: string | null = null;
     const _chatId = chat.value.id;
 
-    function updateLastMessage(content: string) {
-      const _chat = chat.value!;
-      _chat.messages[aiMessageIndex].content += content;
-      chat.value = _chat;
-    }
-
-    await fetchEventSource(`/api/chats/${chat.value.id}/chat`, {
+    const response = await fetch(`/api/chats/${chat.value.id}/chat`, {
       method: 'POST',
       body: JSON.stringify({
         message,
@@ -171,48 +167,53 @@ async function sendMessage() {
       headers: {
         'Content-Type': 'application/json',
       },
-      openWhenHidden: true,
-      onopen: async (response: Response) => {
-        currentRunId = response.headers.get('x-langsmith-run-id');
-        chat.value!.messages.push({
-          id: Date.now(),
-          chatId: _chatId,
-          from: 'ai',
-          content: '',
-          createdAt: new Date().toISOString(),
-        });
-        aiMessageIndex = chat.value!.messages.length - 1;
-      },
-      onclose: async () => {
-        // const runId = currentRunId.value;
-        // if (runId) {
-        //   await shareRun(runId);
-        // }
-        console.log('done', currentRunId);
-        thinking.value = false;
-        // await refreshChat();
-        await chatsStore.refresh();
-        console.log('1');
-      },
-      onerror: (error: Error) => {
-        chat.value!.messages.push({
-          id: Date.now(),
-          chatId: _chatId,
-          from: 'error',
-          content: error.message,
-          createdAt: new Date().toISOString(),
-        });
-        thinking.value = false;
-        throw error;
-      },
-      onmessage: async (msg: any) => {
-        if (msg.event === 'end') {
-          thinking.value = false;
-        } else if (msg.event === 'data' && msg.data) {
-          updateLastMessage(msg.data);
-        }
-      },
     });
+    if (response.status !== 200) {
+      throw new Error('Failed to send message');
+    }
+
+    const runId = response.headers.get('x-langsmith-run-id');
+
+    thinking.value = false;
+    chat.value.messages.push({
+      id: Date.now(),
+      chatId: _chatId,
+      from: 'ai',
+      content: '',
+      createdAt: new Date().toISOString(),
+    });
+    const aiMessageIndex = chat.value!.messages.length - 1;
+
+    function updateLastMessage(content: string) {
+      const _chat = chat.value!;
+      _chat.messages[aiMessageIndex].content += content;
+      chat.value = _chat;
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('Failed to read response');
+    }
+
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+
+      updateLastMessage(decoder.decode(value));
+    }
+
+    // const runId = currentRunId.value;
+    // if (runId) {
+    //   await shareRun(runId);
+    // }
+    console.log('done', runId);
+    thinking.value = false;
+    // await refreshChat();
+    await chatsStore.refresh();
   } catch (e) {
     const error = e as Error;
     chat.value.messages.push({
