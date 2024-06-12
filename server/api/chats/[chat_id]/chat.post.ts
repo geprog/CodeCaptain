@@ -212,26 +212,12 @@ export default defineEventHandler(async (event) => {
 
   const llmDisplayName = config.ai.model;
 
-  // const result = await answerChain.invoke(
-  //   {
-  //     question: message,
-  //     chat_history: await chatHistory.getMessages(),
-  //   },
-  //   {
-  //     tags: ['model:' + llmDisplayName, 'RetrieveDocs'],
-  //     metadata: {
-  //       conversation_id: chat.id,
-  //       llm: llmDisplayName,
-  //     },
-  //   },
-  // );
-
   let runIdResolver: (runId: string) => void;
   const runIdPromise = new Promise<string>((resolve) => {
     runIdResolver = resolve;
   });
 
-  const stream = await answerChain.streamLog(
+  const stream = await answerChain.stream(
     {
       question: message,
       chat_history: await chatHistory.getMessages(),
@@ -250,23 +236,23 @@ export default defineEventHandler(async (event) => {
         },
       ],
     },
-    {
-      includeNames: ['FindDocs'],
-    },
+    // {
+    //   includeNames: ['FindDocs'],
+    // },
   );
 
   async function finishChat(result: string) {
     // summarize the dialog when we got the second question from the user
-    // if (messages.length >= 2 && chat.name.startsWith('Chat with')) {
-    //   const context = [
-    //     'Provide keywords or a short summary with maximal six words for the following dialog:\n',
-    //     ...messages.map((m) => `${m.from}: ${m.content}`),
-    //     `user: ${message}`,
-    //     `ai: ${result}`,
-    //   ];
-    //   const chatSummary = await model.invoke(context.join('\n'));
-    //   await db.update(chatSchema).set({ name: chatSummary }).where(eq(chatSchema.id, chat.id)).run();
-    // }
+    if (messages.length >= 2 && chat && chat.name.startsWith('Chat with')) {
+      const context = [
+        'Provide keywords or a short summary with maximal six words for the following dialog:\n',
+        ...messages.map((m) => `${m.from}: ${m.content}`),
+        `user: ${message}`,
+        `ai: ${result}`,
+      ];
+      const chatSummary = await llm.invoke(context.join('\n'));
+      await db.update(chatSchema).set({ name: chatSummary.content.toString() }).where(eq(chatSchema.id, chat.id)).run();
+    }
 
     await db
       .insert(chatMessageSchema)
@@ -307,7 +293,6 @@ export default defineEventHandler(async (event) => {
   // setResponseHeader(event, 'Content-Type', 'text/html');
   // setResponseHeader(event, 'Cache-Control', 'no-cache');
   // setResponseHeader(event, 'Transfer-Encoding', 'chunked');
-  // return sendStream(event, clientStream);
 
   const runId = await runIdPromise;
   return new Response(clientStream, {
