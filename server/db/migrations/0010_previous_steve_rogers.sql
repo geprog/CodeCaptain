@@ -1,0 +1,1 @@
+ALTER TABLE `userForges` RENAME COLUMN `accessTokenExpiresIn` TO `accessTokenExpiresAt`;

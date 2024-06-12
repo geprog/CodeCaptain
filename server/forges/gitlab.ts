@@ -72,9 +72,11 @@ export class Gitlab implements Forge {
       throw new Error('Error getting access token');
     }
 
+    const now = Math.floor(Date.now() / 1000);
+
     return {
       accessToken: response.access_token,
-      accessTokenExpiresIn: response.expires_in,
+      accessTokenExpiresAt: now + response.expires_in,
       refreshToken: response.refresh_token,
     };
   }
@@ -95,9 +97,11 @@ export class Gitlab implements Forge {
       throw new Error('Error refreshing access token');
     }
 
+    const now = Math.floor(Date.now() / 1000);
+
     return {
       accessToken: response.access_token,
-      accessTokenExpiresIn: response.expires_in,
+      accessTokenExpiresAt: now + response.expires_in,
       refreshToken: response.refresh_token,
     };
   }

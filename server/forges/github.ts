@@ -62,14 +62,23 @@ export class Github implements Forge {
     }&scope=public_repo&state=${state}&scope=${scopes.join('%20')}`;
   }
 
-  public async getUserInfo(token: string): Promise<ForgeUser> {
-    const client = this.getClient(token);
+  public async getUserInfo(accessToken: string): Promise<ForgeUser> {
+    const client = this.getClient(accessToken);
     const githubUser = await client.request('GET /user');
 
+    let email = githubUser.data.email;
+    // if no public email, check the private ones
+    if (!email) {
+      const emails = await client.request('GET /user/emails');
+      const primaryEmail = emails.data.find((email: any) => email.primary);
+      // Still no email
+      email = primaryEmail?.email ?? null;
+    }
+
     return {
-      name: githubUser.data.name,
+      name: githubUser.data.name || githubUser.data.login,
       avatarUrl: githubUser.data.avatar_url,
-      email: githubUser.data.email,
+      email,
       remoteUserId: githubUser.data.id.toString(),
     };
   }
@@ -95,9 +104,11 @@ export class Github implements Forge {
       throw new Error('Error getting access token');
     }
 
+    const now = Math.floor(Date.now() / 1000);
+
     return {
       accessToken: response.access_token,
-      accessTokenExpiresIn: response.expires_in || -1, // We use -1 as github access_tokens issued by oauth apps don't expire
+      accessTokenExpiresAt: response.expires_in ? now + response.expires_in : -1, // We use -1 as github access_tokens issued by oauth apps don't expire
       refreshToken: response.refresh_token || null, // Use null as oauth apps don't return refresh tokens
     };
   }
@@ -117,10 +128,12 @@ export class Github implements Forge {
       throw new Error('Error refreshing access token');
     }
 
+    const now = Math.floor(Date.now() / 1000);
+
     return {
       accessToken: response.access_token,
-      accessTokenExpiresIn: response.expires_in,
-      refreshToken: null, // TODO: we use an empty string for now as github access_tokens don't expire
+      accessTokenExpiresAt: response.expires_in ? now + response.expires_in : -1,
+      refreshToken,
     };
   }
 
