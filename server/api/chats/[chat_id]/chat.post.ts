@@ -1,4 +1,4 @@
-import { chatMessageSchema, chatSchema, repoSchema } from '~/server/schemas';
+import { chatMessageSchema, chatSchema, orgReposSchema, orgSchema, repoSchema } from '~/server/schemas';
 import { and, eq } from 'drizzle-orm';
 
 import type { Document } from '@langchain/core/documents';
