@@ -23,8 +23,7 @@
     </div>
 
     <div v-if="indexing" class="mx-auto flex flex-col items-center gap-4 pt-8 w-full">
-      <span class="text-2xl">Whoho lets go and do some indexing.</span>
-      <img src="~/assets/loading.gif" alt="loading" />
+      <span class="text-2xl">Ahoy! Captain Code is charting the course through your repository 🚢</span>
       <div
         v-if="indexingLog"
         class="flex flex-col w-full min-h-0 overflow-auto rounded p-2 ring-1 ring-stone-200 dark:ring-neutral-800"
@@ -34,14 +33,8 @@
     </div>
 
     <div v-else-if="!repo.lastFetch" class="flex flex-col m-auto gap-4">
-      <p class="text-2xl mx-auto">Should we start indexing your repository?</p>
-      <UButton
-        class="mx-auto"
-        icon="i-ion-cloud-download-outline"
-        label="Index repository"
-        variant="outline"
-        @click="reIndex"
-      />
+      <p class="text-2xl mx-auto">Should I start searching for some hidden treasures here? 🏝️</p>
+      <UButton class="mx-auto" icon="i-ion-ios-search" label="Index repository" variant="outline" @click="reIndex" />
     </div>
 
     <div v-else>
@@ -72,6 +65,8 @@
 </template>
 
 <script lang="ts" setup>
+import confetti from 'canvas-confetti';
+
 const { refresh: refreshRepos } = await useRepositoriesStore();
 const { chats, refresh: refreshChats } = await useChatsStore();
 
@@ -107,6 +102,12 @@ async function reIndex() {
       const text = new TextDecoder().decode(value);
       indexingLog.value.push(text);
     }
+
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+    });
 
     toast.add({
       title: 'Success',

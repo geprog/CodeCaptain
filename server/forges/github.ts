@@ -55,11 +55,11 @@ export class Github implements Forge {
     return parseInt(match[1]);
   }
 
-  public getOauthRedirectUrl({ state }: { state: string }): string {
+  public getOauthRedirectUrl({ state, redirectUri }: { state: string; redirectUri: string }): string {
     const scopes = ['read:user', 'user:email', 'repo'];
     return `https://github.com/login/oauth/authorize?client_id=${
       this.clientId
-    }&scope=public_repo&state=${state}&scope=${scopes.join('%20')}`;
+    }&scope=public_repo&state=${state}&scope=${scopes.join('%20')}&redirect_uri=${redirectUri}`;
   }
 
   public async getUserInfo(accessToken: string): Promise<ForgeUser> {
