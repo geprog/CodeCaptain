@@ -84,7 +84,8 @@ export default defineEventHandler(async (event) => {
         // index issues
         let page = 1;
         const perPage = 50;
-        const since = repo.lastFetch || undefined;
+        // const since = repo.lastFetch || undefined; // TODO: only fetch issues that were updated since the last fetch
+        const since = undefined;
         log('fetching issues since', since, '...');
         const issueDocs: Document[] = [];
         while (true) {

@@ -1,9 +1,14 @@
 <template>
   <div v-if="repo && chat" class="flex items-center flex-col w-full flex-grow">
     <div class="flex w-full p-2 items-center">
-      <NuxtLink :to="`/repos/${repo.id}`" class="flex gap-4 mr-auto items-center text-2xl">
-        <img v-if="repo.avatarUrl" :src="repo.avatarUrl" alt="avatar" class="w-8 h-8 rounded-md dark:bg-white" />
-        <span>{{ chat.name }}</span>
+      <NuxtLink :to="`/repos/${repo.id}`" class="flex min-w-0 gap-4 mr-auto items-center text-2xl">
+        <img
+          v-if="repo.avatarUrl"
+          :src="repo.avatarUrl"
+          alt="avatar"
+          class="w-8 h-8 flex-shrink-0 rounded-md dark:bg-white"
+        />
+        <span class="truncate">{{ chat.name }}</span>
       </NuxtLink>
 
       <div class="flex gap-2">
@@ -155,9 +160,32 @@ async function sendMessage() {
   thinking.value = true;
 
   try {
-    let aiMessageIndex: number;
-    let currentRunId: string | null = null;
     const _chatId = chat.value.id;
+
+    const response = await fetch(`/api/chats/${chat.value.id}/chat`, {
+      method: 'POST',
+      body: JSON.stringify({
+        message,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (response.status !== 200) {
+      throw new Error('Failed to send message');
+    }
+
+    const runId = response.headers.get('x-langsmith-run-id');
+
+    thinking.value = false;
+    chat.value.messages.push({
+      id: Date.now(),
+      chatId: _chatId,
+      from: 'ai',
+      content: '',
+      createdAt: new Date().toISOString(),
+    });
+    const aiMessageIndex = chat.value!.messages.length - 1;
 
     function updateLastMessage(content: string) {
       const _chat = chat.value!;
@@ -165,113 +193,28 @@ async function sendMessage() {
       chat.value = _chat;
     }
 
-    // await fetchEventSource(`/api/chats/${chat.value.id}/chat`, {
-    //   method: 'POST',
-    //   body: JSON.stringify({
-    //     message,
-    //   }),
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   openWhenHidden: true,
-    //   onopen: async (response: Response) => {
-    //     currentRunId = response.headers.get('x-langsmith-run-id');
-    //     chat.value!.messages.push({
-    //       id: Date.now(),
-    //       chatId: _chatId,
-    //       from: 'ai',
-    //       content: '',
-    //       createdAt: new Date().toISOString(),
-    //     });
-    //     aiMessageIndex = chat.value!.messages.length - 1;
-    //   },
-    //   onclose: async () => {
-    //     // const runId = currentRunId.value;
-    //     // if (runId) {
-    //     //   await shareRun(runId);
-    //     // }
-    //     console.log('done', currentRunId);
-    //     thinking.value = false;
-    //     // await refreshChat();
-    //     await chatsStore.refresh();
-    //   },
-    //   onerror: (error: Error) => {
-    //     chat.value!.messages.push({
-    //       id: Date.now(),
-    //       chatId: _chatId,
-    //       from: 'error',
-    //       content: error.message,
-    //       createdAt: new Date().toISOString(),
-    //     });
-    //     thinking.value = false;
-    //     throw error;
-    //   },
-    //   onmessage: async (msg: any) => {
-    //     if (msg.event === 'end') {
-    //       thinking.value = false;
-    //     } else if (msg.event === 'data' && msg.data) {
-    //       updateLastMessage(msg.data);
-    //     }
-    //   },
-    // });
-
-    const remoteChain = new RemoteRunnable({
-      url: `/api/chats/${chat.value.id}`,
-      options: {
-        timeout: 60000,
-      },
-    });
-
-    const sourceStepName = 'FindDocs';
-    const streamLog = remoteChain.streamLog(
-      {
-        message,
-      },
-      {
-        // configurable: {
-        //   llm: llmDisplayName,
-        // },
-        // tags: ['model:' + llmDisplayName],
-        // metadata: {
-        //   conversation_id: conversationId,
-        //   llm: llmDisplayName,
-        // },
-      },
-      {
-        includeNames: [sourceStepName],
-      },
-    );
-
-    let accumulatedMessage = '';
-    let sources: Source[] | undefined = undefined;
-    let streamedResponse: Record<string, any> = {};
-    for await (const chunk of streamLog) {
-      streamedResponse = applyPatch(streamedResponse, chunk.ops).newDocument;
-      if (Array.isArray(streamedResponse?.logs?.[sourceStepName]?.final_output?.output)) {
-        sources = streamedResponse.logs[sourceStepName].final_output.output.map((doc: Record<string, any>) => ({
-          url: doc.metadata.source,
-          title: doc.metadata.title,
-        }));
-      }
-      if (streamedResponse.id !== undefined) {
-        currentRunId = streamedResponse.id;
-      }
-      if (Array.isArray(streamedResponse?.streamed_output)) {
-        accumulatedMessage = streamedResponse.streamed_output.join('');
-        console.log('accumulatedMessage', accumulatedMessage);
-        updateLastMessage(accumulatedMessage);
-      }
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('Failed to read response');
     }
 
-    console.log('done', currentRunId, sources, accumulatedMessage);
+    const decoder = new TextDecoder();
 
-    // await $fetch(`/api/chats/${chat.value.id}/chat`, {
-    //   method: 'POST',
-    //   body: JSON.stringify({
-    //     message,
-    //   }),
-    // });
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
 
+      updateLastMessage(decoder.decode(value));
+    }
+
+    // const runId = currentRunId.value;
+    // if (runId) {
+    //   await shareRun(runId);
+    // }
+    console.log('done', runId);
+    thinking.value = false;
     // await refreshChat();
     await chatsStore.refresh();
     thinking.value = false;

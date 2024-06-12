@@ -6,35 +6,35 @@ import type { Document } from '@langchain/core/documents';
 import { Runnable, RunnableSequence, RunnableMap, RunnableBranch, RunnableLambda } from '@langchain/core/runnables';
 import { HumanMessage, AIMessage, BaseMessage } from '@langchain/core/messages';
 import { BaseChatModel } from '@langchain/core/language_models/chat_models';
-import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
+import { ChatOpenAI } from '@langchain/openai';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { PromptTemplate, ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts';
 import { ChatMessageHistory } from 'langchain/memory';
 
-const RESPONSE_TEMPLATE = `You are an expert programmer and problem-solver, tasked to answer any question about Langchain.
+// Combine search results together into a coherent answer.
+// Do not repeat text.
+// Cite search results using [\${{number}}] notation.
+// Only cite the most relevant results that answer the question accurately.
+// Place these citations at the end of the sentence or paragraph that reference them - do not put them all at the end.
+// If different results refer to different entities within the same name, write separate answers for each entity.
+// Generate a comprehensive and informative answer (but no more than 80 words) for a given question based solely on the provided search results (URL and content).
+
+const RESPONSE_TEMPLATE = `You are an expert programmer and problem-solver, tasked to answer any question about a codebase and the project around it.
 Using the provided context, answer the user's question to the best of your ability using the resources provided.
-Generate a comprehensive and informative answer (but no more than 80 words) for a given question based solely on the provided search results (URL and content).
-You must only use information from the provided search results.
+You should mainly reply using the provided context, but you can also use your general knowledge of programming to provide a more accurate answer.
 Use an unbiased and journalistic tone.
-Combine search results together into a coherent answer.
-Do not repeat text.
-Cite search results using [\${{number}}] notation.
-Only cite the most relevant results that answer the question accurately.
-Place these citations at the end of the sentence or paragraph that reference them - do not put them all at the end.
-If different results refer to different entities within the same name, write separate answers for each entity.
 If there is nothing in the context relevant to the question at hand, just say "Hmm, I'm not sure." Don't try to make up an answer.
 
-You should use bullet points in your answer for readability
-Put citations where they apply rather than putting them all at the end.
+You should use bullet points and markdown in your answer for readability.
+Put code citations where they apply rather than putting them all at the end.
 
-Anything between the following \`context\`  html blocks is retrieved from a knowledge bank, not part of the conversation with the user.
+Anything between the following \`context\` html blocks is retrieved from a knowledge bank, not part of the conversation with the user.
 
 <context>
 {context}
 <context/>
 
-REMEMBER: If there is no relevant information within the context, just say "Hmm, I'm not sure." Don't try to make up an answer.
-Anything between the preceding 'context' html blocks is retrieved from a knowledge bank, not part of the conversation with the user.`;
+REMEMBER: Anything between the preceding 'context' html blocks is retrieved from a knowledge bank, not part of the conversation with the user.`;
 
 const REPHRASE_TEMPLATE = `Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
 
@@ -212,26 +212,12 @@ export default defineEventHandler(async (event) => {
 
   const llmDisplayName = config.ai.model;
 
-  // const result = await answerChain.invoke(
-  //   {
-  //     question: message,
-  //     chat_history: await chatHistory.getMessages(),
-  //   },
-  //   {
-  //     tags: ['model:' + llmDisplayName, 'RetrieveDocs'],
-  //     metadata: {
-  //       conversation_id: chat.id,
-  //       llm: llmDisplayName,
-  //     },
-  //   },
-  // );
-
   let runIdResolver: (runId: string) => void;
   const runIdPromise = new Promise<string>((resolve) => {
     runIdResolver = resolve;
   });
 
-  const stream = await answerChain.streamLog(
+  const stream = await answerChain.stream(
     {
       question: message,
       chat_history: await chatHistory.getMessages(),
@@ -250,23 +236,23 @@ export default defineEventHandler(async (event) => {
         },
       ],
     },
-    {
-      includeNames: ['FindDocs'],
-    },
+    // {
+    //   includeNames: ['FindDocs'],
+    // },
   );
 
   async function finishChat(result: string) {
     // summarize the dialog when we got the second question from the user
-    // if (messages.length >= 2 && chat.name.startsWith('Chat with')) {
-    //   const context = [
-    //     'Provide keywords or a short summary with maximal six words for the following dialog:\n',
-    //     ...messages.map((m) => `${m.from}: ${m.content}`),
-    //     `user: ${message}`,
-    //     `ai: ${result}`,
-    //   ];
-    //   const chatSummary = await model.invoke(context.join('\n'));
-    //   await db.update(chatSchema).set({ name: chatSummary }).where(eq(chatSchema.id, chat.id)).run();
-    // }
+    if (messages.length >= 2 && chat && chat.name.startsWith('Chat with')) {
+      const context = [
+        'Provide keywords or a short summary with maximal six words for the following dialog:\n',
+        ...messages.map((m) => `${m.from}: ${m.content}`),
+        `user: ${message}`,
+        `ai: ${result}`,
+      ];
+      const chatSummary = await llm.invoke(context.join('\n'));
+      await db.update(chatSchema).set({ name: chatSummary.content.toString() }).where(eq(chatSchema.id, chat.id)).run();
+    }
 
     await db
       .insert(chatMessageSchema)
@@ -293,10 +279,10 @@ export default defineEventHandler(async (event) => {
   const clientStream = new ReadableStream({
     async start(controller) {
       for await (const chunk of stream) {
-        result += chunk;
-        controller.enqueue(textEncoder.encode('event: data\ndata: ' + chunk.content + '\n\n'));
+        const message = chunk.content.toString();
+        result += message;
+        controller.enqueue(textEncoder.encode(message));
       }
-      controller.enqueue(textEncoder.encode('event: end\n\n'));
 
       await finishChat(result);
 
@@ -307,7 +293,6 @@ export default defineEventHandler(async (event) => {
   // setResponseHeader(event, 'Content-Type', 'text/html');
   // setResponseHeader(event, 'Cache-Control', 'no-cache');
   // setResponseHeader(event, 'Transfer-Encoding', 'chunked');
-  // return sendStream(event, clientStream);
 
   const runId = await runIdPromise;
   return new Response(clientStream, {
