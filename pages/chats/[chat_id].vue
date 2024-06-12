@@ -105,8 +105,6 @@
 <script lang="ts" setup>
 import Markdown from '~/components/Markdown.vue';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { RemoteRunnable } from 'langchain/runnables/remote';
-import { applyPatch } from '@langchain/core/utils/json_patch';
 
 const chatsStore = await useChatsStore();
 
@@ -194,6 +192,7 @@ async function sendMessage() {
         thinking.value = false;
         // await refreshChat();
         await chatsStore.refresh();
+        console.log('1');
       },
       onerror: (error: Error) => {
         chat.value!.messages.push({
@@ -214,17 +213,6 @@ async function sendMessage() {
         }
       },
     });
-
-    // await $fetch(`/api/chats/${chat.value.id}/chat`, {
-    //   method: 'POST',
-    //   body: JSON.stringify({
-    //     message,
-    //   }),
-    // });
-
-    // await refreshChat();
-    await chatsStore.refresh();
-    thinking.value = false;
   } catch (e) {
     const error = e as Error;
     chat.value.messages.push({
