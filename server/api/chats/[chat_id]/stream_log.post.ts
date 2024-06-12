@@ -167,13 +167,14 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody<{
-    message: string;
+    input: { message: string };
   }>(event);
-  const message = body?.message;
+
+  const message = body?.input?.message;
   if (!message) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'message and chat_id are required',
+      statusMessage: 'message is required',
     });
   }
 
@@ -294,7 +295,7 @@ export default defineEventHandler(async (event) => {
     async start(controller) {
       for await (const chunk of stream) {
         result += chunk;
-        controller.enqueue(textEncoder.encode('event: data\ndata: ' + chunk.content + '\n\n'));
+        controller.enqueue(textEncoder.encode('event: data\ndata: ' + JSON.stringify(chunk) + '\n\n'));
       }
       controller.enqueue(textEncoder.encode('event: end\n\n'));
 
