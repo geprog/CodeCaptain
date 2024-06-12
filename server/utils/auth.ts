@@ -1,5 +1,14 @@
 import type { H3Event } from 'h3';
-import { type User, forgeSchema, repoSchema, userForgesSchema, userReposSchema, userSchema } from '../schemas';
+import {
+  type User,
+  forgeSchema,
+  repoSchema,
+  userForgesSchema,
+  userSchema,
+  orgReposSchema,
+  orgMemberSchema,
+  orgSchema,
+} from '../schemas';
 import { and, eq } from 'drizzle-orm';
 import { getForgeFromDB, ForgeApi } from '~/server/forges';
 
@@ -64,32 +73,53 @@ export async function getUserForgeAPI(user: User, forgeId: number) {
   return new ForgeApi({ ...user, tokens }, forge);
 }
 
-export async function requireAccessToRepo(user: User, repoId: number) {
-  const userRepo = await db
-    .select()
-    .from(userReposSchema)
-    .where(and(eq(userReposSchema.userId, user.id), eq(userReposSchema.repoId, repoId)))
-    .get();
-
-  if (!userRepo) {
-    throw createError({
-      statusCode: 403,
-      statusMessage: 'Access to repo denied',
-    });
-  }
-
-  const repo = await db
+export async function requireAccessToRepo(user: User, repoId: number, role?: 'admin' | 'member') {
+  const res = await db
     .select()
     .from(repoSchema)
-    .where(eq(repoSchema.id, Number(repoId)))
+    .innerJoin(orgReposSchema, eq(orgReposSchema.repoId, repoSchema.id))
+    .innerJoin(orgMemberSchema, eq(orgMemberSchema.orgId, orgReposSchema.orgId))
+    .where(and(eq(orgMemberSchema.userId, user.id), eq(repoSchema.id, repoId)))
     .get();
 
-  if (!repo) {
+  if (!res) {
     throw createError({
       statusCode: 404,
       message: 'Repo not found',
     });
   }
 
-  return repo;
+  if (role && res.orgMembers.role !== role) {
+    throw createError({
+      statusCode: 403,
+      message: 'Access denied',
+    });
+  }
+
+  return res.repos;
+}
+
+export async function requireAccessToOrg(user: User, orgId: number, role?: 'admin' | 'member') {
+  const res = await db
+    .select()
+    .from(orgSchema)
+    .innerJoin(orgMemberSchema, eq(orgMemberSchema.orgId, orgSchema.id))
+    .where(and(eq(orgMemberSchema.userId, user.id), eq(orgSchema.id, orgId)))
+    .get();
+
+  if (!res) {
+    throw createError({
+      statusCode: 404,
+      message: 'Org not found',
+    });
+  }
+
+  if (role && res.orgMembers.role !== role) {
+    throw createError({
+      statusCode: 403,
+      message: 'Access denied',
+    });
+  }
+
+  return res.orgs;
 }

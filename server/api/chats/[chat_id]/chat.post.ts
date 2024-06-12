@@ -1,4 +1,4 @@
-import { chatMessageSchema, chatSchema, repoSchema } from '~/server/schemas';
+import { chatMessageSchema, chatSchema, orgReposSchema, orgSchema, repoSchema } from '~/server/schemas';
 import { and, eq } from 'drizzle-orm';
 
 import type { Document } from '@langchain/core/documents';
@@ -185,11 +185,20 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const _org = await db.select().from(orgSchema).innerJoin(orgReposSchema, eq(orgReposSchema.repoId, repo.id)).get();
+  const openAIToken = _org?.orgs.openAIToken;
+  if (!openAIToken) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'OpenAI token is required',
+    });
+  }
+
   const config = useRuntimeConfig();
 
-  const llm = new ChatOpenAI({ modelName: config.ai.model, openAIApiKey: config.ai.token, temperature: 0 });
+  const llm = new ChatOpenAI({ modelName: config.ai.model, openAIApiKey: openAIToken, temperature: 0 });
 
-  const vectorStore = await getRepoVectorStore(repo.id);
+  const vectorStore = await getRepoVectorStore(repo.id, openAIToken);
 
   const retriever = vectorStore.asRetriever({
     // searchType: 'mmr', // Use max marginal relevance search

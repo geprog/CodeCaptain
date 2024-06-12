@@ -1,14 +1,14 @@
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
 
-  const repoId = getRouterParam(event, 'repo_id');
-  if (!repoId) {
+  const orgId = getRouterParam(event, 'org_id');
+  if (!orgId) {
     throw createError({
       statusCode: 400,
       statusMessage: 'repo_id is required',
     });
   }
 
-  const repo = await requireAccessToRepo(user, parseInt(repoId, 10));
-  return repo;
+  const org = await requireAccessToOrg(user, parseInt(orgId, 10));
+  return org;
 });

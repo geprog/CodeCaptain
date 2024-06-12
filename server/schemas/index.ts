@@ -56,12 +56,6 @@ export const repoSchema = sqliteTable(
 
 export type RepoFromDB = InferSelectModel<typeof repoSchema>;
 
-export const userReposSchema = sqliteTable('userRepos', {
-  id: integer('id').primaryKey(),
-  userId: integer('userId').notNull(),
-  repoId: integer('repoId').notNull(),
-});
-
 export const chatSchema = sqliteTable('chats', {
   id: integer('id').primaryKey(),
   userId: integer('userId').notNull(),
@@ -76,4 +70,23 @@ export const chatMessageSchema = sqliteTable('chatMessages', {
   from: text('from').$type<'user' | 'ai' | 'error'>().notNull(),
   content: text('content').notNull(),
   createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
+});
+
+export const orgSchema = sqliteTable('orgs', {
+  id: integer('id').primaryKey(),
+  name: text('name').notNull(),
+  openAIToken: text('openAIToken'),
+});
+
+export const orgMemberSchema = sqliteTable('orgMembers', {
+  id: integer('id').primaryKey(),
+  orgId: integer('orgId').notNull(),
+  userId: integer('userId').notNull(),
+  role: text('role').$type<'admin' | 'member'>().notNull(),
+});
+
+export const orgReposSchema = sqliteTable('orgRepos', {
+  id: integer('id').primaryKey(),
+  orgId: integer('orgId').notNull(),
+  repoId: integer('repoId').notNull(),
 });

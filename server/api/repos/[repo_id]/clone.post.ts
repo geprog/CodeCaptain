@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { simpleGit } from 'simple-git';
-import { repoSchema } from '~/server/schemas';
+import { orgMemberSchema, orgReposSchema, orgSchema, repoSchema } from '~/server/schemas';
 import { eq } from 'drizzle-orm';
 import { Glob } from 'glob';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
@@ -10,7 +10,7 @@ import { TextLoader } from 'langchain/document_loaders/fs/text';
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
 
-  const _repoId = event.context.params?.repo_id;
+  const _repoId = getRouterParam(event, 'repo_id');
   if (!_repoId) {
     throw createError({
       statusCode: 400,
@@ -19,7 +19,16 @@ export default defineEventHandler(async (event) => {
   }
   const repoId = parseInt(_repoId, 10);
 
-  const repo = await requireAccessToRepo(user, repoId);
+  const repo = await requireAccessToRepo(user, repoId, 'admin');
+
+  const _org = await db.select().from(orgSchema).innerJoin(orgReposSchema, eq(orgReposSchema.repoId, repo.id)).get();
+  const openAIToken = _org?.orgs.openAIToken;
+  if (!openAIToken) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'OpenAI token is required',
+    });
+  }
 
   const config = useRuntimeConfig();
   const folder = path.join(config.data_path, repo.id.toString());
@@ -229,7 +238,7 @@ export default defineEventHandler(async (event) => {
 
         // TODO: support incremental indexing
         await deleteRepoVectorStore(repo.id);
-        const vectorStore = await getRepoVectorStore(repo.id);
+        const vectorStore = await getRepoVectorStore(repo.id, openAIToken);
 
         log('deleted old documents');
 

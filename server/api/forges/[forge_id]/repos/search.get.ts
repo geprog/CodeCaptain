@@ -1,10 +1,10 @@
-import { repoSchema, userReposSchema } from '~/server/schemas';
+import { repoSchema, orgMemberSchema, orgReposSchema } from '~/server/schemas';
 import { and, eq } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
 
-  const forgeId = event.context.params?.forge_id;
+  const forgeId = getRouterParam(event, 'forge_id');
   if (!forgeId) {
     throw createError({
       statusCode: 400,
@@ -23,8 +23,9 @@ export default defineEventHandler(async (event) => {
     await db
       .select()
       .from(repoSchema)
-      .innerJoin(userReposSchema, eq(repoSchema.id, userReposSchema.repoId))
-      .where(and(eq(repoSchema.forgeId, Number(forgeId)), eq(userReposSchema.userId, user.id)))
+      .innerJoin(orgReposSchema, eq(orgReposSchema.repoId, repoSchema.id))
+      .innerJoin(orgMemberSchema, eq(orgMemberSchema.orgId, orgReposSchema.orgId))
+      .where(and(eq(repoSchema.forgeId, Number(forgeId)), eq(orgMemberSchema.userId, user.id)))
       .all()
   ).map((r) => r.repos);
 

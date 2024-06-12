@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const forgeData = await readBody(event);
 
-  const _forgeId = event.context.params?.forge_id;
+  const _forgeId = getRouterParam(event, 'forge_id');
   if (!_forgeId) {
     throw createError({
       message: 'Cannot create forge with a forge_id',

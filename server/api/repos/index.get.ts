@@ -1,4 +1,4 @@
-import { repoSchema, userReposSchema } from '~/server/schemas';
+import { orgMemberSchema, orgReposSchema, repoSchema } from '~/server/schemas';
 import { eq } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
@@ -7,8 +7,9 @@ export default defineEventHandler(async (event) => {
   const repos = await db
     .select()
     .from(repoSchema)
-    .innerJoin(userReposSchema, eq(repoSchema.id, userReposSchema.repoId))
-    .where(eq(userReposSchema.userId, user.id))
+    .innerJoin(orgReposSchema, eq(repoSchema.id, orgReposSchema.repoId))
+    .innerJoin(orgMemberSchema, eq(orgMemberSchema.orgId, orgReposSchema.orgId))
+    .where(eq(orgMemberSchema.userId, user.id))
     .all();
 
   return repos.flatMap((r) => r.repos);

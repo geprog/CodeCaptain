@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { repoSchema, userReposSchema } from '../schemas';
+import { orgReposSchema, repoSchema } from '../schemas';
 import { eq } from 'drizzle-orm';
 
 export async function deleteRepo(repoId: number) {
@@ -15,10 +15,12 @@ export async function deleteRepo(repoId: number) {
     console.error('error while deleting repo folder', e);
   }
 
-  await db.delete(userReposSchema).where(eq(userReposSchema.repoId, repoId)).run();
+  await db.delete(orgReposSchema).where(eq(orgReposSchema.repoId, repoId)).run();
   await db.delete(repoSchema).where(eq(repoSchema.id, repoId)).run();
 
   await deleteRepoVectorStore(repoId);
+
+  // TODO: delete chats
 
   return 'ok';
 }

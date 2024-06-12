@@ -4,7 +4,7 @@ import { eq, and } from 'drizzle-orm';
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
 
-  const _forgeId = event.context.params?.forge_id;
+  const _forgeId = getRouterParam(event, 'forge_id');
   if (!_forgeId) {
     throw createError({
       message: 'Cannot create forge with a forge_id',
