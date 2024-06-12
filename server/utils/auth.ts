@@ -1,13 +1,13 @@
 import type { H3Event } from 'h3';
 import {
-  User,
+  type User,
   forgeSchema,
-  orgMemberSchema,
-  orgReposSchema,
-  orgSchema,
   repoSchema,
   userForgesSchema,
   userSchema,
+  orgReposSchema,
+  orgMemberSchema,
+  orgSchema,
 } from '../schemas';
 import { and, eq } from 'drizzle-orm';
 import { getForgeFromDB, ForgeApi } from '~/server/forges';
@@ -66,7 +66,7 @@ export async function getUserForgeAPI(user: User, forgeId: number) {
   const tokens = {
     accessToken: userForge.accessToken,
     refreshToken: userForge.refreshToken,
-    accessTokenExpiresIn: userForge.accessTokenExpiresIn,
+    accessTokenExpiresAt: userForge.accessTokenExpiresAt,
   };
 
   const forge = getForgeFromDB(forgeModel);

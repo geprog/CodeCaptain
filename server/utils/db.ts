@@ -1,4 +1,4 @@
-import { drizzle, BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { migrate as _migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import path from 'path';
 

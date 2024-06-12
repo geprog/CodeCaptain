@@ -49,7 +49,12 @@
         <Card clickable>
           <div class="flex flex-col items-center justify-between p-2 h-full gap-2 w-64">
             <div class="flex items-center gap-2 mt-2 mx-auto w-full">
-              <img v-if="repo.avatarUrl" :src="repo.avatarUrl" alt="icon" class="w-6 h-6 rounded-md flex-shrink-0" />
+              <img
+                v-if="repo.avatarUrl"
+                :src="repo.avatarUrl"
+                alt="icon"
+                class="w-6 h-6 rounded-md flex-shrink-0 dark:bg-white"
+              />
               <UIcon v-else name="i-mdi-source-branch" class="w-6 h-6 flex-shrink-0" />
               <span class="font-semibold text-xl truncate text-center">{{ repo.name }}</span>
             </div>

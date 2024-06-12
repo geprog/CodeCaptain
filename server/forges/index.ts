@@ -1,7 +1,17 @@
 import { Gitlab } from './gitlab';
-import { Forge as ForgeModel, userForgesSchema } from '~/server/schemas';
+import { type Forge as ForgeModel, userForgesSchema } from '~/server/schemas';
 import { Github } from './github';
-import { Credentials, Forge, ForgeUser, Issue, PaginatedList, Pagination, Repo, Tokens, UserWithTokens } from './types';
+import type {
+  Credentials,
+  Forge,
+  ForgeUser,
+  Issue,
+  PaginatedList,
+  Pagination,
+  Repo,
+  Tokens,
+  UserWithTokens,
+} from './types';
 import { eq } from 'drizzle-orm';
 
 export class ForgeApi {
@@ -15,11 +25,13 @@ export class ForgeApi {
 
   private async refreshTokenIfNeeded(user: UserWithTokens): Promise<Tokens> {
     // skip refreshing tokens if they don't expire (e.g. Github)
-    if (user.tokens.accessTokenExpiresIn === -1) {
+    if (user.tokens.accessTokenExpiresAt === -1) {
       return user.tokens;
     }
 
-    if (user.tokens.accessTokenExpiresIn * 1000 > Date.now()) {
+    const now = Math.floor(Date.now() / 1000);
+
+    if (user.tokens.accessTokenExpiresAt > now) {
       return user.tokens;
     }
 

@@ -2,10 +2,10 @@ import path from 'node:path';
 import { simpleGit } from 'simple-git';
 import { orgMemberSchema, orgReposSchema, orgSchema, repoSchema } from '~/server/schemas';
 import { eq } from 'drizzle-orm';
-import { TextLoader } from 'langchain/document_loaders/fs/text';
-import { CharacterTextSplitter, RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { Document } from 'langchain/document';
 import { Glob } from 'glob';
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { Document } from 'langchain/document';
+import { TextLoader } from 'langchain/document_loaders/fs/text';
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event);
@@ -85,16 +85,16 @@ export default defineEventHandler(async (event) => {
 
         const docs: Document[] = [];
 
-        const splitter = new CharacterTextSplitter({
-          separator: ' ',
-          chunkSize: 2000,
+        const splitter = new RecursiveCharacterTextSplitter({
           chunkOverlap: 200,
+          chunkSize: 4000,
         });
 
         // index issues
         let page = 1;
         const perPage = 50;
-        const since = repo.lastFetch || undefined;
+        // const since = repo.lastFetch || undefined; // TODO: only fetch issues that were updated since the last fetch
+        const since = undefined;
         log('fetching issues since', since, '...');
         const issueDocs: Document[] = [];
         while (true) {
@@ -236,6 +236,7 @@ export default defineEventHandler(async (event) => {
 
         log({ docs: docs.length });
 
+        // TODO: support incremental indexing
         await deleteRepoVectorStore(repo.id);
         const vectorStore = await getRepoVectorStore(repo.id, openAIToken);
 

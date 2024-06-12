@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3';
-import { Forge, Credentials, Tokens, ForgeUser, Repo, PaginatedList, Pagination, Issue } from './types';
-import { Forge as DBForge } from '~/server/schemas';
+import type { Forge, Credentials, Tokens, ForgeUser, Repo, PaginatedList, Pagination, Issue } from './types';
+import { type Forge as DBForge } from '~/server/schemas';
 import { Octokit } from 'octokit';
 import type { ResponseHeaders } from '@octokit/types';
 
@@ -55,21 +55,30 @@ export class Github implements Forge {
     return parseInt(match[1]);
   }
 
-  public getOauthRedirectUrl({ state }: { state: string }): string {
+  public getOauthRedirectUrl({ state, redirectUri }: { state: string; redirectUri: string }): string {
     const scopes = ['read:user', 'user:email', 'repo'];
     return `https://github.com/login/oauth/authorize?client_id=${
       this.clientId
-    }&scope=public_repo&state=${state}&scope=${scopes.join('%20')}`;
+    }&scope=public_repo&state=${state}&scope=${scopes.join('%20')}&redirect_uri=${redirectUri}`;
   }
 
-  public async getUserInfo(token: string): Promise<ForgeUser> {
-    const client = this.getClient(token);
+  public async getUserInfo(accessToken: string): Promise<ForgeUser> {
+    const client = this.getClient(accessToken);
     const githubUser = await client.request('GET /user');
 
+    let email = githubUser.data.email;
+    // if no public email, check the private ones
+    if (!email) {
+      const emails = await client.request('GET /user/emails');
+      const primaryEmail = emails.data.find((email: any) => email.primary);
+      // Still no email
+      email = primaryEmail?.email ?? null;
+    }
+
     return {
-      name: githubUser.data.name,
+      name: githubUser.data.name || githubUser.data.login,
       avatarUrl: githubUser.data.avatar_url,
-      email: githubUser.data.email,
+      email,
       remoteUserId: githubUser.data.id.toString(),
     };
   }
@@ -95,9 +104,11 @@ export class Github implements Forge {
       throw new Error('Error getting access token');
     }
 
+    const now = Math.floor(Date.now() / 1000);
+
     return {
       accessToken: response.access_token,
-      accessTokenExpiresIn: response.expires_in || -1, // We use -1 as github access_tokens issued by oauth apps don't expire
+      accessTokenExpiresAt: response.expires_in ? now + response.expires_in : -1, // We use -1 as github access_tokens issued by oauth apps don't expire
       refreshToken: response.refresh_token || null, // Use null as oauth apps don't return refresh tokens
     };
   }
@@ -117,26 +128,60 @@ export class Github implements Forge {
       throw new Error('Error refreshing access token');
     }
 
+    const now = Math.floor(Date.now() / 1000);
+
     return {
       accessToken: response.access_token,
-      accessTokenExpiresIn: response.expires_in,
-      refreshToken: null, // TODO: we use an empty string for now as github access_tokens don't expire
+      accessTokenExpiresAt: response.expires_in ? now + response.expires_in : -1,
+      refreshToken,
     };
   }
 
   public async getRepos(token: string, search?: string, pagination?: Pagination): Promise<PaginatedList<Repo>> {
     const client = this.getClient(token);
 
+    if (!search || search?.length < 1) {
+      return this.getRecentRepos(token, pagination);
+    }
+
     const perPage = pagination?.perPage || 10;
     const repos = await client.request('GET /search/repositories', {
       q: `is:public fork:false archived:false ${search}`.trim(), // TODO: filter by owned repos
       per_page: perPage,
-      sort: 'stars',
+      sort: 'updated',
       page: pagination?.page,
     });
 
     return {
       items: repos.data.items.map(
+        (repo) =>
+          ({
+            name: repo.full_name,
+            cloneUrl: repo.clone_url,
+            id: repo.id,
+            forgeId: this.forgeId,
+            url: repo.url,
+            defaultBranch: repo.default_branch,
+            avatarUrl: repo.owner?.avatar_url,
+          }) satisfies Repo,
+      ),
+      total: this.getTotalPagesFromHeaders(repos.headers) * perPage,
+    };
+  }
+
+  private async getRecentRepos(token: string, pagination?: Pagination): Promise<PaginatedList<Repo>> {
+    const client = this.getClient(token);
+
+    const perPage = pagination?.perPage || 10;
+    const repos = await client.request('GET /user/repos', {
+      per_page: perPage,
+      sort: 'pushed',
+      direction: 'desc',
+      page: pagination?.page,
+    });
+
+    return {
+      items: repos.data.map(
         (repo) =>
           ({
             name: repo.full_name,

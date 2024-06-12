@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3';
-import { User, forgeSchema, orgMemberSchema, orgSchema, userForgesSchema, userSchema } from '~/server/schemas';
+import { type User, forgeSchema, orgMemberSchema, orgSchema, userForgesSchema, userSchema } from '~/server/schemas';
 import { and, eq } from 'drizzle-orm';
 import { getForgeFromDB } from '~/server/forges';
 
@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
         forgeId: forgeModel.id,
         remoteUserId: oauthUser.remoteUserId,
         accessToken: tokens.accessToken,
-        accessTokenExpiresIn: tokens.accessTokenExpiresIn,
+        accessTokenExpiresAt: tokens.accessTokenExpiresAt,
         refreshToken: tokens.refreshToken,
       })
       .onConflictDoUpdate({
@@ -78,7 +78,7 @@ export default defineEventHandler(async (event) => {
         set: {
           remoteUserId: oauthUser.remoteUserId,
           accessToken: tokens.accessToken,
-          accessTokenExpiresIn: tokens.accessTokenExpiresIn,
+          accessTokenExpiresAt: tokens.accessTokenExpiresAt,
           refreshToken: tokens.refreshToken,
         },
       })
@@ -118,7 +118,7 @@ export default defineEventHandler(async (event) => {
       .update(userForgesSchema)
       .set({
         accessToken: tokens.accessToken,
-        accessTokenExpiresIn: tokens.accessTokenExpiresIn,
+        accessTokenExpiresAt: tokens.accessTokenExpiresAt,
         refreshToken: tokens.refreshToken,
       })
       .where(eq(userForgesSchema.id, userForge.id))
@@ -145,7 +145,7 @@ export default defineEventHandler(async (event) => {
       forgeId: forgeModel.id,
       remoteUserId: oauthUser.remoteUserId,
       accessToken: tokens.accessToken,
-      accessTokenExpiresIn: tokens.accessTokenExpiresIn,
+      accessTokenExpiresAt: tokens.accessTokenExpiresAt,
       refreshToken: tokens.refreshToken,
     })
     .run();

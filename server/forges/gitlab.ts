@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3';
-import { Forge, Tokens, Credentials, ForgeUser, Repo, Pagination, PaginatedList, Issue } from './types';
-import { Forge as DBForge } from '~/server/schemas';
+import type { Forge, Tokens, Credentials, ForgeUser, Repo, Pagination, PaginatedList, Issue } from './types';
+import { type Forge as DBForge } from '~/server/schemas';
 import { Gitlab as GitlabApi } from '@gitbeaker/rest';
 
 export class Gitlab implements Forge {
@@ -72,9 +72,11 @@ export class Gitlab implements Forge {
       throw new Error('Error getting access token');
     }
 
+    const now = Math.floor(Date.now() / 1000);
+
     return {
       accessToken: response.access_token,
-      accessTokenExpiresIn: response.expires_in,
+      accessTokenExpiresAt: now + response.expires_in,
       refreshToken: response.refresh_token,
     };
   }
@@ -95,26 +97,37 @@ export class Gitlab implements Forge {
       throw new Error('Error refreshing access token');
     }
 
+    const now = Math.floor(Date.now() / 1000);
+
     return {
       accessToken: response.access_token,
-      accessTokenExpiresIn: response.expires_in,
+      accessTokenExpiresAt: now + response.expires_in,
       refreshToken: response.refresh_token,
     };
   }
 
   public async getRepos(token: string, search?: string, pagination?: Pagination): Promise<PaginatedList<Repo>> {
     const client = this.getClient(token);
-    const repos = await client.Projects.all({ search, membership: true, perPage: 10 });
+    const repos = await client.Projects.all({
+      search,
+      membership: true,
+      perPage: pagination?.perPage || 10,
+      archived: false,
+      orderBy: 'last_activity_at',
+      sort: 'desc',
+    });
     return {
-      items: repos.map((repo) => ({
-        id: repo.id,
-        name: repo.name_with_namespace,
-        url: repo.web_url,
-        forgeId: this.forgeId,
-        cloneUrl: repo.http_url_to_repo,
-        defaultBranch: repo.default_branch,
-        avatarUrl: this.sanitizeAvatarUrl(repo.avatar_url || repo.namespace.avatar_url),
-      })),
+      items: repos
+        .map((repo) => ({
+          id: repo.id,
+          name: repo.name_with_namespace,
+          url: repo.web_url,
+          forgeId: this.forgeId,
+          cloneUrl: repo.http_url_to_repo,
+          defaultBranch: repo.default_branch,
+          avatarUrl: this.sanitizeAvatarUrl(repo.avatar_url || repo.namespace.avatar_url),
+        }))
+        .slice(0, pagination?.perPage || 10), // TODO: fix as perPage seems to be broken
       total: repos.length,
     };
   }

@@ -3,53 +3,83 @@
     <div class="mx-auto flex flex-col items-center max-w-2xl w-full">
       <h1 class="text-2xl mb-4">Add a new repository</h1>
 
-      <div class="flex mb-4 w-full gap-2">
-        <USelectMenu
-          v-model="selectedForge"
-          color="primary"
-          variant="outline"
-          :options="forges || []"
-          option-attribute="host"
-          placeholder="Select a forge ..."
-          class="w-1/2"
-        />
+      <UTabs :items="tabs" v-model="selectedTabIndex" class="w-full">
+        <template #default="{ item, index, selected }">
+          <div class="flex items-center gap-2 relative truncate">
+            <UIcon :name="item.icon" class="w-4 h-4 flex-shrink-0" />
 
-        <UInput
-          color="primary"
-          variant="outline"
-          :model-value="search"
-          placeholder="Search for a repository ..."
-          :disabled="!selectedForge"
-          size="lg"
-          icon="i-heroicons-magnifying-glass-20-solid"
-          class="w-1/2"
-          @update:model-value="updateSearch"
-        />
-      </div>
+            <span class="truncate">{{ index + 1 }}. {{ item.label }}</span>
 
-      <div class="w-full rounded-md border border-zinc-400">
-        <div v-if="loading" class="p-4">Loading ...</div>
+            <span v-if="selected" class="absolute -right-4 w-2 h-2 rounded-full bg-primary-500 dark:bg-primary-400" />
+          </div>
+        </template>
 
-        <div v-else-if="!selectedForge" class="p-4">Select a forge first.</div>
+        <template #select_forge="{ item }">
+          <UCard class="mt-4">
+            <template #header>
+              <p class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+                {{ item.label }}
+              </p>
+            </template>
 
-        <div v-else-if="search.length < 1" class="p-4">Start typing to search for a repository</div>
+            <div class="flex flex-wrap gap-4 mt-2">
+              <div v-for="forge in forges" :key="forge.id">
+                <a
+                  :href="`/api/auth/login?forgeId=${forge.id}&redirectUrl=${urlEncoded(`/repos/add?login=successful&selectedForgeId=${forge.id}`)}`"
+                >
+                  <UButton
+                    :icon="forge.type === 'github' ? 'i-ion-logo-github' : 'i-ion-logo-gitlab'"
+                    :label="`Use ${forge.host}`"
+                  />
+                </a>
+              </div>
+            </div>
+          </UCard>
+        </template>
 
-        <div v-else-if="!repositories || repositories.length === 0" class="p-4">No repository found</div>
+        <template #select_repo="{ item }">
+          <UCard v-if="selectedForge" class="mt-4">
+            <template #header>
+              <p class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+                {{ item.label }} from {{ selectedForge.host }}
+              </p>
+            </template>
 
-        <div
-          v-else
-          v-for="repo in repositories?.slice(0, 5).toSorted((r) => (r.internalId ? 1 : -1)) || []"
-          :key="repo.remoteId"
-          class="flex border-b border-zinc-200 items-center px-2 py-4 gap-2 w-full min-w-0"
-        >
-          <img v-if="repo.avatarUrl" :src="repo.avatarUrl" alt="icon" class="w-6 h-6 rounded-md" />
-          <UIcon v-else name="i-ion-git-branch" class="w-6 h-6" />
-          <span class="font-bold flex-wrap truncate overflow-ellipsis">{{ repo.name }}</span>
-          <div class="flex-grow" />
-          <UButton v-if="repo.internalId" :to="`/repos/${repo.internalId}`" label="Open" />
-          <UButton v-else @click="addRepo(repo.remoteId)" label="Add" />
-        </div>
-      </div>
+            <UInput
+              color="primary"
+              variant="outline"
+              :model-value="search"
+              placeholder="Search for a repository ..."
+              :disabled="!selectedForge"
+              size="lg"
+              icon="i-heroicons-magnifying-glass-20-solid"
+              class="w-full mb-2"
+              :loading="loadingRepos"
+              @update:model-value="updateSearch"
+            />
+
+            <div class="flex flex-col w-full rounded-md">
+              <div v-if="!selectedForge" class="mx-auto mt-8">Select a forge first.</div>
+              <div v-else-if="loadingRepos" class="mx-auto mt-8">Loading repositories ...</div>
+              <div v-else-if="!repositories || repositories.length === 0" class="mx-auto mt-8">No repository found</div>
+
+              <div
+                v-else
+                v-for="repo in repositories || []"
+                :key="repo.remoteId"
+                class="flex border-b border-zinc-200 items-center px-2 py-4 gap-2 w-full min-w-0"
+              >
+                <img v-if="repo.avatarUrl" :src="repo.avatarUrl" alt="icon" class="w-6 h-6 rounded-md dark:bg-white" />
+                <UIcon v-else name="i-ion-git-branch" class="w-6 h-6" />
+                <span class="font-bold flex-wrap truncate overflow-ellipsis">{{ repo.name }}</span>
+                <div class="flex-grow" />
+                <UButton v-if="repo.internalId" :to="`/repos/${repo.internalId}`" label="Open" />
+                <UButton v-else @click="addRepo(repo.remoteId)" label="Add" />
+              </div>
+            </div>
+          </UCard>
+        </template>
+      </UTabs>
     </div>
   </div>
 </template>
@@ -59,28 +89,44 @@ import type { Forge } from '~/server/schemas';
 
 const reposStore = await useRepositoriesStore();
 const toast = useToast();
+const { forges } = await useForgesStore();
+const route = useRoute();
 
-const { data: forges } = await useFetch<Forge[]>('/api/user/forges', {
-  default: () => [],
-});
-const selectedForge = ref<Forge>();
+const urlEncoded = encodeURIComponent;
+
+const tabs = [
+  {
+    label: 'Select a forge',
+    slot: 'select_forge',
+  },
+  {
+    label: 'Select a repository',
+    icon: 'i-ion-ios-git-branch',
+    slot: 'select_repo',
+  },
+];
+const selectedForge = ref<Forge | undefined>(
+  route.query.selectedForgeId
+    ? forges.value.find((f) => f.id === parseInt(route.query.selectedForgeId as string, 10))
+    : undefined,
+);
+const selectedTabIndex = ref(selectedForge.value ? 1 : 0);
 
 const search = ref('');
-const loading = ref(false);
-const { data: repositories } = await useAsyncData(
+const { data: repositories, pending: loadingRepos } = await useAsyncData(
   async () => {
-    if (!selectedForge.value || search.value.length < 1) {
+    if (!selectedForge.value) {
       return Promise.resolve([]);
     }
-
-    loading.value = true;
 
     try {
       const repos = await $fetch(`/api/forges/${selectedForge.value.id}/repos/search`, {
         method: 'GET',
         query: {
           search: search.value,
+          perPage: 5,
         },
+        credentials: 'include',
       });
 
       return repos;
@@ -90,12 +136,11 @@ const { data: repositories } = await useAsyncData(
         description: (error as Error).message,
         color: 'red',
       });
-    } finally {
-      loading.value = false;
     }
   },
   {
     watch: [search, selectedForge],
+    server: false,
   },
 );
 

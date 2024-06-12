@@ -1,7 +1,7 @@
 import { H3Event } from 'h3';
-import { User } from '~/server/schemas';
+import { type User } from '~/server/schemas';
 
-export type Tokens = { accessToken: string; accessTokenExpiresIn: number; refreshToken: string | null };
+export type Tokens = { accessToken: string; accessTokenExpiresAt: number; refreshToken: string | null };
 
 export type Credentials = {
   username: string;
@@ -13,8 +13,8 @@ export type UserWithTokens = User & { tokens: Tokens };
 export type ForgeUser = Omit<User, 'id'> & { remoteUserId: string };
 
 export type Pagination = {
-  page: number;
-  perPage: number;
+  page?: number;
+  perPage?: number;
   since?: Date;
 };
 

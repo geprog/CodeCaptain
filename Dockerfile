@@ -7,7 +7,7 @@ COPY . .
 RUN pnpm build
 
 FROM alpine:3.14 as weaviate
-ARG WEAVIATE_VERSION=1.24.8
+ARG WEAVIATE_VERSION=1.25.1
 WORKDIR /app
 RUN wget https://github.com/weaviate/weaviate/releases/download/v${WEAVIATE_VERSION}/weaviate-v${WEAVIATE_VERSION}-linux-amd64.tar.gz && \
   tar -xzf weaviate-v${WEAVIATE_VERSION}-linux-amd64.tar.gz
@@ -23,5 +23,6 @@ RUN apk update && apk add git musl-dev
 COPY --from=weaviate /app/weaviate /bin/weaviate
 COPY docker/start.sh .
 COPY server/db/migrations /app/migrations
+RUN mkdir /app/data
 COPY --from=builder /app/.output .output
 CMD ["./start.sh"]
