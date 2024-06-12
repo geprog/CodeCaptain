@@ -1,4 +1,4 @@
-import type { H3Event, SessionConfig } from 'h3';
+import type { H3Event } from 'h3';
 import { type User, forgeSchema, repoSchema, userForgesSchema, userReposSchema, userSchema } from '../schemas';
 import { and, eq } from 'drizzle-orm';
 import { getForgeFromDB, ForgeApi } from '~/server/forges';
