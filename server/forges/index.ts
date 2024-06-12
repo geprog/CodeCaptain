@@ -25,11 +25,13 @@ export class ForgeApi {
 
   private async refreshTokenIfNeeded(user: UserWithTokens): Promise<Tokens> {
     // skip refreshing tokens if they don't expire (e.g. Github)
-    if (user.tokens.accessTokenExpiresIn === -1) {
+    if (user.tokens.accessTokenExpiresAt === -1) {
       return user.tokens;
     }
 
-    if (user.tokens.accessTokenExpiresIn * 1000 > Date.now()) {
+    const now = Math.floor(Date.now() / 1000);
+
+    if (user.tokens.accessTokenExpiresAt > now) {
       return user.tokens;
     }
 

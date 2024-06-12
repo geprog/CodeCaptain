@@ -36,7 +36,7 @@ export default defineNuxtConfig({
     head: {
       title: 'CodeCaptain.ai',
       link: [
-        { rel: 'alternate icon', type: 'image/png', href: '/logo.png' },
+        { rel: 'icon', type: 'image/png', href: '/logo.png' },
         { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
       ],
     },

@@ -1,7 +1,7 @@
 import { H3Event } from 'h3';
 import { type User } from '~/server/schemas';
 
-export type Tokens = { accessToken: string; accessTokenExpiresIn: number; refreshToken: string | null };
+export type Tokens = { accessToken: string; accessTokenExpiresAt: number; refreshToken: string | null };
 
 export type Credentials = {
   username: string;
